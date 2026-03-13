@@ -6,7 +6,7 @@ on:
       - dev
 
 env:
-  ecr_repository: access/backend
+  ecr_repository: access/webapp
   ecr_deploy_role: arn:aws:iam::916148231619:role/fiter-us-east-2-dev-ghdeploy-role-access
   ecr_region: us-east-2
   
