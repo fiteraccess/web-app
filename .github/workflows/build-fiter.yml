@@ -16,9 +16,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get the commit message
-        id: commit-message
-        run: echo "::set-output name=message::$(git log -1 --pretty=format:'%s')"
+      - name: Get the current commit hash
+        id: commit
+        run: echo "::set-output name=hash::$(git rev-parse HEAD)"
+
+      - name: Get the short commit message
+        id: short-commit-message
+        run: echo "::set-output name=commit_hash::$(git rev-parse --short HEAD)"
 
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -35,7 +39,17 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.FRONTEND_REPOSITORY }}
+          COMMIT_HASH: ${{ steps.short-commit-message.outputs.commit_hash }}
 
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH
+
+      - name: Print image tags
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.FRONTEND_REPOSITORY }}
+          COMMIT_HASH: ${{ steps.short-commit-message.outputs.commit_hash }}
+        run: echo "The image has been pushed to $ECR_REGISTRY/$ECR_REPOSITORY:latest and $ECR_REGISTRY/$ECR_REPOSITORY:$COMMIT_HASH"
