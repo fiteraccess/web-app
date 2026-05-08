@@ -1,0 +1,41 @@
+name: Build access UI image
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Get the commit message
+        id: commit-message
+        run: echo "::set-output name=message::$(git log -1 --pretty=format:'%s')"
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          web-identity-token-file: ${{ steps.id-token.outputs.token }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.FRONTEND_REPOSITORY }}
+
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
