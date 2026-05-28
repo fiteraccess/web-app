@@ -214,8 +214,11 @@
 }
 
 .logo-image {
-  height: 130px;
+  max-height: 130px;
+  max-width: 100%;
   width: auto;
+  height: auto;
+  object-fit: contain;
   margin: 8px 24px;
   opacity: 0.95;
   transition: opacity 0.3s ease;
