@@ -165,7 +165,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (environment.tenantLogoUrlDark && environment.tenantLogoUrlDark.trim() !== '') {
       this.logoPathDark = environment.tenantLogoUrlDark;
     } else {
-      this.logoPathDark = isTenantSpecific ? `assets/images/${tenant}_home_dark.png` : 'assets/images/access-bank-logo.png';
+      this.logoPathDark = isTenantSpecific
+        ? `assets/images/${tenant}_home_dark.png`
+        : 'assets/images/access-bank-logo.png';
     }
   }
 
