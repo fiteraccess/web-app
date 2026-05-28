@@ -9,8 +9,13 @@
   "description": "Access Bank Digital Banking Platform",
   "icons": [
     {
-      "src": "assets/images/access-bank-logo.png",
-      "sizes": "512x512",
+      "src": "assets/images/access-logo-165x155.png",
+      "sizes": "165x155",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/images/access-logo-469x442.png",
+      "sizes": "469x442",
       "type": "image/png"
     }
   ]
