@@ -13,17 +13,6 @@ import { Router } from '@angular/router';
 /** rxjs Imports */
 
 import { Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
-/**
- * Interface for version information.
- */
-export interface VersionInfo {
-  tenant?: string;
-  mifos?: string;
-  fineract?: {
-    version?: string;
-  };
-}
 
 /** Custom Models */
 import { Alert } from '../core/alert/alert.model';
@@ -42,12 +31,8 @@ import { TenantSelectorComponent } from '../shared/tenant-selector/tenant-select
 import { LoginFormComponent } from './login-form/login-form.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { TwoFactorAuthenticationComponent } from './two-factor-authentication/two-factor-authentication.component';
-import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 import { M3IconComponent } from '../shared/m3-ui/m3-icon/m3-icon.component';
-
-import { VersionService } from '../system/version.service';
 
 /**
  * Login component.
@@ -65,40 +50,17 @@ import { VersionService } from '../system/version.service';
     LoginFormComponent,
     ResetPasswordComponent,
     TwoFactorAuthenticationComponent,
-    MatMenuTrigger,
-    FaIconComponent,
-    MatMenu,
-    MatMenuItem,
     M3IconComponent
   ]
 })
 export class LoginComponent implements OnInit, OnDestroy {
   /** Whether to show the tenant selector dropdown */
   showTenantSelector = true;
-  /** Show version info table if env allows */
-  displayBackendInfo = environment.displayBackEndInfo !== 'false';
-  /** Production mode - minimal hero with branding only */
-  productionMode = environment.productionMode === true;
 
   private alertService = inject(AlertService);
   private settingsService = inject(SettingsService);
   private themingService = inject(ThemingService);
   private router = inject(Router);
-
-  private versionService = inject(VersionService);
-
-  public environment = environment;
-
-  /** Version info for display */
-  versions: VersionInfo = {};
-  /** Server info for display */
-  server: string = '';
-
-  /** Get tenant display name with first letter capitalized */
-  get tenantDisplayName(): string {
-    const tenant = this.versions?.tenant || this.settingsService.tenantIdentifier || 'default';
-    return tenant.charAt(0).toUpperCase() + tenant.slice(1).toLowerCase();
-  }
 
   /** True if password requires a reset. */
   resetPassword = false;
@@ -106,8 +68,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   twoFactorAuthenticationRequired = false;
   /** Subscription to alerts. */
   alert$: Subscription;
-  logoPath = 'assets/images/default_home.png';
-  logoPathDark = 'assets/images/white-mifos.png';
+  logoPath = 'assets/images/access-bank-logo.png';
+  logoPathDark = 'assets/images/access-bank-logo.png';
   /** Subscription to theme changes. */
   theme$: Subscription;
 
@@ -145,35 +107,6 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.updateLogo();
       }
     });
-
-    // Load version info for table
-    this.versionService
-      .getBackendInfo()
-      .pipe(take(1))
-      .subscribe(
-        (info: any) => {
-          this.versions = {
-            tenant: this.settingsService.tenantIdentifier,
-            mifos: info?.mifos || info?.mifosX || info?.mifos_x || info?.version || environment.version,
-            fineract:
-              typeof info?.fineract === 'object' && info?.fineract !== null
-                ? { version: info.fineract.version }
-                : typeof info?.fineract === 'string'
-                  ? { version: info.fineract }
-                  : info?.fineractX || info?.fineract_x
-                    ? { version: info.fineractX || info.fineract_x }
-                    : { version: info?.git?.build?.version }
-          };
-        },
-        () => {
-          this.versions = {
-            tenant: this.settingsService.tenantIdentifier,
-            mifos: environment.version,
-            fineract: { version: '' }
-          };
-        }
-      );
-    this.server = this.settingsService.server;
   }
 
   /**
@@ -225,22 +158,24 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (environment.tenantLogoUrl && environment.tenantLogoUrl.trim() !== '') {
       this.logoPath = environment.tenantLogoUrl;
     } else {
-      this.logoPath = isTenantSpecific ? `assets/images/${tenant}_home.png` : 'assets/images/default_home.png';
+      this.logoPath = isTenantSpecific ? `assets/images/${tenant}_home.png` : 'assets/images/access-bank-logo.png';
     }
 
     // Set dark mode logo (env override takes priority)
     if (environment.tenantLogoUrlDark && environment.tenantLogoUrlDark.trim() !== '') {
       this.logoPathDark = environment.tenantLogoUrlDark;
     } else {
-      this.logoPathDark = isTenantSpecific ? `assets/images/${tenant}_home_dark.png` : 'assets/images/white-mifos.png';
+      this.logoPathDark = isTenantSpecific
+        ? `assets/images/${tenant}_home_dark.png`
+        : 'assets/images/access-bank-logo.png';
     }
   }
 
   onLogoError(): void {
-    this.logoPath = 'assets/images/default_home.png';
+    this.logoPath = 'assets/images/access-bank-logo.png';
   }
 
   onLogoErrorDark(): void {
-    this.logoPathDark = 'assets/images/white-mifos.png';
+    this.logoPathDark = 'assets/images/access-bank-logo.png';
   }
 }

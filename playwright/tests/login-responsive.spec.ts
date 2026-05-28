@@ -50,7 +50,6 @@ test.describe('Login Page - Responsive Layout', () => {
     // Check all essential elements are visible
     await expect(loginPage.divLocator('.logo-section')).toBeVisible();
     await expect(loginPage.divLocator('.form-section')).toBeVisible();
-    await expect(loginPage.divLocator('.login-footer')).toBeVisible();
 
     // Verify no horizontal scroll
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -67,10 +66,6 @@ test.describe('Login Page - Responsive Layout', () => {
 
     const wrapperBox = await loginWrapper.boundingBox();
     expect(wrapperBox?.height).toBeGreaterThanOrEqual(VIEWPORTS.tablet.height - 10);
-
-    // On tablet, hero panel should be hidden
-    const heroPanel = loginPage.divLocator('.hero-panel');
-    await expect(heroPanel).not.toBeVisible();
 
     // Login panel should be visible
     const loginPanel = loginPage.divLocator('.login-panel');
@@ -91,10 +86,6 @@ test.describe('Login Page - Responsive Layout', () => {
 
     const wrapperBox = await loginWrapper.boundingBox();
     expect(wrapperBox?.height).toBeGreaterThanOrEqual(VIEWPORTS.desktop.height - 10);
-
-    // On desktop, hero panel should be visible
-    const heroPanel = loginPage.divLocator('.hero-panel');
-    await expect(heroPanel).toBeVisible();
 
     // Login panel should be visible
     const loginPanel = loginPage.divLocator('.login-panel');
@@ -133,16 +124,6 @@ test.describe('Login Page - Responsive Layout', () => {
     const loginButton = page.locator('mifosx-m3-button[type="submit"]');
     const buttonBox = await loginButton.boundingBox();
     expect(buttonBox).toBeTruthy();
-
-    // Resources section should be visible
-    const resourcesSection = page.locator('.resources-section');
-    const resourcesBox = await resourcesSection.boundingBox();
-    expect(resourcesBox).toBeTruthy();
-
-    // Footer should be visible
-    const footer = loginPage.divLocator('.login-footer');
-    const footerBox = await footer.boundingBox();
-    expect(footerBox).toBeTruthy();
   });
 
   test('should handle small mobile screens (375x667) with all content visible', async ({ page }) => {
@@ -150,17 +131,7 @@ test.describe('Login Page - Responsive Layout', () => {
     // Verify the login form is visible
     await loginPage.assertOnLoginPage();
 
-    // Scroll to bottom to ensure footer is accessible
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-
-    // Footer should be visible after scroll
-    const footer = loginPage.divLocator('.login-footer');
-    await expect(footer).toBeVisible();
-
-    // Scroll back to top
-    await page.evaluate(() => window.scrollTo(0, 0));
-
-    // Logo and form should be visible at top
+    // Logo and form should be visible
     await expect(loginPage.divLocator('.logo-section')).toBeVisible();
     await expect(loginPage.divLocator('.form-section')).toBeVisible();
   });
@@ -183,11 +154,6 @@ test.describe('Login Page - Responsive Layout', () => {
       // All sections should be visible
       await expect(logo).toBeVisible();
       await expect(form).toBeVisible();
-
-      if (viewport.width > 1024) {
-        const resources = loginPage.divLocator('.resources-section');
-        await expect(resources).toBeVisible();
-      }
 
       // Get bounding boxes
       const logoBox = await logo.boundingBox();

@@ -8,10 +8,23 @@
 
 /* ############ Light mode palettes ################ */
 
+/* Access Bank Corporate Blue + Access Orange */
+
 $primary-palette: (
-  100: #5ba2ec,
-  500: #1074b9,
-  700: #004989,
+  100: #1a5dad,
+  500: #003883,
+  700: #025,
+  contrast: (
+    100: white,
+    500: white,
+    700: white
+  )
+);
+
+$accent-palette: (
+  100: #ffb74d,
+  500: #ff8200,
+  700: #c65100,
   contrast: (
     100: rgb(0 0 0 / 87%),
     500: white,
@@ -19,23 +32,12 @@ $primary-palette: (
   )
 );
 
-$accent-palette: (
-  100: #e7ffa5,
-  500: #b4d575,
-  700: #83a447,
-  contrast: (
-    100: rgb(0 0 0 / 87%),
-    500: rgb(0 0 0 / 87%),
-    700: rgb(0 0 0 / 87%)
-  )
-);
-
 /* ############ Dark mode palettes ################ */
 
 $dark-primary-palette: (
   100: #5ba2ec,
-  500: #1074b9,
-  700: #004989,
+  500: #1a5dad,
+  700: #003883,
   contrast: (
     100: white,
     500: rgb(255 255 255 / 87%),
@@ -44,9 +46,9 @@ $dark-primary-palette: (
 );
 
 $dark-accent-palette: (
-  100: #e7ffa5,
-  500: #b4d575,
-  700: #83a447,
+  100: #ffb74d,
+  500: #ff8200,
+  700: #c65100,
   contrast: (
     100: white,
     500: white,
