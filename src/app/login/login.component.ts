@@ -106,8 +106,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   twoFactorAuthenticationRequired = false;
   /** Subscription to alerts. */
   alert$: Subscription;
-  logoPath = 'assets/images/default_home.png';
-  logoPathDark = 'assets/images/white-mifos.png';
+  logoPath = 'assets/images/access-bank-logo.png';
+  logoPathDark = 'assets/images/access-bank-logo.png';
   /** Subscription to theme changes. */
   theme$: Subscription;
 
@@ -225,22 +225,22 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (environment.tenantLogoUrl && environment.tenantLogoUrl.trim() !== '') {
       this.logoPath = environment.tenantLogoUrl;
     } else {
-      this.logoPath = isTenantSpecific ? `assets/images/${tenant}_home.png` : 'assets/images/default_home.png';
+      this.logoPath = isTenantSpecific ? `assets/images/${tenant}_home.png` : 'assets/images/access-bank-logo.png';
     }
 
     // Set dark mode logo (env override takes priority)
     if (environment.tenantLogoUrlDark && environment.tenantLogoUrlDark.trim() !== '') {
       this.logoPathDark = environment.tenantLogoUrlDark;
     } else {
-      this.logoPathDark = isTenantSpecific ? `assets/images/${tenant}_home_dark.png` : 'assets/images/white-mifos.png';
+      this.logoPathDark = isTenantSpecific ? `assets/images/${tenant}_home_dark.png` : 'assets/images/access-bank-logo.png';
     }
   }
 
   onLogoError(): void {
-    this.logoPath = 'assets/images/default_home.png';
+    this.logoPath = 'assets/images/access-bank-logo.png';
   }
 
   onLogoErrorDark(): void {
-    this.logoPathDark = 'assets/images/white-mifos.png';
+    this.logoPathDark = 'assets/images/access-bank-logo.png';
   }
 }

@@ -1,16 +1,16 @@
 {
-  "short_name": "Mifos® X",
-  "name": "Mifos® X Web App",
+  "short_name": "Access Bank",
+  "name": "Access Bank",
   "start_url": "/",
   "scope": "/",
-  "theme_color": "#fff",
-  "background_color": "#fff",
+  "theme_color": "#003883",
+  "background_color": "#ffffff",
   "display": "standalone",
-  "description": "Mifos® X Web App is the default web application built on top of the Apache Fineract® platform for the Mifos® user community leveraging the popular Angular framework.",
+  "description": "Access Bank Digital Banking Platform",
   "icons": [
     {
-      "src": "assets/images/MifosX_logo.png",
-      "sizes": "182x184",
+      "src": "assets/images/access-bank-logo.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
