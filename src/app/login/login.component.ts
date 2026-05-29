@@ -49,8 +49,7 @@ import { M3IconComponent } from '../shared/m3-ui/m3-icon/m3-icon.component';
     TenantSelectorComponent,
     LoginFormComponent,
     ResetPasswordComponent,
-    TwoFactorAuthenticationComponent,
-    M3IconComponent
+    TwoFactorAuthenticationComponent
   ]
 })
 export class LoginComponent implements OnInit, OnDestroy {
