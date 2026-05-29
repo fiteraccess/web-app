@@ -5,12 +5,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 // IMPORTANT: THIS FILE IS AUTO GENERATED! DO NOT MANUALLY EDIT OR CHECKIN!
 /* tslint:disable */
 export default {
   'mifos_x': {
     'version': '260529',
-    'hash': 'af68eab3'
+    'hash': '7586a682'
   },
   'allow_switching_backend_instance': true
 };
