@@ -207,6 +207,16 @@
     font-size: 1rem;
     font-weight: 500;
     letter-spacing: 0.01em;
+
+    // Access Bank orange color palette
+    --md-filled-button-container-color: #ff8200;
+    --md-filled-button-label-text-color: #fff;
+    --md-filled-button-hover-state-layer-color: #fff;
+    --md-filled-button-hover-state-layer-opacity: 12%;
+    --md-filled-button-focus-state-layer-color: #fff;
+    --md-filled-button-focus-state-layer-opacity: 12%;
+    --md-filled-button-pressed-state-layer-color: #fff;
+    --md-filled-button-pressed-state-layer-opacity: 16%;
   }
 
   .button-spinner {
@@ -216,6 +226,12 @@
       stroke: currentcolor;
     }
   }
+}
+
+// ===== Basic Auth Login Button (OAuth) =====
+.login-button-first {
+  background-color: #ff8200 !important;
+  color: #fff !important;
 }
 
 // ===== OIDC Login =====
@@ -342,6 +358,18 @@
 
   .oidc-description {
     color: var(--md-sys-color-on-surface-variant, #c4c6d0);
+  }
+
+  .login-button-first {
+    background-color: #1a5dad !important;
+    color: #fff !important;
+  }
+
+  .login-submit-button {
+    ::ng-deep md-filled-button {
+      --md-filled-button-container-color: #1a5dad;
+      --md-filled-button-label-text-color: #fff;
+    }
   }
 
   .welcome-message {
