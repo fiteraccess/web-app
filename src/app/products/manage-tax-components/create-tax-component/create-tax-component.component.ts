@@ -119,11 +119,11 @@ export class CreateTaxComponentComponent implements OnInit {
   setConditionalControls() {
     this.taxComponentForm.get('debitAccountType').valueChanges.subscribe((debitAccountTypeId) => {
       this.debitAccountData = this.getAccountsData(debitAccountTypeId);
-      this.taxComponentForm.addControl('debitAccountId', new UntypedFormControl('', Validators.required));
+      this.taxComponentForm.setControl('debitAccountId', new UntypedFormControl('', Validators.required));
     });
     this.taxComponentForm.get('creditAccountType').valueChanges.subscribe((creditAccountTypeId) => {
       this.creditAccountData = this.getAccountsData(creditAccountTypeId);
-      this.taxComponentForm.addControl('creditAccountId', new UntypedFormControl('', Validators.required));
+      this.taxComponentForm.setControl('creditAccountId', new UntypedFormControl('', Validators.required));
     });
   }
 
@@ -157,6 +157,14 @@ export class CreateTaxComponentComponent implements OnInit {
     const prevStartDate: Date = this.taxComponentForm.value.startDate;
     if (taxComponentFormData.startDate instanceof Date) {
       taxComponentFormData.startDate = this.dateUtils.formatDate(prevStartDate, dateFormat);
+    }
+    if (!taxComponentFormData.debitAccountId) {
+      delete taxComponentFormData.debitAccountType;
+      delete taxComponentFormData.debitAccountId;
+    }
+    if (!taxComponentFormData.creditAccountId) {
+      delete taxComponentFormData.creditAccountType;
+      delete taxComponentFormData.creditAccountId;
     }
     const data = {
       ...taxComponentFormData,

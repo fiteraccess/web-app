@@ -53,11 +53,11 @@
             </mat-select>
           </mat-form-field>
 
-          @if (debitAccountData.length > 0) {
+          @if (taxComponentForm.contains('debitAccountId')) {
             <mifosx-gl-account-selector
               [inputFormControl]="taxComponentForm.controls.debitAccountId"
               [glAccountList]="debitAccountData"
-              [required]="false"
+              [required]="true"
               [inputLabel]="'Debit Account'"
             >
             </mifosx-gl-account-selector>
@@ -74,11 +74,11 @@
             </mat-select>
           </mat-form-field>
 
-          @if (creditAccountData.length > 0) {
+          @if (taxComponentForm.contains('creditAccountId')) {
             <mifosx-gl-account-selector
               [inputFormControl]="taxComponentForm.controls.creditAccountId"
               [glAccountList]="creditAccountData"
-              [required]="false"
+              [required]="true"
               [inputLabel]="'Credit Account'"
             >
             </mifosx-gl-account-selector>
