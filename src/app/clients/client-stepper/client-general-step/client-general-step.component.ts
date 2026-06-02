@@ -130,10 +130,16 @@ export class ClientGeneralStepComponent implements OnInit, OnDestroy {
       accountNo: [''],
       externalId: [''],
       genderId: [''],
-      mobileNo: [''],
+      mobileNo: [
+        '',
+        Validators.required
+      ],
       emailAddress: [
         '',
-        Validators.email
+        [
+          Validators.required,
+          Validators.email
+        ]
       ],
       dateOfBirth: [''],
       clientTypeId: [''],
@@ -187,6 +193,10 @@ export class ClientGeneralStepComponent implements OnInit, OnDestroy {
               Validators.pattern('(^[A-z]).*')
             ])
           );
+          this.createClientForm.get('genderId')!.setValidators(Validators.required);
+          this.createClientForm.get('genderId')!.updateValueAndValidity();
+          this.createClientForm.get('dateOfBirth')!.setValidators(Validators.required);
+          this.createClientForm.get('dateOfBirth')!.updateValueAndValidity();
         } else {
           this.createClientForm.removeControl('firstname');
           this.createClientForm.removeControl('middlename');
@@ -211,6 +221,10 @@ export class ClientGeneralStepComponent implements OnInit, OnDestroy {
               remarks: ['']
             })
           );
+          this.createClientForm.get('genderId')!.clearValidators();
+          this.createClientForm.get('genderId')!.updateValueAndValidity();
+          this.createClientForm.get('dateOfBirth')!.clearValidators();
+          this.createClientForm.get('dateOfBirth')!.updateValueAndValidity();
         }
       });
     this.createClientForm.get('legalFormId').patchValue(LegalFormId.PERSON);

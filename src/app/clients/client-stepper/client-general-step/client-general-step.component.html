@@ -143,6 +143,11 @@
       <input matInput [max]="maxDate" [matDatepicker]="dateOfBirthDatePicker" formControlName="dateOfBirth" />
       <mat-datepicker-toggle matSuffix [for]="dateOfBirthDatePicker"></mat-datepicker-toggle>
       <mat-datepicker #dateOfBirthDatePicker></mat-datepicker>
+      @if (createClientForm.controls.dateOfBirth.hasError('required')) {
+        <mat-error>
+          {{ 'labels.inputs.Date of Birth' | translate }} {{ 'labels.commons.is required' | translate }}
+        </mat-error>
+      }
     </mat-form-field>
 
     @if (createClientForm.get('clientNonPersonDetails')) {
@@ -193,13 +198,18 @@
     @if (createClientForm.value.legalFormId === LegalFormId.PERSON) {
       <mat-form-field class="flex-48">
         <mat-label>{{ 'labels.inputs.Gender' | translate }}</mat-label>
-        <mat-select formControlName="genderId">
+        <mat-select formControlName="genderId" required>
           @for (gender of genderOptions; track gender) {
             <mat-option [value]="gender.id">
               {{ gender.name }}
             </mat-option>
           }
         </mat-select>
+        @if (createClientForm.controls.genderId.hasError('required')) {
+          <mat-error>
+            {{ 'labels.inputs.Gender' | translate }} {{ 'labels.commons.is required' | translate }}
+          </mat-error>
+        }
       </mat-form-field>
     }
 
@@ -224,13 +234,23 @@
 
     <mat-form-field class="flex-48">
       <mat-label>{{ 'labels.inputs.Mobile No' | translate }}</mat-label>
-      <input matInput type="text" formControlName="mobileNo" />
+      <input matInput type="text" formControlName="mobileNo" required />
+      @if (createClientForm.controls.mobileNo.hasError('required')) {
+        <mat-error>
+          {{ 'labels.inputs.Mobile No' | translate }} {{ 'labels.commons.is required' | translate }}
+        </mat-error>
+      }
     </mat-form-field>
 
     <mat-form-field class="flex-48">
       <mat-label>{{ 'labels.inputs.Email Address' | translate }}</mat-label>
-      <input matInput formControlName="emailAddress" />
-      @if (createClientForm.controls.emailAddress.errors?.email) {
+      <input matInput formControlName="emailAddress" required />
+      @if (createClientForm.controls.emailAddress.hasError('required')) {
+        <mat-error>
+          {{ 'labels.inputs.Email Address' | translate }} {{ 'labels.commons.is required' | translate }}
+        </mat-error>
+      }
+      @if (createClientForm.controls.emailAddress.hasError('email')) {
         <mat-error>
           {{ 'error.Email not valid' | translate }}
         </mat-error>
