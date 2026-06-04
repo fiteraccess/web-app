@@ -93,7 +93,7 @@ export class ExportTransactionsComponent implements OnInit {
    */
   generate() {
     const data = {
-      'output-type': 'PDF',
+      exportPDF: 'true',
       R_startDate: this.dateUtils.formatDate(
         this.transactionsReportForm.value.fromDate,
         this.settingsService.dateFormat
