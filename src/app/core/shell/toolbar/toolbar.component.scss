@@ -103,3 +103,27 @@
 .white-text-language {
   margin-top: 27px;
 }
+
+.white-text-icon {
+  color: white !important;
+
+  ::ng-deep {
+    .mat-mdc-icon-button {
+      color: white !important;
+    }
+
+    mat-icon,
+    .mat-icon,
+    .m3-icon {
+      color: white !important;
+    }
+
+    button {
+      color: white !important;
+    }
+
+    .img-button img {
+      filter: invert(1) brightness(2);
+    }
+  }
+}
