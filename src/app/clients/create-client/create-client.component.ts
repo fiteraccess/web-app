@@ -18,6 +18,7 @@ import { ClientGeneralStepComponent } from '../client-stepper/client-general-ste
 import { ClientFamilyMembersStepComponent } from '../client-stepper/client-family-members-step/client-family-members-step.component';
 import { ClientAddressStepComponent } from '../client-stepper/client-address-step/client-address-step.component';
 import { ClientDatatableStepComponent } from '../client-stepper/client-datatable-step/client-datatable-step.component';
+import { ClientKycStepComponent } from '../client-stepper/client-kyc-step/client-kyc-step.component';
 
 /** Custom Services */
 import { SettingsService } from 'app/settings/settings.service';
@@ -44,6 +45,7 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
     ClientFamilyMembersStepComponent,
     ClientAddressStepComponent,
     ClientDatatableStepComponent,
+    ClientKycStepComponent,
     ClientPreviewStepComponent
   ]
 })
@@ -59,6 +61,8 @@ export class CreateClientComponent {
   @ViewChild('clientFamily') clientFamilyMembersStep: ClientFamilyMembersStepComponent;
   /** Client Address Step */
   @ViewChild('clientAddress') clientAddressStep: ClientAddressStepComponent;
+  /** Client KYC Step */
+  @ViewChild('clientKyc') clientKycStep: ClientKycStepComponent;
   /** Get handle on dtclient tags in the template */
   @ViewChildren('dtclient') clientDatatables: QueryList<ClientDatatableStepComponent>;
 
@@ -120,6 +124,7 @@ export class CreateClientComponent {
         areValids = areValids && clientDatatable.datatableForm.valid;
       });
     }
+    areValids = areValids && !!this.clientKycStep && this.clientKycStep.kycForm.valid;
 
     return areValids;
   }
@@ -145,13 +150,16 @@ export class CreateClientComponent {
   }
 
   /**
-   * Submits the create client form.
+   * Submits the create client form. Embeds the Tier 1 KYC block in
+   * the payload; the idempotency header is attached by the global
+   * IdempotencyInterceptor.
    */
   submit() {
     const locale = this.settingsService.language.code;
     const dateFormat = this.settingsService.dateFormat;
-    const clientData = {
+    const clientData: any = {
       ...this.client,
+      kyc: this.clientKycStep.kycContext,
       dateFormat,
       locale
     };

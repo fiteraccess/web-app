@@ -356,6 +356,50 @@
             <mat-datepicker #activatedOnDatePicker></mat-datepicker>
           </mat-form-field>
         </div>
+        <mat-divider class="section-divider"></mat-divider>
+
+        <!-- KYC Section -->
+        <div class="responsive-row" formGroupName="kyc">
+          <mat-form-field class="flex-24">
+            <mat-label>{{ 'labels.inputs.KYC' | translate }} {{ 'labels.inputs.Tier' | translate }}</mat-label>
+            <mat-select formControlName="tier">
+              @for (tier of kycTierOptions; track tier) {
+                <mat-option [value]="tier">{{ formatKycTier(tier) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="flex-24">
+            <mat-label>{{ 'labels.inputs.BVN' | translate }}</mat-label>
+            <input matInput type="text" formControlName="bvn" [maxlength]="kycMaxLength.bvn" />
+          </mat-form-field>
+
+          <mat-form-field class="flex-24">
+            <mat-label>{{ 'labels.inputs.NIN' | translate }}</mat-label>
+            <input matInput type="text" formControlName="nin" [maxlength]="kycMaxLength.nin" />
+          </mat-form-field>
+
+          <mat-form-field class="flex-24">
+            <mat-label>{{ 'labels.inputs.Country of Residence' | translate }}</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="countryOfResidence"
+              [maxlength]="kycMaxLength.countryOfResidence"
+            />
+          </mat-form-field>
+
+          <mat-form-field class="flex-98">
+            <mat-label>{{ 'labels.inputs.Home Address' | translate }}</mat-label>
+            <textarea
+              matInput
+              formControlName="homeAddress"
+              cdkTextareaAutosize
+              cdkAutosizeMinRows="2"
+              [maxlength]="kycMaxLength.homeAddress"
+            ></textarea>
+          </mat-form-field>
+        </div>
       </mat-card-content>
 
       <mat-card-actions class="button-container">

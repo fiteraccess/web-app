@@ -15,6 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 import { DateFormatPipe } from '../../../pipes/date-format.pipe';
 import { LegalFormId } from 'app/clients/models/legal-form.enum';
+import { KycContext, formatKycTier } from 'app/clients/kyc/kyc.model';
 
 /** Interfaces */
 interface ClientViewData {
@@ -42,6 +43,7 @@ interface ClientViewData {
   staffName?: string;
   savingsProductId?: number;
   savingsProductName?: string;
+  kyc?: KycContext;
   [key: string]: any; // Allow additional properties from API
 }
 
@@ -65,6 +67,9 @@ export class PersonalDataTabComponent {
   /** Client View Data */
   clientViewData!: ClientViewData;
 
+  /** Display formatter for a KYC tier; bound for template use. */
+  readonly formatKycTier = formatKycTier;
+
   constructor() {
     this.route.parent.data.pipe(takeUntilDestroyed()).subscribe((data: { clientViewData: ClientViewData }) => {
       this.clientViewData = data.clientViewData;
@@ -83,5 +88,16 @@ export class PersonalDataTabComponent {
    */
   isLegalEntity(): boolean {
     return this.clientViewData?.legalForm?.id === LegalFormId.ENTITY;
+  }
+
+  /**
+   * True when the GET response carries a KYC block with at least one
+   * populated field. Guards against rendering an empty section when the
+   * backend omits `kyc` or returns it empty.
+   */
+  hasKyc(): boolean {
+    const kyc = this.clientViewData?.kyc;
+    if (!kyc) return false;
+    return !!(kyc.tier || kyc.bvn || kyc.nin || kyc.homeAddress || kyc.countryOfResidence);
   }
 }

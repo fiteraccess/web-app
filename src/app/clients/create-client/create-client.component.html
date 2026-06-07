@@ -65,6 +65,11 @@
       </mat-step>
     }
 
+    <mat-step [stepControl]="clientKycStep?.kycForm">
+      <ng-template matStepLabel>{{ 'labels.inputs.KYC' | translate }}</ng-template>
+      <mifosx-client-kyc-step #clientKyc></mifosx-client-kyc-step>
+    </mat-step>
+
     @if (areFormvalids()) {
       <mat-step completed>
         <ng-template matStepLabel>{{ 'labels.inputs.PREVIEW' | translate }}</ng-template>

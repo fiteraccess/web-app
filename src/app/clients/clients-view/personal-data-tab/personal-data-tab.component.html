@@ -186,6 +186,45 @@
     </div>
   </div>
 
+  <!-- KYC Section -->
+  @if (hasKyc()) {
+    <div class="section">
+      <h3>{{ 'labels.heading.KYC' | translate }}</h3>
+      <div class="data-grid">
+        @if (clientViewData.kyc.tier) {
+          <div class="data-item">
+            <span class="label">{{ 'labels.inputs.Tier' | translate }}</span>
+            <span class="value">{{ formatKycTier(clientViewData.kyc.tier) }}</span>
+          </div>
+        }
+        @if (clientViewData.kyc.bvn) {
+          <div class="data-item">
+            <span class="label">{{ 'labels.inputs.BVN' | translate }}</span>
+            <span class="value">{{ clientViewData.kyc.bvn }}</span>
+          </div>
+        }
+        @if (clientViewData.kyc.nin) {
+          <div class="data-item">
+            <span class="label">{{ 'labels.inputs.NIN' | translate }}</span>
+            <span class="value">{{ clientViewData.kyc.nin }}</span>
+          </div>
+        }
+        @if (clientViewData.kyc.countryOfResidence) {
+          <div class="data-item">
+            <span class="label">{{ 'labels.inputs.Country of Residence' | translate }}</span>
+            <span class="value">{{ clientViewData.kyc.countryOfResidence }}</span>
+          </div>
+        }
+        @if (clientViewData.kyc.homeAddress) {
+          <div class="data-item full-width">
+            <span class="label">{{ 'labels.inputs.Home Address' | translate }}</span>
+            <span class="value">{{ clientViewData.kyc.homeAddress }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
   <!-- Group Membership Section -->
   @if (clientViewData.groups && clientViewData.groups.length > 0) {
     <div class="section">
