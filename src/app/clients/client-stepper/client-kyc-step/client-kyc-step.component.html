@@ -1,0 +1,38 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<form [formGroup]="kycForm">
+  <div class="layout-row-wrap gap-2px responsive-column">
+    <mat-form-field class="flex-48">
+      <mat-label>{{ 'labels.inputs.BVN' | translate }}</mat-label>
+      <input matInput type="text" formControlName="bvn" [maxlength]="maxLength.bvn" />
+    </mat-form-field>
+
+    <mat-form-field class="flex-48">
+      <mat-label>{{ 'labels.inputs.NIN' | translate }}</mat-label>
+      <input matInput type="text" formControlName="nin" [maxlength]="maxLength.nin" />
+    </mat-form-field>
+
+    @if (kycForm.hasError('bvnOrNin') && (kycForm.controls.bvn.touched || kycForm.controls.nin.touched)) {
+      <div class="flex-98 form-level-error">
+        {{ 'errors.validation.msg.kyc.tier1.bvn.or.nin' | translate }}
+      </div>
+    }
+  </div>
+
+  <div class="layout-row align-center gap-2percent margin-t responsive-column">
+    <button mat-raised-button matStepperPrevious>
+      <fa-icon icon="arrow-left" class="m-r-10"></fa-icon>
+      {{ 'labels.buttons.Previous' | translate }}
+    </button>
+    <button mat-raised-button matStepperNext [disabled]="kycForm.invalid">
+      {{ 'labels.buttons.Next' | translate }}
+      <fa-icon icon="arrow-right" class="m-l-10"></fa-icon>
+    </button>
+  </div>
+</form>

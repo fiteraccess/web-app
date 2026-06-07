@@ -27,6 +27,7 @@ import { MatDivider } from '@angular/material/divider';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { KYC_FIELD_MAX_LENGTH, KYC_TIERS, KycContext, KycTier, formatKycTier } from '../kyc/kyc.model';
 
 /**
  * Edit Client Component
@@ -83,6 +84,15 @@ export class EditClientComponent implements OnInit {
   /** Expose enum to template */
   readonly LegalFormId = LegalFormId;
 
+  /** KYC field length limits surfaced to the template. */
+  readonly kycMaxLength = KYC_FIELD_MAX_LENGTH;
+
+  /** Available KYC tier options. */
+  readonly kycTierOptions: readonly KycTier[] = KYC_TIERS;
+
+  /** Display formatter for a KYC tier; bound for template use. */
+  readonly formatKycTier = formatKycTier;
+
   /**
    * Fetches client template data from `resolve`
    * @param {FormBuilder} formBuilder Form Builder
@@ -104,6 +114,7 @@ export class EditClientComponent implements OnInit {
     this.setOptions();
     this.buildDependencies();
     this.legalFormId = LegalFormId.PERSON;
+    const storedKyc = this.clientDataAndTemplate.kyc || {};
     this.editClientForm.patchValue({
       officeId: this.clientDataAndTemplate.officeId,
       staffId: this.clientDataAndTemplate.staffId,
@@ -124,7 +135,14 @@ export class EditClientComponent implements OnInit {
         new Date(this.clientDataAndTemplate.timeline.submittedOnDate),
       activationDate:
         this.clientDataAndTemplate.timeline.activatedOnDate &&
-        new Date(this.clientDataAndTemplate.timeline.activatedOnDate)
+        new Date(this.clientDataAndTemplate.timeline.activatedOnDate),
+      kyc: {
+        tier: storedKyc.tier || 1,
+        bvn: storedKyc.bvn || '',
+        nin: storedKyc.nin || '',
+        homeAddress: storedKyc.homeAddress || '',
+        countryOfResidence: storedKyc.countryOfResidence || ''
+      }
     });
     if (this.clientDataAndTemplate.legalForm) {
       this.legalFormId = this.clientDataAndTemplate.legalForm.id;
@@ -158,7 +176,26 @@ export class EditClientComponent implements OnInit {
         '',
         Validators.required
       ],
-      activationDate: ['']
+      activationDate: [''],
+      kyc: this.formBuilder.group({
+        tier: ['TIER_1'],
+        bvn: [
+          '',
+          Validators.maxLength(KYC_FIELD_MAX_LENGTH.bvn)
+        ],
+        nin: [
+          '',
+          Validators.maxLength(KYC_FIELD_MAX_LENGTH.nin)
+        ],
+        homeAddress: [
+          '',
+          Validators.maxLength(KYC_FIELD_MAX_LENGTH.homeAddress)
+        ],
+        countryOfResidence: [
+          '',
+          Validators.maxLength(KYC_FIELD_MAX_LENGTH.countryOfResidence)
+        ]
+      })
     });
   }
 
@@ -260,8 +297,44 @@ export class EditClientComponent implements OnInit {
     } else {
       clientData.clientNonPersonDetails = {};
     }
+
+    // KYC: only include the block if the user touched it; strip blanks
+    // so the proxy treats empty strings as 'absent / keep stored'.
+    const kycGroup = this.editClientForm.get('kyc');
+    if (kycGroup && kycGroup.dirty) {
+      clientData.kyc = this.buildKycPayload(editClientFormValue.kyc);
+    } else {
+      delete clientData.kyc;
+    }
+
     this.clientsService.updateClient(this.clientDataAndTemplate.id, clientData).subscribe(() => {
       this.router.navigate(['../'], { relativeTo: this.route });
     });
+  }
+
+  /**
+   * Builds a KYC payload from the raw form values, omitting blank fields.
+   * The selected tier is always included so the proxy can honour upgrades
+   * and downgrades; field omission means 'keep stored value'.
+   */
+  private buildKycPayload(raw: any): KycContext {
+    const payload: KycContext = { tier: (raw?.tier || 'TIER_1') as KycTier };
+    const bvn = (raw?.bvn || '').trim();
+    const nin = (raw?.nin || '').trim();
+    const homeAddress = (raw?.homeAddress || '').trim();
+    const countryOfResidence = (raw?.countryOfResidence || '').trim();
+    if (bvn) {
+      payload.bvn = bvn;
+    }
+    if (nin) {
+      payload.nin = nin;
+    }
+    if (homeAddress) {
+      payload.homeAddress = homeAddress;
+    }
+    if (countryOfResidence) {
+      payload.countryOfResidence = countryOfResidence;
+    }
+    return payload;
   }
 }

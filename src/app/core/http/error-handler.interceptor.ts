@@ -48,7 +48,11 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
     let errorMessage = response.error.developerMessage || response.message;
     if (response.error.errors) {
       if (response.error.errors[0]) {
-        errorMessage = response.error.errors[0].defaultUserMessage || response.error.errors[0].developerMessage;
+        const firstError = response.error.errors[0];
+        errorMessage =
+          this.translateGlobalisationCode(firstError.userMessageGlobalisationCode) ||
+          firstError.defaultUserMessage ||
+          firstError.developerMessage;
       }
     }
 
@@ -99,5 +103,19 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
     }
 
     throw response;
+  }
+
+  /**
+   * Translates a Fineract-style `userMessageGlobalisationCode` via the
+   * `errors.<code>` namespace, returning undefined when no translation
+   * exists so the caller can fall back to the server-provided message.
+   */
+  private translateGlobalisationCode(code: string | undefined): string | undefined {
+    if (!code) {
+      return undefined;
+    }
+    const key = `errors.${code}`;
+    const translated = this.translate.instant(key);
+    return translated && translated !== key ? translated : undefined;
   }
 }
