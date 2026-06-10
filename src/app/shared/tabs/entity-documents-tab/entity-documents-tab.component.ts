@@ -46,6 +46,7 @@ export class EntityDocumentsTabComponent implements OnInit, OnDestroy {
   @Input() entityId: string;
   @Input() entityType: string;
   @Input() entityDocuments: any;
+  @Input() documentTypes: any[] = [];
 
   @Input() callbackUpload: (documentData: FormData) => Observable<any>;
   @Input() callbackDelete: (documentId: string) => void;
@@ -76,21 +77,25 @@ export class EntityDocumentsTabComponent implements OnInit, OnDestroy {
 
   uploadDocument(): void {
     const uploadDocumentDialogRef = this.dialog.open(UploadDocumentDialogComponent, {
-      data: { documentIdentifier: false, entityType: '' },
+      data: { documentIdentifier: false, entityType: '', documentTypes: this.documentTypes },
       width: '33rem'
     });
     uploadDocumentDialogRef.afterClosed().subscribe((dialogResponse: any) => {
       if (dialogResponse) {
         const formData: FormData = new FormData();
-        formData.append('name', dialogResponse.fileName);
+        const docName = dialogResponse.fileName || dialogResponse.file.name;
+        formData.append('name', docName);
         formData.append('file', dialogResponse.file);
         formData.append('description', dialogResponse.description);
+        if (dialogResponse.documentType) {
+          formData.append('documentType', dialogResponse.documentType);
+        }
         this.callbackUpload(formData).subscribe((res: any) => {
           const newDocument = {
             id: res.resourceId,
             parentEntityType: this.entityType,
             parentEntityId: this.entityId,
-            name: dialogResponse.fileName,
+            name: docName,
             description: dialogResponse.description,
             fileName: dialogResponse.file.name
           };
