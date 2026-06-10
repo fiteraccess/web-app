@@ -291,6 +291,10 @@ export class ClientsService {
     return this.http.post(`/clients/${clientId}/documents`, documentData);
   }
 
+  getClientDocumentTemplate(clientId: string) {
+    return this.http.get(`/clients/${clientId}/documents/template`);
+  }
+
   deleteClientDocument(parentEntityId: string, documentId: string) {
     return this.http.delete(`/clients/${parentEntityId}/documents/${documentId}`);
   }

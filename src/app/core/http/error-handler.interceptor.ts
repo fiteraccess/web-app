@@ -98,6 +98,11 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
         type: this.translate.instant('error.resource.notImplemented.type'),
         message: this.translate.instant('error.resource.notImplemented.message')
       });
+    } else if (status === 409) {
+      this.alertService.alert({
+        type: 'Conflict',
+        message: errorMessage || 'A conflict occurred. Please check your data and try again.'
+      });
     } else {
       this.alertService.alert({ type: 'Unknown Error', message: 'Unknown Error. Please try again later.' });
     }

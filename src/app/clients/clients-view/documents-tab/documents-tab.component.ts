@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -24,7 +24,7 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
     EntityDocumentsTabComponent
   ]
 })
-export class DocumentsTabComponent {
+export class DocumentsTabComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private clientsService = inject(ClientsService);
   dialog = inject(MatDialog);
@@ -32,12 +32,19 @@ export class DocumentsTabComponent {
   entityDocuments: any;
   entityId: string;
   entityType = 'clients';
+  documentTypes: any[] = [];
 
   constructor() {
     this.route.data.subscribe((data: { clientDocuments: any }) => {
       this.entityDocuments = data.clientDocuments;
     });
     this.entityId = this.route.parent.snapshot.paramMap.get('clientId');
+  }
+
+  ngOnInit(): void {
+    this.clientsService.getClientDocumentTemplate(this.entityId).subscribe((template: any) => {
+      this.documentTypes = template.documentTypes || [];
+    });
   }
 
   deleteDocument(documentId: string) {

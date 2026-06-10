@@ -45,6 +45,8 @@ export class UploadDocumentDialogComponent implements OnInit {
   entityType: string;
   /** Allowed Document Types for identifiers */
   allowedDocumentTypes: any[] = [];
+  /** Document types for standard uploads (from template) */
+  documentTypes: any[] = [];
   /** Status options for identifiers */
   statusOptions: any[] = [];
 
@@ -59,6 +61,7 @@ export class UploadDocumentDialogComponent implements OnInit {
     this.documentIdentifier = data.documentIdentifier;
     this.entityType = data.entityType;
     this.allowedDocumentTypes = data.allowedDocumentTypes || [];
+    this.documentTypes = data.documentTypes || [];
     this.statusOptions = data.statusOptions || [];
   }
 
@@ -95,10 +98,11 @@ export class UploadDocumentDialogComponent implements OnInit {
     } else {
       // Standard document upload form
       this.uploadDocumentForm = this.formBuilder.group({
-        fileName: [
+        documentType: [
           '',
-          Validators.required
+          this.documentTypes.length > 0 ? Validators.required : []
         ],
+        fileName: [''],
         description: [''],
         file: ['']
       });
