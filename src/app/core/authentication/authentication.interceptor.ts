@@ -20,7 +20,8 @@ import { SettingsService } from 'app/settings/settings.service';
 /** Http request (default) options headers. */
 const httpOptions: { headers: { [key: string]: string } } = {
   headers: {
-    'Fineract-Platform-TenantId': environment.fineractPlatformTenantId
+    'Fineract-Platform-TenantId': environment.fineractPlatformTenantId,
+    'Fineract-Platform-Channel': 'MOBILE'
   }
 };
 
