@@ -8,8 +8,14 @@
     "accountingRule": {
       "duplicateName": "Sorry, but an Accounting Rule with this Name exists already."
     },
-    "validation.msg.fineract-platform-channel.missing": "Missing required Fineract-Platform-Channel header. This app must be accessed through the MOBILE channel.",
-    "validation.msg.fineract-platform-channel.unsupported": "Channel not allowed. Only MOBILE is permitted.",
+    "validation": {
+      "msg": {
+        "fineract-platform-channel": {
+          "missing": "Missing required Fineract-Platform-Channel header. This app must be accessed through the MOBILE channel.",
+          "unsupported": "Channel not allowed. Only MOBILE is permitted."
+        }
+      }
+    },
     "linkedSavingsAccountOwnership": "Linked savings account does not belong to the selected client.",
     "clientNotInGSIM": "Client with ID {{id}} is not present in GSIM.",
     "Capitalized Income amount adjusted already adjusted": "Capitalized Income amount already adjusted",
