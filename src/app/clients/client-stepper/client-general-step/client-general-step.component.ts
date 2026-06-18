@@ -130,16 +130,10 @@ export class ClientGeneralStepComponent implements OnInit, OnDestroy {
       accountNo: [''],
       externalId: [''],
       genderId: [''],
-      mobileNo: [
-        '',
-        Validators.required
-      ],
+      mobileNo: [''],
       emailAddress: [
         '',
-        [
-          Validators.required,
-          Validators.email
-        ]
+        Validators.email
       ],
       dateOfBirth: [''],
       clientTypeId: [''],
