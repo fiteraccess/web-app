@@ -45,6 +45,7 @@ const activities: any[] = [
   { activity: 'add code', path: '/system/codes/create' },
   { activity: 'jobs', path: '/system/scheduler-jobs' },
   { activity: 'codes', path: '/system/codes' },
+  { activity: 'tier policy', path: '/system/tier-policy' },
   { activity: 'reports', path: '/reports' },
   { activity: 'create report', path: '' },
   { activity: 'holidays', path: '/organization/holidays' },

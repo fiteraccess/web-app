@@ -1,0 +1,56 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<h1 mat-dialog-title>
+  @if (isEditMode) {
+    {{ 'labels.heading.Edit Balance Cap' | translate }}
+  } @else {
+    {{ 'labels.heading.Add Balance Cap' | translate }}
+  }
+</h1>
+
+<mat-dialog-content>
+  <form [formGroup]="balanceCapForm">
+    <div class="layout-column">
+      <mat-form-field>
+        <mat-label>{{ 'labels.inputs.Currency' | translate }}</mat-label>
+        <mat-select required formControlName="currency">
+          @for (currency of data.currencies; track currency.code) {
+            <mat-option [value]="currency.code">
+              {{ currency.name || currency.code }}
+            </mat-option>
+          }
+        </mat-select>
+        @if (balanceCapForm.controls.currency.hasError('required')) {
+          <mat-error>
+            {{ 'labels.inputs.Currency' | translate }} {{ 'labels.commons.is' | translate }}
+            <strong>{{ 'labels.commons.required' | translate }}</strong>
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ 'labels.dialogContext.Balance Cap' | translate }}</mat-label>
+        <input matInput type="number" min="0" formControlName="balanceCap" />
+        @if (balanceCapForm.controls.balanceCap.hasError('min')) {
+          <mat-error>
+            {{ 'labels.dialogContext.Balance Cap' | translate }} {{ 'labels.commons.is' | translate }}
+            <strong>{{ 'labels.commons.invalid' | translate }}</strong>
+          </mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'labels.buttons.Cancel' | translate }}</button>
+  <button mat-raised-button color="primary" [disabled]="!balanceCapForm.valid" (click)="submit()">
+    {{ 'labels.buttons.Submit' | translate }}
+  </button>
+</mat-dialog-actions>

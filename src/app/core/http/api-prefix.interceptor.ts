@@ -36,6 +36,9 @@ export class ApiPrefixInterceptor implements HttpInterceptor {
     if (request.url.includes('/actuator/')) {
       baseUrl = this.settingsService.serverHost;
     }
+    if (request.url.startsWith('/access/')) {
+      baseUrl = this.settingsService.serverHost;
+    }
 
     /**
      * Ignore URLs that are complete for i18n
