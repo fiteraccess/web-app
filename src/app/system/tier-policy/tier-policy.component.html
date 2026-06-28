@@ -39,7 +39,7 @@
 
                     <ng-container matColumnDef="currency">
                       <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Currency' | translate }}</th>
-                      <td mat-cell *matCellDef="let row">{{ row.currency }}</td>
+                      <td mat-cell *matCellDef="let row">{{ row.currencyCode }}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="perTxCap">
@@ -119,7 +119,7 @@
                   <table mat-table [dataSource]="policy.balanceCaps">
                     <ng-container matColumnDef="currency">
                       <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Currency' | translate }}</th>
-                      <td mat-cell *matCellDef="let row">{{ row.currency }}</td>
+                      <td mat-cell *matCellDef="let row">{{ row.currencyCode }}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="balanceCap">

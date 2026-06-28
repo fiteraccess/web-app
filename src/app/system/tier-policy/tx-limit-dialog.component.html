@@ -36,14 +36,14 @@
 
       <mat-form-field>
         <mat-label>{{ 'labels.inputs.Currency' | translate }}</mat-label>
-        <mat-select required formControlName="currency">
+        <mat-select required formControlName="currencyCode">
           @for (currency of data.currencies; track currency.code) {
             <mat-option [value]="currency.code">
               {{ currency.name || currency.code }}
             </mat-option>
           }
         </mat-select>
-        @if (txLimitForm.controls.currency.hasError('required')) {
+        @if (txLimitForm.controls.currencyCode.hasError('required')) {
           <mat-error>
             {{ 'labels.inputs.Currency' | translate }} {{ 'labels.commons.is' | translate }}
             <strong>{{ 'labels.commons.required' | translate }}</strong>

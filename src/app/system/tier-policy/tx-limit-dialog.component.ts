@@ -63,8 +63,8 @@ export class TxLimitDialogComponent implements OnInit {
         { value: row?.paymentTypeId ?? null, disabled: this.isEditMode },
         Validators.required
       ],
-      currency: [
-        { value: row?.currency ?? null, disabled: this.isEditMode },
+      currencyCode: [
+        { value: row?.currencyCode ?? null, disabled: this.isEditMode },
         Validators.required
       ],
       perTxCap: [
@@ -92,7 +92,7 @@ export class TxLimitDialogComponent implements OnInit {
     const result: TierTxLimit = {
       tier: this.data.tier,
       paymentTypeId: v.paymentTypeId,
-      currency: v.currency,
+      currencyCode: v.currencyCode,
       perTxCap: v.perTxCap,
       dailySpendCap: v.dailySpendCap
     };

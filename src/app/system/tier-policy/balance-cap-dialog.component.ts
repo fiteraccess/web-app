@@ -58,8 +58,8 @@ export class BalanceCapDialogComponent implements OnInit {
     this.isEditMode = !!this.data.row;
     const row = this.data.row;
     this.balanceCapForm = this.formBuilder.group({
-      currency: [
-        { value: row?.currency ?? null, disabled: this.isEditMode },
+      currencyCode: [
+        { value: row?.currencyCode ?? null, disabled: this.isEditMode },
         Validators.required
       ],
       balanceCap: [
@@ -76,7 +76,7 @@ export class BalanceCapDialogComponent implements OnInit {
     const v = this.balanceCapForm.getRawValue();
     const result: TierBalanceCap = {
       tier: this.data.tier,
-      currency: v.currency,
+      currencyCode: v.currencyCode,
       balanceCap: v.balanceCap
     };
     this.dialogRef.close(result);

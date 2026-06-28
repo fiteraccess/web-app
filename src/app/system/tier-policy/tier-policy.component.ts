@@ -172,13 +172,13 @@ export class TierPolicyComponent implements OnInit {
           ' ' +
           this.paymentTypeName(row) +
           ' / ' +
-          row.currency
+          row.currencyCode
       }
     });
     ref.afterClosed().subscribe((response: any) => {
       if (response?.delete) {
         this.tierPolicyService
-          .deleteTxLimit(this.selectedTier, row.paymentTypeId, row.currency)
+          .deleteTxLimit(this.selectedTier, row.paymentTypeId, row.currencyCode)
           .subscribe(() => this.removeTxLimit(row));
       }
     });
@@ -205,13 +205,13 @@ export class TierPolicyComponent implements OnInit {
   deleteBalanceCap(row: TierBalanceCap) {
     const ref = this.dialog.open(DeleteDialogComponent, {
       data: {
-        deleteContext: this.translateService.instant('labels.inputs.Balance Cap') + ' / ' + row.currency
+        deleteContext: this.translateService.instant('labels.inputs.Balance Cap') + ' / ' + row.currencyCode
       }
     });
     ref.afterClosed().subscribe((response: any) => {
       if (response?.delete) {
         this.tierPolicyService
-          .deleteBalanceCap(this.selectedTier, row.currency)
+          .deleteBalanceCap(this.selectedTier, row.currencyCode)
           .subscribe(() => this.removeBalanceCap(row));
       }
     });
@@ -222,7 +222,7 @@ export class TierPolicyComponent implements OnInit {
     const policy = this.policies[saved.tier];
     if (!policy) return;
     const idx = policy.txLimits.findIndex(
-      (r) => r.paymentTypeId === saved.paymentTypeId && r.currency === saved.currency
+      (r) => r.paymentTypeId === saved.paymentTypeId && r.currencyCode === saved.currencyCode
     );
     policy.txLimits = idx >= 0 ? policy.txLimits.map((r, i) => (i === idx ? saved : r)) : [
             ...policy.txLimits,
@@ -234,7 +234,7 @@ export class TierPolicyComponent implements OnInit {
   private mergeBalanceCap(saved: TierBalanceCap) {
     const policy = this.policies[saved.tier];
     if (!policy) return;
-    const idx = policy.balanceCaps.findIndex((r) => r.currency === saved.currency);
+    const idx = policy.balanceCaps.findIndex((r) => r.currencyCode === saved.currencyCode);
     policy.balanceCaps = idx >= 0 ? policy.balanceCaps.map((r, i) => (i === idx ? saved : r)) : [
             ...policy.balanceCaps,
             saved
@@ -245,13 +245,13 @@ export class TierPolicyComponent implements OnInit {
     const policy = this.policies[this.selectedTier];
     if (!policy) return;
     policy.txLimits = policy.txLimits.filter(
-      (r) => !(r.paymentTypeId === row.paymentTypeId && r.currency === row.currency)
+      (r) => !(r.paymentTypeId === row.paymentTypeId && r.currencyCode === row.currencyCode)
     );
   }
 
   private removeBalanceCap(row: TierBalanceCap) {
     const policy = this.policies[this.selectedTier];
     if (!policy) return;
-    policy.balanceCaps = policy.balanceCaps.filter((r) => r.currency !== row.currency);
+    policy.balanceCaps = policy.balanceCaps.filter((r) => r.currencyCode !== row.currencyCode);
   }
 }

@@ -12,7 +12,7 @@ export interface TierTxLimit {
   tier: KycTier;
   paymentTypeId: number;
   paymentTypeName?: string; // resolved server-side, nullable
-  currency: string; // ISO-4217
+  currencyCode: string; // ISO-4217
   perTxCap: number;
   dailySpendCap: number;
   updatedAt?: string; // ISO-8601, for the "saved at" stamp
@@ -20,7 +20,7 @@ export interface TierTxLimit {
 
 export interface TierBalanceCap {
   tier: KycTier;
-  currency: string;
+  currencyCode: string; // ISO-4217
   balanceCap: number | null; // null = no cap on the row
   updatedAt?: string;
 }

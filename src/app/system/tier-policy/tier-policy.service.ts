@@ -42,7 +42,7 @@ export class TierPolicyService {
    */
   putTxLimit(row: TierTxLimit): Observable<TierTxLimit> {
     return this.http.put<TierTxLimit>(
-      `/access/api/v1/admin/kyc-tiers/tier-tx-limits/${row.tier}/${row.paymentTypeId}/${row.currency}`,
+      `/access/api/v1/admin/kyc-tiers/tier-tx-limits/${row.tier}/${row.paymentTypeId}/${row.currencyCode}`,
       row
     );
   }
@@ -50,11 +50,13 @@ export class TierPolicyService {
   /**
    * @param {KycTier} tier KYC tier.
    * @param {number} paymentTypeId Payment type identifier.
-   * @param {string} currency ISO-4217 currency code.
+   * @param {string} currencyCode ISO-4217 currency code.
    * @returns {Observable<void>}
    */
-  deleteTxLimit(tier: KycTier, paymentTypeId: number, currency: string): Observable<void> {
-    return this.http.delete<void>(`/access/api/v1/admin/kyc-tiers/tier-tx-limits/${tier}/${paymentTypeId}/${currency}`);
+  deleteTxLimit(tier: KycTier, paymentTypeId: number, currencyCode: string): Observable<void> {
+    return this.http.delete<void>(
+      `/access/api/v1/admin/kyc-tiers/tier-tx-limits/${tier}/${paymentTypeId}/${currencyCode}`
+    );
   }
 
   /**
@@ -63,17 +65,17 @@ export class TierPolicyService {
    */
   putBalanceCap(row: TierBalanceCap): Observable<TierBalanceCap> {
     return this.http.put<TierBalanceCap>(
-      `/access/api/v1/admin/kyc-tiers/tier-balance-caps/${row.tier}/${row.currency}`,
+      `/access/api/v1/admin/kyc-tiers/tier-balance-caps/${row.tier}/${row.currencyCode}`,
       row
     );
   }
 
   /**
    * @param {KycTier} tier KYC tier.
-   * @param {string} currency ISO-4217 currency code.
+   * @param {string} currencyCode ISO-4217 currency code.
    * @returns {Observable<void>}
    */
-  deleteBalanceCap(tier: KycTier, currency: string): Observable<void> {
-    return this.http.delete<void>(`/access/api/v1/admin/kyc-tiers/tier-balance-caps/${tier}/${currency}`);
+  deleteBalanceCap(tier: KycTier, currencyCode: string): Observable<void> {
+    return this.http.delete<void>(`/access/api/v1/admin/kyc-tiers/tier-balance-caps/${tier}/${currencyCode}`);
   }
 }

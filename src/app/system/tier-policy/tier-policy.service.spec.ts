@@ -16,22 +16,22 @@ import { TierPolicy, TierTxLimit, TierBalanceCap } from './tier-policy.model';
 const MOCK_POLICY: TierPolicy = {
   tier: 'TIER_1',
   txLimits: [
-    { tier: 'TIER_1', paymentTypeId: 1, currency: 'NGN', perTxCap: 50000, dailySpendCap: 200000 }],
+    { tier: 'TIER_1', paymentTypeId: 1, currencyCode: 'NGN', perTxCap: 50000, dailySpendCap: 200000 }],
   balanceCaps: [
-    { tier: 'TIER_1', currency: 'NGN', balanceCap: 500000 }]
+    { tier: 'TIER_1', currencyCode: 'NGN', balanceCap: 500000 }]
 };
 
 const MOCK_TX_LIMIT: TierTxLimit = {
   tier: 'TIER_1',
   paymentTypeId: 1,
-  currency: 'NGN',
+  currencyCode: 'NGN',
   perTxCap: 50000,
   dailySpendCap: 200000
 };
 
 const MOCK_BALANCE_CAP: TierBalanceCap = {
   tier: 'TIER_1',
-  currency: 'NGN',
+  currencyCode: 'NGN',
   balanceCap: 500000
 };
 
