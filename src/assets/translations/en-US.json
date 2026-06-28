@@ -2850,7 +2850,10 @@
       "# Senders": "# Senders",
       "Sender Registry": "Sender Registry",
       "Individual": "Individual",
-      "Legal Entity": "Legal Entity"
+      "Legal Entity": "Legal Entity",
+      "Per Transaction Cap": "Per Transaction Cap",
+      "Daily Spend Cap": "Daily Spend Cap",
+      "Balance Cap": "Balance Cap"
     },
     "links": {
       "Community": "Community",
