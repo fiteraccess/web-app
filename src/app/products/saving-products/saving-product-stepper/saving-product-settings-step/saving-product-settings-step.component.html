@@ -277,6 +277,54 @@
     }
   </div>
 
+  <!-- AB-265: EMT Levy (per-product overrides, mirrors Paystack form layout). The fields are stored in Synapse's
+       m_savings_product_attributes and re-merged into the savings product response under `additionalAttributes`. -->
+  <mat-divider [inset]="true"></mat-divider>
+
+  <h3 class="mat-h3 flex-23">{{ 'labels.inputs.EMT Levy' | translate }}</h3>
+
+  <div class="layout-row-wrap responsive-column">
+    <mat-checkbox class="flex-31" labelPosition="before" formControlName="isEmtLevyApplicableForDeposit">
+      {{ 'labels.inputs.Enable EMT Levy for Deposit' | translate }}
+    </mat-checkbox>
+
+    <mat-checkbox class="flex-31" labelPosition="before" formControlName="isEmtLevyApplicableForWithdraw">
+      {{ 'labels.inputs.Enable EMT Levy for Withdraw' | translate }}
+    </mat-checkbox>
+  </div>
+
+  @if (
+    savingProductSettingsForm.value.isEmtLevyApplicableForDeposit ||
+    savingProductSettingsForm.value.isEmtLevyApplicableForWithdraw
+  ) {
+    <div class="layout-row-wrap responsive-column">
+      <mat-checkbox class="flex-31" labelPosition="before" formControlName="overrideGlobalEmtLevySetting">
+        {{ 'labels.inputs.Override global EMT levy Setting' | translate }}
+      </mat-checkbox>
+    </div>
+
+    @if (savingProductSettingsForm.value.overrideGlobalEmtLevySetting) {
+      <div class="layout-row-wrap gap-2percent responsive-column">
+        <mat-form-field class="flex-31">
+          <mat-label>{{ 'labels.inputs.EMT Levy Amount' | translate }}</mat-label>
+          <input type="number" matInput formControlName="emtLevyAmount" min="0" step="0.01" required />
+          <mat-error>
+            {{ 'labels.inputs.EMT Levy Amount' | translate }} {{ 'labels.commons.is' | translate }}
+            <strong>{{ 'labels.commons.required' | translate }}</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="flex-31">
+          <mat-label>{{ 'labels.inputs.EMT Levy Threshold' | translate }}</mat-label>
+          <input type="number" matInput formControlName="emtLevyThreshold" min="0" step="0.01" required />
+          <mat-error>
+            {{ 'labels.inputs.EMT Levy Threshold' | translate }} {{ 'labels.commons.is' | translate }}
+            <strong>{{ 'labels.commons.required' | translate }}</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    }
+  }
+
   <div class="layout-row align-center gap-2percent margin-t responsive-column">
     <button mat-raised-button matStepperPrevious>
       <fa-icon icon="arrow-left" class="m-r-10"></fa-icon>

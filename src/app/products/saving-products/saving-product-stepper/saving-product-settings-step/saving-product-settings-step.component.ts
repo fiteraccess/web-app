@@ -76,6 +76,25 @@ export class SavingProductSettingsStepComponent implements OnInit {
       daysToEscheat: this.savingProductsTemplate.daysToEscheat
     });
 
+    // AB-265: hydrate EMT Levy attributes from the Synapse-merged response. Field is `additionalAttributes` on edit
+    // payloads, but null/absent on the create template — both are handled gracefully.
+    const emt = this.savingProductsTemplate.additionalAttributes || {};
+    this.savingProductSettingsForm.patchValue({
+      isEmtLevyApplicableForDeposit: !!emt.isEmtLevyApplicableForDeposit,
+      isEmtLevyApplicableForWithdraw: !!emt.isEmtLevyApplicableForWithdraw
+    });
+    if (emt.isEmtLevyApplicableForDeposit || emt.isEmtLevyApplicableForWithdraw) {
+      this.savingProductSettingsForm.patchValue({
+        overrideGlobalEmtLevySetting: !!emt.overrideGlobalEmtLevySetting
+      });
+      if (emt.overrideGlobalEmtLevySetting) {
+        this.savingProductSettingsForm.patchValue({
+          emtLevyAmount: emt.emtLevyAmount,
+          emtLevyThreshold: emt.emtLevyThreshold
+        });
+      }
+    }
+
     if (hasLockinPeriod) {
       this.savingProductSettingsForm.patchValue({
         lockinPeriodFrequency: this.savingProductsTemplate.lockinPeriodFrequency,
@@ -105,7 +124,11 @@ export class SavingProductSettingsStepComponent implements OnInit {
       ],
       allowOverdraft: [false],
       withHoldTax: [false],
-      isDormancyTrackingActive: [false]
+      isDormancyTrackingActive: [false],
+      // AB-265: EMT Levy applicability flags (deposit / withdrawal). Override + amount + threshold are added
+      // dynamically below when either applicability flag is true.
+      isEmtLevyApplicableForDeposit: [false],
+      isEmtLevyApplicableForWithdraw: [false]
     });
   }
 
@@ -187,6 +210,52 @@ export class SavingProductSettingsStepComponent implements OnInit {
           this.savingProductSettingsForm.removeControl('daysToEscheat');
         }
       });
+
+    // AB-265: EMT Levy conditional controls. When either deposit or withdrawal applicability is checked, expose the
+    // override toggle. When override is checked, expose amount + threshold inputs (required and non-negative).
+    const refreshEmtControls = () => {
+      const depositEnabled = this.savingProductSettingsForm.value.isEmtLevyApplicableForDeposit;
+      const withdrawEnabled = this.savingProductSettingsForm.value.isEmtLevyApplicableForWithdraw;
+      const anyEnabled = depositEnabled || withdrawEnabled;
+      if (anyEnabled && !this.savingProductSettingsForm.contains('overrideGlobalEmtLevySetting')) {
+        this.savingProductSettingsForm.addControl('overrideGlobalEmtLevySetting', new UntypedFormControl(false));
+      } else if (!anyEnabled) {
+        this.savingProductSettingsForm.removeControl('overrideGlobalEmtLevySetting');
+        this.savingProductSettingsForm.removeControl('emtLevyAmount');
+        this.savingProductSettingsForm.removeControl('emtLevyThreshold');
+      }
+    };
+
+    this.savingProductSettingsForm
+      .get('isEmtLevyApplicableForDeposit')
+      .valueChanges.subscribe(() => refreshEmtControls());
+    this.savingProductSettingsForm
+      .get('isEmtLevyApplicableForWithdraw')
+      .valueChanges.subscribe(() => refreshEmtControls());
+
+    // Watch the override control (which may not exist yet) lazily via the form's status changes.
+    this.savingProductSettingsForm.valueChanges.subscribe(() => {
+      const override = !!this.savingProductSettingsForm.value.overrideGlobalEmtLevySetting;
+      if (override && !this.savingProductSettingsForm.contains('emtLevyAmount')) {
+        this.savingProductSettingsForm.addControl(
+          'emtLevyAmount',
+          new UntypedFormControl('', [
+            Validators.required,
+            Validators.min(0)
+          ])
+        );
+        this.savingProductSettingsForm.addControl(
+          'emtLevyThreshold',
+          new UntypedFormControl('', [
+            Validators.required,
+            Validators.min(0)
+          ])
+        );
+      } else if (!override && this.savingProductSettingsForm.contains('emtLevyAmount')) {
+        this.savingProductSettingsForm.removeControl('emtLevyAmount');
+        this.savingProductSettingsForm.removeControl('emtLevyThreshold');
+      }
+    });
   }
 
   get savingProductSettings() {
