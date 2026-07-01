@@ -1,0 +1,96 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<h1 mat-dialog-title>
+  @if (isEditMode) {
+    {{ 'labels.heading.Edit Transaction Limit' | translate }}
+  } @else {
+    {{ 'labels.heading.Add Transaction Limit' | translate }}
+  }
+</h1>
+
+<mat-dialog-content>
+  <form [formGroup]="txLimitForm">
+    <div class="layout-column">
+      <mat-form-field>
+        <mat-label>{{ 'labels.inputs.Payment Type' | translate }}</mat-label>
+        <mat-select required formControlName="paymentTypeId">
+          @for (paymentType of data.paymentTypes; track paymentType.id) {
+            <mat-option [value]="paymentType.id">
+              {{ paymentType.name }}
+            </mat-option>
+          }
+        </mat-select>
+        @if (txLimitForm.controls.paymentTypeId.hasError('required')) {
+          <mat-error>
+            {{ 'labels.inputs.Payment Type' | translate }} {{ 'labels.commons.is' | translate }}
+            <strong>{{ 'labels.commons.required' | translate }}</strong>
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ 'labels.inputs.Currency' | translate }}</mat-label>
+        <mat-select required formControlName="currencyCode">
+          @for (currency of data.currencies; track currency.code) {
+            <mat-option [value]="currency.code">
+              {{ currency.name || currency.code }}
+            </mat-option>
+          }
+        </mat-select>
+        @if (txLimitForm.controls.currencyCode.hasError('required')) {
+          <mat-error>
+            {{ 'labels.inputs.Currency' | translate }} {{ 'labels.commons.is' | translate }}
+            <strong>{{ 'labels.commons.required' | translate }}</strong>
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ 'labels.dialogContext.Per Transaction Cap' | translate }}</mat-label>
+        <input matInput required type="number" min="0" formControlName="perTxCap" />
+        @if (txLimitForm.controls.perTxCap.hasError('required')) {
+          <mat-error>
+            {{ 'labels.dialogContext.Per Transaction Cap' | translate }} {{ 'labels.commons.is' | translate }}
+            <strong>{{ 'labels.commons.required' | translate }}</strong>
+          </mat-error>
+        }
+        @if (txLimitForm.controls.perTxCap.hasError('min')) {
+          <mat-error>
+            {{ 'labels.dialogContext.Per Transaction Cap' | translate }} {{ 'labels.commons.is' | translate }}
+            <strong>{{ 'labels.commons.invalid' | translate }}</strong>
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ 'labels.dialogContext.Daily Spend Cap' | translate }}</mat-label>
+        <input matInput required type="number" min="0" formControlName="dailySpendCap" />
+        @if (txLimitForm.controls.dailySpendCap.hasError('required')) {
+          <mat-error>
+            {{ 'labels.dialogContext.Daily Spend Cap' | translate }} {{ 'labels.commons.is' | translate }}
+            <strong>{{ 'labels.commons.required' | translate }}</strong>
+          </mat-error>
+        }
+        @if (txLimitForm.controls.dailySpendCap.hasError('min')) {
+          <mat-error>
+            {{ 'labels.dialogContext.Daily Spend Cap' | translate }} {{ 'labels.commons.is' | translate }}
+            <strong>{{ 'labels.commons.invalid' | translate }}</strong>
+          </mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'labels.buttons.Cancel' | translate }}</button>
+  <button mat-raised-button color="primary" [disabled]="!txLimitForm.valid" (click)="submit()">
+    {{ 'labels.buttons.Submit' | translate }}
+  </button>
+</mat-dialog-actions>

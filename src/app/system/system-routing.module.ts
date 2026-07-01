@@ -56,6 +56,7 @@ import { ViewRoleComponent } from './roles-and-permissions/view-role/view-role.c
 import { SystemComponent } from './system.component';
 import { SystemInformationComponent } from './system-information/system-information.component';
 import { AboutUsComponent } from './about-us/about-us.component';
+import { TierPolicyComponent } from './tier-policy/tier-policy.component';
 
 /** Custom Resolvers */
 import { AccountNumberPreferencesResolver } from './account-number-preferences/account-number-preferences.resolver';
@@ -98,6 +99,9 @@ import { ManageSurveysResolver } from './manage-surveys/manage-surveys.resolver'
 import { SurveyResolver } from './manage-surveys/survey.resolver';
 import { RolesAndPermissionsResolver } from './roles-and-permissions/roles-and-permissions.resolver';
 import { ViewRoleResolver } from './roles-and-permissions/view-role/view-role.resolver';
+import { TierPolicyResolver } from './tier-policy/tier-policy.resolver';
+import { PaymentTypesResolver } from '../organization/payment-types/payment-types.resolver';
+import { CurrenciesResolver } from '../organization/currencies/currencies.resolver';
 
 const routes: Routes = [
   Route.withShell([
@@ -614,6 +618,15 @@ const routes: Routes = [
               }
             }
           ]
+        },
+        {
+          path: 'tier-policy',
+          data: { title: 'Tier Policy', breadcrumb: 'Tier Policy' },
+          component: TierPolicyComponent,
+          resolve: {
+            paymentTypes: PaymentTypesResolver,
+            currencies: CurrenciesResolver
+          }
         }
       ]
     }
@@ -654,7 +667,10 @@ const routes: Routes = [
     ViewRoleResolver,
     EntityToEntityMappingResolver,
     MakerCheckerTasksResolver,
-    ViewHistorySchedulerJobsResolver
+    ViewHistorySchedulerJobsResolver,
+    TierPolicyResolver,
+    PaymentTypesResolver,
+    CurrenciesResolver
   ]
 })
 export class SystemRoutingModule {}

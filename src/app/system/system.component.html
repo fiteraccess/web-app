@@ -257,6 +257,40 @@
             </div>
           </mat-list-item>
 
+          <mat-list-item [routerLink]="['tier-policy']" *mifosxHasPermission="'READ_TIERPOLICY'">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['tier-policy']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="shield-halved" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>
+                  {{ 'labels.heading.Tier Policy' | translate }}
+                  @if (arrowBooleans[14]) {
+                    <p matLine [routerLink]="['tier-policy']" class="menu-explanation">
+                      {{ 'labels.text.Tier Policy Description' | translate }}
+                    </p>
+                  }
+                </div>
+              </div>
+              <div class="menu-right-section">
+                @if (!arrowBooleans[14]) {
+                  <fa-icon
+                    (click)="arrowBooleansToggle(14); $event.stopPropagation()"
+                    icon="arrow-down"
+                    size="md"
+                  ></fa-icon>
+                }
+                @if (arrowBooleans[14]) {
+                  <fa-icon
+                    (click)="arrowBooleansToggle(14); $event.stopPropagation()"
+                    icon="arrow-up"
+                    size="md"
+                  ></fa-icon>
+                }
+              </div>
+            </div>
+          </mat-list-item>
+
           <mat-list-item [routerLink]="['external-events']" *mifosxHasPermission="'READ_EXTERNAL_EVENT_CONFIGURATION'">
             <div class="menu-list-item-content">
               <div class="menu-left-section" [routerLink]="['external-events']">
