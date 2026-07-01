@@ -1394,7 +1394,17 @@
       "Payout Assignment": "Payout Assignment",
       "Identification": "Identification",
       "Professional Information": "Professional Information",
-      "Add Profile Entry": "Add Profile Entry"
+      "Add Profile Entry": "Add Profile Entry",
+      "Tier Policy": "Tier Policy",
+      "Tier 1": "Tier 1",
+      "Tier 2": "Tier 2",
+      "Tier 3": "Tier 3",
+      "Transaction Limits": "Transaction Limits",
+      "Balance Caps": "Balance Caps",
+      "Add Transaction Limit": "Add Transaction Limit",
+      "Edit Transaction Limit": "Edit Transaction Limit",
+      "Add Balance Cap": "Add Balance Cap",
+      "Edit Balance Cap": "Edit Balance Cap"
     },
     "inputs": {
       "Floating rate": "Floating Rate",
@@ -2840,7 +2850,10 @@
       "# Senders": "# Senders",
       "Sender Registry": "Sender Registry",
       "Individual": "Individual",
-      "Legal Entity": "Legal Entity"
+      "Legal Entity": "Legal Entity",
+      "Per Transaction Cap": "Per Transaction Cap",
+      "Daily Spend Cap": "Daily Spend Cap",
+      "Balance Cap": "Balance Cap"
     },
     "links": {
       "Community": "Community",
@@ -3036,7 +3049,10 @@
       "Are you sure you want to": "Are you sure you want to ",
       "the productmix component with id": "the productmix component with id",
       "the Reschedule Loan": " the Reschedule Loan",
-      "the Transaction Type": "the Transaction Type"
+      "the Transaction Type": "the Transaction Type",
+      "Per Transaction Cap": "Per Transaction Cap",
+      "Daily Spend Cap": "Daily Spend Cap",
+      "Balance Cap": "Balance Cap"
     },
     "text": {
       "About Us": "About Us",
@@ -3839,7 +3855,11 @@
       "Failed to confirm payment. Please try again or contact support.": "Failed to confirm payment. Please try again or contact support.",
       "Failed to assign payout. Please try again.": "Failed to assign payout. Please try again.",
       "Remittance not found. Please check the reference number and try again.": "Remittance not found. Please check the reference number and try again.",
-      "Unable to load vendors. Please check your connection and try again.": "Unable to load vendors. Please check your connection and try again."
+      "Unable to load vendors. Please check your connection and try again.": "Unable to load vendors. Please check your connection and try again.",
+      "Tier Policy Description": "Manage KYC tier transaction limits and balance caps.",
+      "Saved at {{time}}": "Saved at {{time}}",
+      "No transaction limits configured": "No transaction limits configured",
+      "No balance caps configured": "No balance caps configured"
     },
     "auditTrail": {
       "actions": {
