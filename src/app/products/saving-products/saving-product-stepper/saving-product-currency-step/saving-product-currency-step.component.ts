@@ -45,11 +45,19 @@ export class SavingProductCurrencyStepComponent implements OnInit {
   ngOnInit() {
     this.currencyData = this.savingProductsTemplate.currencyOptions;
 
+    // On the create template Fineract returns defaults at the top level (digitsAfterDecimal, inMultiplesOf).
+    // On the edit template (existing product) those values live nested inside `currency` as
+    // `decimalPlaces` / `inMultiplesOf`. Prefer top-level (create defaults) then fall back to the nested
+    // form so the edit view populates correctly.
+    const currency = this.savingProductsTemplate.currency || {};
+    const decimalPlaces = this.savingProductsTemplate.digitsAfterDecimal ?? currency.decimalPlaces ?? '';
+    const inMultiplesOf = this.savingProductsTemplate.inMultiplesOf ?? currency.inMultiplesOf ?? '';
+
     this.savingProductCurrencyForm.patchValue({
-      currencyCode: this.savingProductsTemplate.currency.code || this.currencyData[0].code,
-      digitsAfterDecimal: this.savingProductsTemplate.digitsAfterDecimal ?? '',
-      setMultiples: !!this.savingProductsTemplate.inMultiplesOf,
-      inMultiplesOf: this.savingProductsTemplate.inMultiplesOf ?? ''
+      currencyCode: currency.code || this.currencyData[0].code,
+      digitsAfterDecimal: decimalPlaces,
+      setMultiples: inMultiplesOf !== '' && inMultiplesOf !== null && inMultiplesOf !== undefined,
+      inMultiplesOf: inMultiplesOf
     });
 
     this.setupConditionalValidation();

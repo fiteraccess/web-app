@@ -190,6 +190,62 @@
       </div>
     }
 
+    <!-- AB-265: EMT Levy summary. Values come from savingProduct.additionalAttributes populated by Synapse's
+         SavingsProductProxyHandler on GET /savingsproducts/{id}. Falls back to top-level fields so a
+         Fineract-direct client (bypassing Synapse) still renders sensibly. -->
+    <h3 class="mat-h3 flex-fill">{{ 'labels.heading.EMT Levy' | translate }}</h3>
+
+    <mat-divider [inset]="true"></mat-divider>
+
+    <div class="flex-fill layout-row">
+      <span class="flex-40">{{ 'labels.inputs.Enable EMT Levy for Deposit' | translate }}:</span>
+      <span class="flex-60">{{
+        savingProduct.additionalAttributes?.isEmtLevyApplicableForDeposit ?? savingProduct.isEmtLevyApplicableForDeposit
+          | yesNo
+      }}</span>
+    </div>
+
+    <div class="flex-fill layout-row">
+      <span class="flex-40">{{ 'labels.inputs.Enable EMT Levy for Withdraw' | translate }}:</span>
+      <span class="flex-60">{{
+        savingProduct.additionalAttributes?.isEmtLevyApplicableForWithdraw ??
+          savingProduct.isEmtLevyApplicableForWithdraw | yesNo
+      }}</span>
+    </div>
+
+    @if (
+      (savingProduct.additionalAttributes?.isEmtLevyApplicableForDeposit ??
+        savingProduct.isEmtLevyApplicableForDeposit) ||
+      (savingProduct.additionalAttributes?.isEmtLevyApplicableForWithdraw ??
+        savingProduct.isEmtLevyApplicableForWithdraw)
+    ) {
+      <div class="flex-fill layout-row">
+        <span class="flex-40">{{ 'labels.inputs.Override global EMT levy Setting' | translate }}:</span>
+        <span class="flex-60">{{
+          savingProduct.additionalAttributes?.overrideGlobalEmtLevySetting ?? savingProduct.overrideGlobalEmtLevySetting
+            | yesNo
+        }}</span>
+      </div>
+
+      @if (
+        savingProduct.additionalAttributes?.overrideGlobalEmtLevySetting ?? savingProduct.overrideGlobalEmtLevySetting
+      ) {
+        <div class="flex-fill layout-row">
+          <span class="flex-40">{{ 'labels.inputs.EMT Levy Amount' | translate }}:</span>
+          <span class="flex-60">{{
+            savingProduct.additionalAttributes?.emtLevyAmount ?? savingProduct.emtLevyAmount | formatNumber: '-'
+          }}</span>
+        </div>
+
+        <div class="flex-fill layout-row">
+          <span class="flex-40">{{ 'labels.inputs.EMT Levy Threshold' | translate }}:</span>
+          <span class="flex-60">{{
+            savingProduct.additionalAttributes?.emtLevyThreshold ?? savingProduct.emtLevyThreshold | formatNumber: '-'
+          }}</span>
+        </div>
+      }
+    }
+
     @if (savingProduct.charges.length) {
       <div class="layout-row-wrap responsive-column flex-fill">
         <h3 class="mat-h3 flex-fill">{{ 'labels.heading.Charges' | translate }}</h3>
