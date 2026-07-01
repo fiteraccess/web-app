@@ -213,16 +213,50 @@ export class SavingProductSettingsStepComponent implements OnInit {
 
     // AB-265: EMT Levy conditional controls. When either deposit or withdrawal applicability is checked, expose the
     // override toggle. When override is checked, expose amount + threshold inputs (required and non-negative).
+    const addEmtAmountAndThreshold = () => {
+      if (!this.savingProductSettingsForm.contains('emtLevyAmount')) {
+        this.savingProductSettingsForm.addControl(
+          'emtLevyAmount',
+          new UntypedFormControl('', [
+            Validators.required,
+            Validators.min(0)
+          ])
+        );
+      }
+      if (!this.savingProductSettingsForm.contains('emtLevyThreshold')) {
+        this.savingProductSettingsForm.addControl(
+          'emtLevyThreshold',
+          new UntypedFormControl('', [
+            Validators.required,
+            Validators.min(0)
+          ])
+        );
+      }
+    };
+    const removeEmtAmountAndThreshold = () => {
+      this.savingProductSettingsForm.removeControl('emtLevyAmount');
+      this.savingProductSettingsForm.removeControl('emtLevyThreshold');
+    };
+
     const refreshEmtControls = () => {
       const depositEnabled = this.savingProductSettingsForm.value.isEmtLevyApplicableForDeposit;
       const withdrawEnabled = this.savingProductSettingsForm.value.isEmtLevyApplicableForWithdraw;
       const anyEnabled = depositEnabled || withdrawEnabled;
       if (anyEnabled && !this.savingProductSettingsForm.contains('overrideGlobalEmtLevySetting')) {
-        this.savingProductSettingsForm.addControl('overrideGlobalEmtLevySetting', new UntypedFormControl(false));
+        const overrideCtrl = new UntypedFormControl(false);
+        this.savingProductSettingsForm.addControl('overrideGlobalEmtLevySetting', overrideCtrl);
+        // Wire override → amount/threshold directly on the newly added control so we don't need to poll
+        // the whole form's valueChanges (which is fragile when controls are added mid-cycle).
+        overrideCtrl.valueChanges.subscribe((override: boolean) => {
+          if (override) {
+            addEmtAmountAndThreshold();
+          } else {
+            removeEmtAmountAndThreshold();
+          }
+        });
       } else if (!anyEnabled) {
         this.savingProductSettingsForm.removeControl('overrideGlobalEmtLevySetting');
-        this.savingProductSettingsForm.removeControl('emtLevyAmount');
-        this.savingProductSettingsForm.removeControl('emtLevyThreshold');
+        removeEmtAmountAndThreshold();
       }
     };
 
@@ -232,30 +266,6 @@ export class SavingProductSettingsStepComponent implements OnInit {
     this.savingProductSettingsForm
       .get('isEmtLevyApplicableForWithdraw')
       .valueChanges.subscribe(() => refreshEmtControls());
-
-    // Watch the override control (which may not exist yet) lazily via the form's status changes.
-    this.savingProductSettingsForm.valueChanges.subscribe(() => {
-      const override = !!this.savingProductSettingsForm.value.overrideGlobalEmtLevySetting;
-      if (override && !this.savingProductSettingsForm.contains('emtLevyAmount')) {
-        this.savingProductSettingsForm.addControl(
-          'emtLevyAmount',
-          new UntypedFormControl('', [
-            Validators.required,
-            Validators.min(0)
-          ])
-        );
-        this.savingProductSettingsForm.addControl(
-          'emtLevyThreshold',
-          new UntypedFormControl('', [
-            Validators.required,
-            Validators.min(0)
-          ])
-        );
-      } else if (!override && this.savingProductSettingsForm.contains('emtLevyAmount')) {
-        this.savingProductSettingsForm.removeControl('emtLevyAmount');
-        this.savingProductSettingsForm.removeControl('emtLevyThreshold');
-      }
-    });
   }
 
   get savingProductSettings() {
