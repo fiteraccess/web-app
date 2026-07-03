@@ -76,6 +76,19 @@ export class SavingProductSettingsStepComponent implements OnInit {
       daysToEscheat: this.savingProductsTemplate.daysToEscheat
     });
 
+    // AB-265: hydrate EMT Levy attributes from the Synapse-merged response. Prefer `additionalAttributes`
+    // (added by SavingsProductProxyHandler.enrichSingle on GET /savingsproducts/{id}), but fall back to
+    // top-level fields so a Fineract-direct load (bypassing Synapse) still populates the controls.
+    const emt = this.savingProductsTemplate.additionalAttributes || {};
+    const src = this.savingProductsTemplate;
+    this.savingProductSettingsForm.patchValue({
+      isEmtLevyApplicableForDeposit: !!(emt.isEmtLevyApplicableForDeposit ?? src.isEmtLevyApplicableForDeposit),
+      isEmtLevyApplicableForWithdraw: !!(emt.isEmtLevyApplicableForWithdraw ?? src.isEmtLevyApplicableForWithdraw),
+      overrideGlobalEmtLevySetting: !!(emt.overrideGlobalEmtLevySetting ?? src.overrideGlobalEmtLevySetting),
+      emtLevyAmount: emt.emtLevyAmount ?? src.emtLevyAmount ?? '',
+      emtLevyThreshold: emt.emtLevyThreshold ?? src.emtLevyThreshold ?? ''
+    });
+
     if (hasLockinPeriod) {
       this.savingProductSettingsForm.patchValue({
         lockinPeriodFrequency: this.savingProductsTemplate.lockinPeriodFrequency,
@@ -105,7 +118,15 @@ export class SavingProductSettingsStepComponent implements OnInit {
       ],
       allowOverdraft: [false],
       withHoldTax: [false],
-      isDormancyTrackingActive: [false]
+      isDormancyTrackingActive: [false],
+      // AB-265: All EMT Levy controls are declared upfront (with no validators) so the reactive-form bindings
+      // in the template resolve immediately. Validators for amount/threshold are toggled dynamically in
+      // setConditionalControls based on the override flag.
+      isEmtLevyApplicableForDeposit: [false],
+      isEmtLevyApplicableForWithdraw: [false],
+      overrideGlobalEmtLevySetting: [false],
+      emtLevyAmount: [''],
+      emtLevyThreshold: ['']
     });
   }
 
@@ -187,6 +208,51 @@ export class SavingProductSettingsStepComponent implements OnInit {
           this.savingProductSettingsForm.removeControl('daysToEscheat');
         }
       });
+
+    // AB-265: EMT Levy validators are toggled dynamically. Amount + threshold are declared upfront (no
+    // validators) so bindings resolve immediately; we add/remove the required + min(0) validators when the
+    // override flag flips. The @if in the template drives visibility only.
+    const emtAmountCtrl = this.savingProductSettingsForm.get('emtLevyAmount');
+    const emtThresholdCtrl = this.savingProductSettingsForm.get('emtLevyThreshold');
+    const applyEmtValidators = (override: boolean) => {
+      if (override) {
+        emtAmountCtrl.setValidators([
+          Validators.required,
+          Validators.min(0)
+        ]);
+        emtThresholdCtrl.setValidators([
+          Validators.required,
+          Validators.min(0)
+        ]);
+      } else {
+        emtAmountCtrl.clearValidators();
+        emtThresholdCtrl.clearValidators();
+        emtAmountCtrl.setValue('', { emitEvent: false });
+        emtThresholdCtrl.setValue('', { emitEvent: false });
+      }
+      emtAmountCtrl.updateValueAndValidity({ emitEvent: false });
+      emtThresholdCtrl.updateValueAndValidity({ emitEvent: false });
+    };
+
+    this.savingProductSettingsForm
+      .get('overrideGlobalEmtLevySetting')
+      .valueChanges.subscribe((override: boolean) => applyEmtValidators(override));
+
+    // If either applicability flag is turned off AND neither remains, clear the override + amount/threshold.
+    const clearIfNoApplicability = () => {
+      const anyEnabled =
+        this.savingProductSettingsForm.value.isEmtLevyApplicableForDeposit ||
+        this.savingProductSettingsForm.value.isEmtLevyApplicableForWithdraw;
+      if (!anyEnabled) {
+        this.savingProductSettingsForm.patchValue({ overrideGlobalEmtLevySetting: false }, { emitEvent: true });
+      }
+    };
+    this.savingProductSettingsForm
+      .get('isEmtLevyApplicableForDeposit')
+      .valueChanges.subscribe(() => clearIfNoApplicability());
+    this.savingProductSettingsForm
+      .get('isEmtLevyApplicableForWithdraw')
+      .valueChanges.subscribe(() => clearIfNoApplicability());
   }
 
   get savingProductSettings() {

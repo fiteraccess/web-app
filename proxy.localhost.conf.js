@@ -16,14 +16,15 @@
 module.exports = [
   {
     context: ['/fineract-provider'],
-    target: 'http://localhost:8443',
-    pathRewrite: { '^/fineract-provider': '' },
+    // Route through Synapse (port 8444) so the SavingsProductProxyHandler enrichment (AB-265 EMT Levy
+    // additionalAttributes) and other Synapse interceptors run. Synapse strips the /fineract-provider
+    // context internally and forwards to Fineract on port 8448 — so we must NOT pathRewrite here.
+    target: 'http://localhost:8444',
     changeOrigin: true,
     secure: false,
     logLevel: 'debug',
     onProxyReq: function (proxyReq, req, res) {
-      const rewrittenPath = (req.url || '').replace(/^\/fineract-provider/, '');
-      console.log('[Proxy] Proxying:', req.method, req.url, '->', this.target + rewrittenPath);
+      console.log('[Proxy] Proxying:', req.method, req.url, '->', this.target + (req.url || ''));
     },
     onError: function (err, req, res) {
       console.error(
