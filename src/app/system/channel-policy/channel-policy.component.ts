@@ -7,11 +7,14 @@
  */
 
 /** Angular Imports */
-import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort, MatSortHeader } from '@angular/material/sort';
 import {
   MatTable,
+  MatTableDataSource,
   MatColumnDef,
   MatHeaderCellDef,
   MatHeaderCell,
@@ -22,13 +25,11 @@ import {
   MatRowDef,
   MatRow
 } from '@angular/material/table';
-import { MatIconButton, MatButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 
 /** Custom Components */
-import { DeleteDialogComponent } from 'app/shared/delete-dialog/delete-dialog.component';
 import { ChannelDialogComponent, ChannelDialogData } from './channel-dialog.component';
 
 /** Custom Services */
@@ -38,8 +39,9 @@ import { ChannelPolicyService } from './channel-policy.service';
 import { Channel } from './channel-policy.model';
 
 /**
- * AB-473 channel list. Every mutation invalidates the server-side cache across pods; the client
- * re-fetches the list after each write to reflect the new state.
+ * AB-473 channel list. Follows the Fineract webapp convention (see `CodesComponent`): sortable +
+ * filterable + paginated Material table, click-through row navigation to the per-channel detail
+ * page. Edit and delete now live on the detail page; the list only exposes "New Channel".
  */
 @Component({
   selector: 'mifosx-channel-policy',
@@ -58,32 +60,43 @@ import { Channel } from './channel-policy.model';
     MatHeaderRow,
     MatRowDef,
     MatRow,
-    MatIconButton,
-    MatButton,
+    MatSort,
+    MatSortHeader,
+    MatPaginator,
     MatTooltip
   ]
 })
-export class ChannelPolicyComponent implements OnInit {
+export class ChannelPolicyComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private dialog = inject(MatDialog);
   private service = inject(ChannelPolicyService);
 
-  channels: Channel[] = [];
   displayedColumns = [
     'code',
     'displayName',
     'active',
-    'updatedBy',
-    'actions'
+    'updatedBy'
   ];
+  dataSource: MatTableDataSource<Channel> = new MatTableDataSource<Channel>([]);
+
+  @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort!: MatSort;
 
   ngOnInit(): void {
-    this.channels = this.route.snapshot.data['channels'] ?? [];
+    this.dataSource.data = this.route.snapshot.data['channels'] ?? [];
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  applyFilter(filterValue: string): void {
+    this.dataSource.filter = (filterValue ?? '').trim().toLowerCase();
   }
 
   private refresh(): void {
-    this.service.listChannels().subscribe((rows) => (this.channels = rows));
+    this.service.listChannels().subscribe((rows) => (this.dataSource.data = rows));
   }
 
   openCreate(): void {
@@ -95,35 +108,5 @@ export class ChannelPolicyComponent implements OnInit {
       if (!payload) return;
       this.service.createChannel(payload).subscribe(() => this.refresh());
     });
-  }
-
-  openEdit(channel: Channel): void {
-    const ref = this.dialog.open(ChannelDialogComponent, {
-      data: { channel } as ChannelDialogData,
-      width: '540px'
-    });
-    ref.afterClosed().subscribe((payload) => {
-      if (!payload) return;
-      this.service.updateChannel(channel.id, payload).subscribe(() => this.refresh());
-    });
-  }
-
-  openDelete(channel: Channel): void {
-    const ref = this.dialog.open(DeleteDialogComponent, {
-      data: { deleteContext: `channel "${channel.code}" (cascades every route)` }
-    });
-    ref.afterClosed().subscribe((r) => {
-      if (r?.delete) this.service.deleteChannel(channel.id).subscribe(() => this.refresh());
-    });
-  }
-
-  manageRoutes(channel: Channel): void {
-    this.router.navigate(
-      [
-        channel.id,
-        'routes'
-      ],
-      { relativeTo: this.route }
-    );
   }
 }

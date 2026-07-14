@@ -645,8 +645,8 @@ const routes: Routes = [
               resolve: { channels: ChannelPolicyResolver }
             },
             {
-              path: ':id/routes',
-              data: { title: 'Channel Routes', routeParamBreadcrumb: 'id' },
+              path: ':id',
+              data: { title: 'Channel Detail', routeParamBreadcrumb: 'id' },
               component: ChannelRoutesComponent,
               resolve: { routes: ChannelRoutesResolver, channel: ChannelResolver }
             }

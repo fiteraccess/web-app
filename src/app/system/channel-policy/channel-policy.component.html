@@ -6,60 +6,65 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
+<div class="container m-b-20 layout-row align-end gap-20px">
+  <button mat-raised-button color="primary" (click)="openCreate()" *mifosxHasPermission="'MANAGE_CHANNEL'">
+    <fa-icon icon="plus" class="m-r-10"></fa-icon>
+    {{ 'labels.buttons.New Channel' | translate }}
+  </button>
+</div>
+
 <div class="container">
-  <div class="header">
-    <h2>{{ 'labels.heading.Channel Policy' | translate }}</h2>
-    <p class="subtitle">{{ 'labels.text.Channel Policy Subtitle' | translate }}</p>
-    <button mat-raised-button color="primary" (click)="openCreate()">
-      <fa-icon icon="plus" size="sm"></fa-icon>
-      {{ 'labels.buttons.New Channel' | translate }}
-    </button>
+  <div class="layout-row">
+    <mat-form-field class="flex-fill">
+      <mat-label>{{ 'labels.inputs.Filter' | translate }}</mat-label>
+      <input matInput (keyup)="applyFilter($any($event.target).value)" />
+    </mat-form-field>
   </div>
 
-  <table mat-table [dataSource]="channels" class="mat-elevation-z1">
-    <ng-container matColumnDef="code">
-      <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Code' | translate }}</th>
-      <td mat-cell *matCellDef="let c">{{ c.code }}</td>
-    </ng-container>
+  <div class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" matSort>
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.inputs.Code' | translate }}</th>
+        <td mat-cell *matCellDef="let c">{{ c.code }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="displayName">
-      <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Display Name' | translate }}</th>
-      <td mat-cell *matCellDef="let c">{{ c.displayName }}</td>
-    </ng-container>
+      <ng-container matColumnDef="displayName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.inputs.Display Name' | translate }}</th>
+        <td mat-cell *matCellDef="let c">{{ c.displayName }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="active">
-      <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Active' | translate }}</th>
-      <td mat-cell *matCellDef="let c">
-        <fa-icon
-          [icon]="c.active ? 'check-circle' : 'times-circle'"
-          [class.active]="c.active"
-          [class.inactive]="!c.active"
-          size="sm"
-        ></fa-icon>
-      </td>
-    </ng-container>
+      <ng-container matColumnDef="active">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.inputs.Active' | translate }}</th>
+        <td mat-cell *matCellDef="let c">
+          @if (c.active) {
+            <fa-icon
+              icon="check-circle"
+              size="lg"
+              class="active"
+              matTooltip="{{ 'tooltips.Yes' | translate }}"
+              matTooltipPosition="right"
+            ></fa-icon>
+          } @else {
+            <fa-icon
+              icon="times-circle"
+              size="lg"
+              class="inactive"
+              matTooltip="{{ 'tooltips.No' | translate }}"
+              matTooltipPosition="right"
+            ></fa-icon>
+          }
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="updatedBy">
-      <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Updated By' | translate }}</th>
-      <td mat-cell *matCellDef="let c">{{ c.updatedBy || '—' }}</td>
-    </ng-container>
+      <ng-container matColumnDef="updatedBy">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.inputs.Updated By' | translate }}</th>
+        <td mat-cell *matCellDef="let c">{{ c.updatedBy || '—' }}</td>
+      </ng-container>
 
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Actions' | translate }}</th>
-      <td mat-cell *matCellDef="let c">
-        <button mat-icon-button (click)="manageRoutes(c)" [matTooltip]="'labels.buttons.Manage Routes' | translate">
-          <fa-icon icon="list-ul" size="sm"></fa-icon>
-        </button>
-        <button mat-icon-button (click)="openEdit(c)" [matTooltip]="'labels.buttons.Edit' | translate">
-          <fa-icon icon="pen" size="sm"></fa-icon>
-        </button>
-        <button mat-icon-button (click)="openDelete(c)" [matTooltip]="'labels.buttons.Delete' | translate">
-          <fa-icon icon="trash" size="sm"></fa-icon>
-        </button>
-      </td>
-    </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" [routerLink]="[row.id]" class="select-row"></tr>
+    </table>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
+    <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+  </div>
 </div>

@@ -9,6 +9,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { MatCardTitle } from '@angular/material/card';
 import {
   MatTable,
   MatColumnDef,
@@ -21,18 +22,24 @@ import {
   MatRowDef,
   MatRow
 } from '@angular/material/table';
-import { MatIconButton, MatButton } from '@angular/material/button';
+import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 
 import { DeleteDialogComponent } from 'app/shared/delete-dialog/delete-dialog.component';
+import { ChannelDialogComponent, ChannelDialogData } from './channel-dialog.component';
 import { ChannelRouteDialogComponent } from './channel-route-dialog.component';
 
 import { ChannelPolicyService } from './channel-policy.service';
 import { Channel, ChannelRoute } from './channel-policy.model';
 
-/** AB-473 routes-for-a-channel page. Add/delete inline; routes are immutable (delete + create). */
+/**
+ * AB-473 channel detail page (routed at `/system/channel-policy/:id`). Owns three top-bar actions
+ * to match the Fineract webapp convention (see `ViewCodeComponent`): Add Route, Edit Channel,
+ * Delete Channel. Routes themselves are immutable — the per-row action is delete-only; changing a
+ * route is a delete + create round-trip.
+ */
 @Component({
   selector: 'mifosx-channel-routes',
   templateUrl: './channel-routes.component.html',
@@ -40,6 +47,7 @@ import { Channel, ChannelRoute } from './channel-policy.model';
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
     FaIconComponent,
+    MatCardTitle,
     MatTable,
     MatColumnDef,
     MatHeaderCellDef,
@@ -51,7 +59,6 @@ import { Channel, ChannelRoute } from './channel-policy.model';
     MatRowDef,
     MatRow,
     MatIconButton,
-    MatButton,
     MatTooltip
   ]
 })
@@ -83,8 +90,12 @@ export class ChannelRoutesComponent implements OnInit {
     return this.channel ? `${this.channel.displayName} (${this.channel.code})` : this.channelId;
   }
 
-  private refresh(): void {
+  private refreshRoutes(): void {
     this.service.listRoutes(this.channelId).subscribe((rows) => (this.routes = rows));
+  }
+
+  private refreshChannel(): void {
+    this.service.listChannels().subscribe((list) => (this.channel = list.find((c) => c.id === this.channelId)));
   }
 
   openAdd(): void {
@@ -94,7 +105,30 @@ export class ChannelRoutesComponent implements OnInit {
     });
     ref.afterClosed().subscribe((payload) => {
       if (!payload) return;
-      this.service.createRoute(this.channelId, payload).subscribe(() => this.refresh());
+      this.service.createRoute(this.channelId, payload).subscribe(() => this.refreshRoutes());
+    });
+  }
+
+  openEditChannel(): void {
+    if (!this.channel) return;
+    const ref = this.dialog.open(ChannelDialogComponent, {
+      data: { channel: this.channel } as ChannelDialogData,
+      width: '540px'
+    });
+    ref.afterClosed().subscribe((payload) => {
+      if (!payload) return;
+      this.service.updateChannel(this.channelId, payload).subscribe(() => this.refreshChannel());
+    });
+  }
+
+  openDeleteChannel(): void {
+    const label = this.channel ? this.channel.code : this.channelId;
+    const ref = this.dialog.open(DeleteDialogComponent, {
+      data: { deleteContext: `channel "${label}" (cascades every route)` }
+    });
+    ref.afterClosed().subscribe((r) => {
+      if (!r?.delete) return;
+      this.service.deleteChannel(this.channelId).subscribe(() => this.router.navigate(['/system/channel-policy']));
     });
   }
 
@@ -102,17 +136,8 @@ export class ChannelRoutesComponent implements OnInit {
     const label = `route "${this.methodLabel(row.httpMethod)} ${row.pathTemplate}"`;
     const ref = this.dialog.open(DeleteDialogComponent, { data: { deleteContext: label } });
     ref.afterClosed().subscribe((r) => {
-      if (r?.delete) this.service.deleteRoute(this.channelId, row.id).subscribe(() => this.refresh());
+      if (r?.delete) this.service.deleteRoute(this.channelId, row.id).subscribe(() => this.refreshRoutes());
     });
-  }
-
-  /**
-   * Navigate to the channel-policy landing page. The relative path from
-   * `/system/channel-policy/:id/routes` needs two `..` segments to reach the list;
-   * an absolute route is more robust to future restructuring, so we use that.
-   */
-  goBack(): void {
-    this.router.navigate(['/system/channel-policy']);
   }
 
   methodLabel(m: string): string {

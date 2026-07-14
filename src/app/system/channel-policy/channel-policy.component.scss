@@ -31,6 +31,10 @@
 
 table {
   width: 100%;
+
+  .select-row:hover {
+    cursor: pointer;
+  }
 }
 
 .active {
@@ -39,4 +43,15 @@ table {
 
 .inactive {
   color: #c62828;
+}
+
+/**
+ * Detail-page description paragraph inside `mat-card-content`. Aligns with the
+ * `.m-l-20`-offset `mat-card-title` above it and leaves a small gap before the
+ * routes table.
+ */
+.description {
+  margin: 0 20px 12px;
+  color: rgb(0 0 0 / 60%);
+  font-size: 13px;
 }
