@@ -1,0 +1,87 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container m-b-20 layout-row align-end layout-xs-column gap-20px">
+  <button mat-raised-button color="primary" (click)="openAdd()" *mifosxHasPermission="'MANAGE_CHANNEL'">
+    <fa-icon icon="plus" class="m-r-10"></fa-icon>
+    {{ 'labels.buttons.Add Route' | translate }}
+  </button>
+  <span>
+    <button mat-raised-button color="primary" (click)="openEditChannel()" *mifosxHasPermission="'MANAGE_CHANNEL'">
+      <fa-icon icon="edit" class="m-r-10"></fa-icon>
+      {{ 'labels.buttons.Edit Channel' | translate }}
+    </button>
+  </span>
+  <span>
+    <button mat-raised-button color="warn" (click)="openDeleteChannel()" *mifosxHasPermission="'MANAGE_CHANNEL'">
+      <fa-icon icon="trash" class="m-r-10"></fa-icon>
+      {{ 'labels.buttons.Delete Channel' | translate }}
+    </button>
+  </span>
+</div>
+
+<div class="container">
+  <mat-card>
+    <mat-card-title class="m-t-20 m-l-20"
+      ><h4>{{ channelLabel }}</h4></mat-card-title
+    >
+
+    <mat-card-content>
+      @if (channel?.description) {
+        <p class="description">{{ channel!.description }}</p>
+      }
+      <div class="mat-elevation-z1">
+        <table mat-table [dataSource]="routes">
+          <ng-container matColumnDef="httpMethod">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Method' | translate }}</th>
+            <td
+              mat-cell
+              *matCellDef="let r"
+              [matTooltip]="r.httpMethod === '*' ? ('labels.text.Any Method Tooltip' | translate) : ''"
+            >
+              {{ methodLabel(r.httpMethod) }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="pathTemplate">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Path Template' | translate }}</th>
+            <td
+              mat-cell
+              *matCellDef="let r"
+              [matTooltip]="r.pathTemplate === '*' ? ('labels.text.All Paths Tooltip' | translate) : ''"
+            >
+              {{ pathLabel(r.pathTemplate) }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdBy">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Created By' | translate }}</th>
+            <td mat-cell *matCellDef="let r">{{ r.createdBy || '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Actions' | translate }}</th>
+            <td mat-cell *matCellDef="let r">
+              <button
+                mat-icon-button
+                (click)="openDelete(r)"
+                [matTooltip]="'labels.buttons.Delete' | translate"
+                *mifosxHasPermission="'MANAGE_CHANNEL'"
+              >
+                <fa-icon icon="trash" size="sm"></fa-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

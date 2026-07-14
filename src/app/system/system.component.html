@@ -291,66 +291,32 @@
             </div>
           </mat-list-item>
 
-          <mat-list-item [routerLink]="['external-events']" *mifosxHasPermission="'READ_EXTERNAL_EVENT_CONFIGURATION'">
+          <mat-list-item [routerLink]="['channel-policy']" *mifosxHasPermission="'MANAGE_CHANNEL'">
             <div class="menu-list-item-content">
-              <div class="menu-left-section" [routerLink]="['external-events']">
+              <div class="menu-left-section" [routerLink]="['channel-policy']">
                 <mat-icon matListIcon>
-                  <fa-icon icon="anchor" size="sm"></fa-icon>
+                  <fa-icon icon="link" size="sm"></fa-icon>
                 </mat-icon>
                 <div matLine>
-                  {{ 'labels.heading.Manage External Events' | translate }}
-                  @if (arrowBooleans[7]) {
-                    <p matLine [routerLink]="['external-events']" class="menu-explanation">
-                      {{ 'labels.text.External Events configuration, to enable or disable' | translate }}
+                  {{ 'labels.heading.Channel Policy' | translate }}
+                  @if (arrowBooleans[17]) {
+                    <p matLine [routerLink]="['channel-policy']" class="menu-explanation">
+                      {{ 'labels.text.Channel Policy Description' | translate }}
                     </p>
                   }
                 </div>
               </div>
               <div class="menu-right-section">
-                @if (!arrowBooleans[7]) {
+                @if (!arrowBooleans[17]) {
                   <fa-icon
-                    (click)="arrowBooleansToggle(7); $event.stopPropagation()"
+                    (click)="arrowBooleansToggle(17); $event.stopPropagation()"
                     icon="arrow-down"
                     size="md"
                   ></fa-icon>
                 }
-                @if (arrowBooleans[7]) {
+                @if (arrowBooleans[17]) {
                   <fa-icon
-                    (click)="arrowBooleansToggle(7); $event.stopPropagation()"
-                    icon="arrow-up"
-                    size="md"
-                  ></fa-icon>
-                }
-              </div>
-            </div>
-          </mat-list-item>
-
-          <mat-list-item [routerLink]="['system-information']">
-            <div class="menu-list-item-content">
-              <div class="menu-left-section" [routerLink]="['system-information']">
-                <mat-icon matListIcon>
-                  <fa-icon icon="info-circle" size="sm"></fa-icon>
-                </mat-icon>
-                <div matLine>
-                  {{ 'labels.heading.System Information' | translate }}
-                  @if (arrowBooleans[15]) {
-                    <p matLine [routerLink]="['system-information']" class="menu-explanation">
-                      {{ 'labels.text.View system version, server and licensing information' | translate }}
-                    </p>
-                  }
-                </div>
-              </div>
-              <div class="menu-right-section">
-                @if (!arrowBooleans[15]) {
-                  <fa-icon
-                    (click)="arrowBooleansToggle(15); $event.stopPropagation()"
-                    icon="arrow-down"
-                    size="md"
-                  ></fa-icon>
-                }
-                @if (arrowBooleans[15]) {
-                  <fa-icon
-                    (click)="arrowBooleansToggle(15); $event.stopPropagation()"
+                    (click)="arrowBooleansToggle(17); $event.stopPropagation()"
                     icon="arrow-up"
                     size="md"
                   ></fa-icon>
@@ -467,6 +433,40 @@
             </div>
           </mat-list-item>
 
+          <mat-list-item [routerLink]="['external-events']" *mifosxHasPermission="'READ_EXTERNAL_EVENT_CONFIGURATION'">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['external-events']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="anchor" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>
+                  {{ 'labels.heading.Manage External Events' | translate }}
+                  @if (arrowBooleans[7]) {
+                    <p matLine [routerLink]="['external-events']" class="menu-explanation">
+                      {{ 'labels.text.External Events configuration, to enable or disable' | translate }}
+                    </p>
+                  }
+                </div>
+              </div>
+              <div class="menu-right-section">
+                @if (!arrowBooleans[7]) {
+                  <fa-icon
+                    (click)="arrowBooleansToggle(7); $event.stopPropagation()"
+                    icon="arrow-down"
+                    size="md"
+                  ></fa-icon>
+                }
+                @if (arrowBooleans[7]) {
+                  <fa-icon
+                    (click)="arrowBooleansToggle(7); $event.stopPropagation()"
+                    icon="arrow-up"
+                    size="md"
+                  ></fa-icon>
+                }
+              </div>
+            </div>
+          </mat-list-item>
+
           <mat-list-item [routerLink]="['configurations']">
             <div class="menu-list-item-content">
               <div class="menu-left-section" [routerLink]="['configurations']">
@@ -561,6 +561,40 @@
                 @if (arrowBooleans[13]) {
                   <fa-icon
                     (click)="arrowBooleansToggle(13); $event.stopPropagation()"
+                    icon="arrow-up"
+                    size="md"
+                  ></fa-icon>
+                }
+              </div>
+            </div>
+          </mat-list-item>
+
+          <mat-list-item [routerLink]="['system-information']">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['system-information']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="info-circle" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>
+                  {{ 'labels.heading.System Information' | translate }}
+                  @if (arrowBooleans[15]) {
+                    <p matLine [routerLink]="['system-information']" class="menu-explanation">
+                      {{ 'labels.text.View system version, server and licensing information' | translate }}
+                    </p>
+                  }
+                </div>
+              </div>
+              <div class="menu-right-section">
+                @if (!arrowBooleans[15]) {
+                  <fa-icon
+                    (click)="arrowBooleansToggle(15); $event.stopPropagation()"
+                    icon="arrow-down"
+                    size="md"
+                  ></fa-icon>
+                }
+                @if (arrowBooleans[15]) {
+                  <fa-icon
+                    (click)="arrowBooleansToggle(15); $event.stopPropagation()"
                     icon="arrow-up"
                     size="md"
                   ></fa-icon>

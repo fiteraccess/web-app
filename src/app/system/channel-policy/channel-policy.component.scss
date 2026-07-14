@@ -1,0 +1,57 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+.container {
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  .subtitle {
+    flex: 1 1 auto;
+    margin: 0;
+    color: rgb(0 0 0 / 60%);
+    font-size: 13px;
+  }
+}
+
+table {
+  width: 100%;
+
+  .select-row:hover {
+    cursor: pointer;
+  }
+}
+
+.active {
+  color: #2e7d32;
+}
+
+.inactive {
+  color: #c62828;
+}
+
+/**
+ * Detail-page description paragraph inside `mat-card-content`. Aligns with the
+ * `.m-l-20`-offset `mat-card-title` above it and leaves a small gap before the
+ * routes table.
+ */
+.description {
+  margin: 0 20px 12px;
+  color: rgb(0 0 0 / 60%);
+  font-size: 13px;
+}

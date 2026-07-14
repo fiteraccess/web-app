@@ -57,6 +57,8 @@ import { SystemComponent } from './system.component';
 import { SystemInformationComponent } from './system-information/system-information.component';
 import { AboutUsComponent } from './about-us/about-us.component';
 import { TierPolicyComponent } from './tier-policy/tier-policy.component';
+import { ChannelPolicyComponent } from './channel-policy/channel-policy.component';
+import { ChannelRoutesComponent } from './channel-policy/channel-routes.component';
 
 /** Custom Resolvers */
 import { AccountNumberPreferencesResolver } from './account-number-preferences/account-number-preferences.resolver';
@@ -100,6 +102,11 @@ import { SurveyResolver } from './manage-surveys/survey.resolver';
 import { RolesAndPermissionsResolver } from './roles-and-permissions/roles-and-permissions.resolver';
 import { ViewRoleResolver } from './roles-and-permissions/view-role/view-role.resolver';
 import { TierPolicyResolver } from './tier-policy/tier-policy.resolver';
+import {
+  ChannelPolicyResolver,
+  ChannelResolver,
+  ChannelRoutesResolver
+} from './channel-policy/channel-policy.resolver';
 import { PaymentTypesResolver } from '../organization/payment-types/payment-types.resolver';
 import { CurrenciesResolver } from '../organization/currencies/currencies.resolver';
 
@@ -627,6 +634,23 @@ const routes: Routes = [
             paymentTypes: PaymentTypesResolver,
             currencies: CurrenciesResolver
           }
+        },
+        {
+          path: 'channel-policy',
+          data: { title: 'Channel Policy', breadcrumb: 'Channel Policy' },
+          children: [
+            {
+              path: '',
+              component: ChannelPolicyComponent,
+              resolve: { channels: ChannelPolicyResolver }
+            },
+            {
+              path: ':id',
+              data: { title: 'Channel Detail', routeParamBreadcrumb: 'id' },
+              component: ChannelRoutesComponent,
+              resolve: { routes: ChannelRoutesResolver, channel: ChannelResolver }
+            }
+          ]
         }
       ]
     }
@@ -669,6 +693,9 @@ const routes: Routes = [
     MakerCheckerTasksResolver,
     ViewHistorySchedulerJobsResolver,
     TierPolicyResolver,
+    ChannelPolicyResolver,
+    ChannelResolver,
+    ChannelRoutesResolver,
     PaymentTypesResolver,
     CurrenciesResolver
   ]
