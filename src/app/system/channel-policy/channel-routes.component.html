@@ -1,0 +1,62 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container">
+  <div class="header">
+    <button mat-icon-button (click)="goBack()" [matTooltip]="'labels.buttons.Back' | translate">
+      <fa-icon icon="arrow-left" size="sm"></fa-icon>
+    </button>
+    <h2>{{ 'labels.heading.Routes for' | translate }} {{ channelCode }}</h2>
+    <p class="subtitle">{{ 'labels.text.Channel Routes Subtitle' | translate }}</p>
+    <button mat-raised-button color="primary" (click)="openAdd()">
+      <fa-icon icon="plus" size="sm"></fa-icon>
+      {{ 'labels.buttons.Add Route' | translate }}
+    </button>
+  </div>
+
+  <table mat-table [dataSource]="routes" class="mat-elevation-z1">
+    <ng-container matColumnDef="httpMethod">
+      <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Method' | translate }}</th>
+      <td
+        mat-cell
+        *matCellDef="let r"
+        [matTooltip]="r.httpMethod === '*' ? ('labels.text.Any Method Tooltip' | translate) : ''"
+      >
+        {{ methodLabel(r.httpMethod) }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="pathTemplate">
+      <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Path Template' | translate }}</th>
+      <td
+        mat-cell
+        *matCellDef="let r"
+        [matTooltip]="r.pathTemplate === '*' ? ('labels.text.All Paths Tooltip' | translate) : ''"
+      >
+        {{ pathLabel(r.pathTemplate) }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdBy">
+      <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Created By' | translate }}</th>
+      <td mat-cell *matCellDef="let r">{{ r.createdBy || '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Actions' | translate }}</th>
+      <td mat-cell *matCellDef="let r">
+        <button mat-icon-button (click)="openDelete(r)" [matTooltip]="'labels.buttons.Delete' | translate">
+          <fa-icon icon="trash" size="sm"></fa-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>
