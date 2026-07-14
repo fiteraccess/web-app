@@ -16,7 +16,6 @@ import {
   MatDialogClose
 } from '@angular/material/dialog';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatTooltip } from '@angular/material/tooltip';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 import { CHANNEL_HTTP_METHODS } from './channel-policy.model';
@@ -28,7 +27,6 @@ import { CHANNEL_HTTP_METHODS } from './channel-policy.model';
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
     MatDialogTitle,
-    CdkScrollable,
     MatDialogContent,
     MatDialogActions,
     MatDialogClose,
