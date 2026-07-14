@@ -30,7 +30,7 @@ import { DeleteDialogComponent } from 'app/shared/delete-dialog/delete-dialog.co
 import { ChannelRouteDialogComponent } from './channel-route-dialog.component';
 
 import { ChannelPolicyService } from './channel-policy.service';
-import { ChannelRoute } from './channel-policy.model';
+import { Channel, ChannelRoute } from './channel-policy.model';
 
 /** AB-473 routes-for-a-channel page. Add/delete inline; routes are immutable (delete + create). */
 @Component({
@@ -62,7 +62,8 @@ export class ChannelRoutesComponent implements OnInit {
   private service = inject(ChannelPolicyService);
 
   channelId!: string;
-  channelCode = '';
+  /** Resolved channel; undefined only if the id was deleted between navigation and route activation. */
+  channel: Channel | undefined;
   routes: ChannelRoute[] = [];
   displayedColumns = [
     'httpMethod',
@@ -73,8 +74,13 @@ export class ChannelRoutesComponent implements OnInit {
 
   ngOnInit(): void {
     this.channelId = this.route.snapshot.paramMap.get('id') as string;
-    this.channelCode = this.route.snapshot.queryParamMap.get('code') ?? this.channelId;
+    this.channel = this.route.snapshot.data['channel'];
     this.routes = this.route.snapshot.data['routes'] ?? [];
+  }
+
+  /** Header + dialog label — "displayName (code)" when the channel is resolved, otherwise the raw id. */
+  get channelLabel(): string {
+    return this.channel ? `${this.channel.displayName} (${this.channel.code})` : this.channelId;
   }
 
   private refresh(): void {
@@ -83,7 +89,7 @@ export class ChannelRoutesComponent implements OnInit {
 
   openAdd(): void {
     const ref = this.dialog.open(ChannelRouteDialogComponent, {
-      data: { channelCode: this.channelCode },
+      data: { channelCode: this.channel?.code ?? this.channelId },
       width: '540px'
     });
     ref.afterClosed().subscribe((payload) => {
@@ -100,8 +106,13 @@ export class ChannelRoutesComponent implements OnInit {
     });
   }
 
+  /**
+   * Navigate to the channel-policy landing page. The relative path from
+   * `/system/channel-policy/:id/routes` needs two `..` segments to reach the list;
+   * an absolute route is more robust to future restructuring, so we use that.
+   */
   goBack(): void {
-    this.router.navigate(['..'], { relativeTo: this.route });
+    this.router.navigate(['/system/channel-policy']);
   }
 
   methodLabel(m: string): string {

@@ -102,7 +102,11 @@ import { SurveyResolver } from './manage-surveys/survey.resolver';
 import { RolesAndPermissionsResolver } from './roles-and-permissions/roles-and-permissions.resolver';
 import { ViewRoleResolver } from './roles-and-permissions/view-role/view-role.resolver';
 import { TierPolicyResolver } from './tier-policy/tier-policy.resolver';
-import { ChannelPolicyResolver, ChannelRoutesResolver } from './channel-policy/channel-policy.resolver';
+import {
+  ChannelPolicyResolver,
+  ChannelResolver,
+  ChannelRoutesResolver
+} from './channel-policy/channel-policy.resolver';
 import { PaymentTypesResolver } from '../organization/payment-types/payment-types.resolver';
 import { CurrenciesResolver } from '../organization/currencies/currencies.resolver';
 
@@ -644,7 +648,7 @@ const routes: Routes = [
               path: ':id/routes',
               data: { title: 'Channel Routes', routeParamBreadcrumb: 'id' },
               component: ChannelRoutesComponent,
-              resolve: { routes: ChannelRoutesResolver }
+              resolve: { routes: ChannelRoutesResolver, channel: ChannelResolver }
             }
           ]
         }
@@ -690,6 +694,7 @@ const routes: Routes = [
     ViewHistorySchedulerJobsResolver,
     TierPolicyResolver,
     ChannelPolicyResolver,
+    ChannelResolver,
     ChannelRoutesResolver,
     PaymentTypesResolver,
     CurrenciesResolver

@@ -11,7 +11,7 @@ import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot } from '@angular/router';
 
 /** rxjs Imports */
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 /** Custom Models */
 import { Channel, ChannelRoute } from './channel-policy.model';
@@ -36,5 +36,20 @@ export class ChannelRoutesResolver {
 
   resolve(route: ActivatedRouteSnapshot): Observable<ChannelRoute[]> {
     return this.service.listRoutes(route.paramMap.get('id') as string);
+  }
+}
+
+/**
+ * Resolves the channel record (from the list endpoint filtered by id) so the drill-in page can
+ * render "Routes for <displayName> (<code>)" instead of the raw UUID, and survives page refresh
+ * (unlike a query-param handoff).
+ */
+@Injectable()
+export class ChannelResolver {
+  private service = inject(ChannelPolicyService);
+
+  resolve(route: ActivatedRouteSnapshot): Observable<Channel | undefined> {
+    const id = route.paramMap.get('id') as string;
+    return this.service.listChannels().pipe(map((list) => list.find((c) => c.id === id)));
   }
 }
