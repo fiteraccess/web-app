@@ -1,0 +1,122 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container">
+  <mat-card>
+    <mat-card-content>
+      <h2>{{ 'labels.heading.NIP Fee Policy' | translate }}</h2>
+
+      @if (errorMessage) {
+        <div class="error-message" role="alert">{{ errorMessage | translate }}</div>
+      }
+
+      @if (loading) {
+        <p>{{ 'labels.text.Loading' | translate }}</p>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <div class="layout-row-wrap gap-20px">
+            <mat-form-field>
+              <mat-label>{{ 'labels.inputs.Currency' | translate }}</mat-label>
+              <mat-select
+                [value]="currencyCode"
+                [disabled]="currencySelectionDisabled"
+                (selectionChange)="onCurrencyChange($event)"
+              >
+                @for (currency of currencies; track currency.code) {
+                  <mat-option [value]="currency.code">
+                    {{ currency.code }}{{ currency.name ? ' — ' + currency.name : '' }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ 'labels.inputs.VAT Rate' | translate }}</mat-label>
+              <input matInput type="number" min="0" max="1" step="0.0001" formControlName="vatRate" />
+              <mat-hint>{{ 'labels.text.Enter as a fraction, for example 0.075' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div formArrayName="bands" class="bands">
+            @for (band of bands.controls; track band; let index = $index; let last = $last) {
+              <mat-card class="band" [formGroupName]="index">
+                <mat-card-content>
+                  <div class="band-header layout-row align-center gap-10px">
+                    <h3>{{ 'labels.heading.Band' | translate }} {{ index + 1 }}</h3>
+                    @if (canWrite) {
+                      <button mat-icon-button type="button" (click)="moveBand(index, -1)" [disabled]="index === 0">
+                        <fa-icon icon="arrow-up"></fa-icon>
+                      </button>
+                      <button mat-icon-button type="button" (click)="moveBand(index, 1)" [disabled]="last">
+                        <fa-icon icon="arrow-down"></fa-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        color="warn"
+                        type="button"
+                        (click)="removeBand(index)"
+                        [disabled]="bands.length === 1"
+                      >
+                        <fa-icon icon="trash"></fa-icon>
+                      </button>
+                    }
+                  </div>
+
+                  <div class="layout-row-wrap gap-20px">
+                    <mat-form-field>
+                      <mat-label>{{ 'labels.inputs.Upper Threshold' | translate }}</mat-label>
+                      <input matInput type="number" min="0" formControlName="upperThreshold" />
+                      @if (last) {
+                        <mat-hint>{{ 'labels.text.Open ended final band' | translate }}</mat-hint>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <mat-label>{{ 'labels.inputs.Total Fee' | translate }}</mat-label>
+                      <input matInput type="number" min="0" step="0.01" formControlName="totalFee" />
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <mat-label>{{ 'labels.inputs.VAT Base' | translate }}</mat-label>
+                      <input matInput type="number" min="0" step="0.01" formControlName="vatBase" />
+                    </mat-form-field>
+                  </div>
+
+                  <div class="preview layout-row-wrap gap-20px">
+                    <span>{{ 'labels.inputs.VAT' | translate }}: {{ preview(index).vat | number: '1.2-8' }}</span>
+                    <span>
+                      {{ 'labels.inputs.Commission' | translate }}:
+                      {{ preview(index).commission | number: '1.2-8' }}
+                    </span>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+
+          @if (canWrite) {
+            <mat-card-actions class="layout-row gap-10px">
+              <button mat-stroked-button type="button" (click)="addBand()">
+                <fa-icon icon="plus" class="m-r-10"></fa-icon>
+                {{ 'labels.heading.Add Band' | translate }}
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="form.invalid || !scheduleIsValid() || saving"
+              >
+                {{ 'labels.buttons.Save' | translate }}
+              </button>
+            </mat-card-actions>
+          }
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
