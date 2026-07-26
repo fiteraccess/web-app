@@ -170,6 +170,55 @@ export class AccountingService {
   }
 
   /**
+   * @returns {Observable<any>} Switch GL configurations.
+   */
+  getSwitchGlConfigurations(): Observable<any> {
+    return this.http.get('/switchglconfigurations');
+  }
+
+  /**
+   * @returns {Observable<any>} Switch GL configurations template.
+   */
+  getSwitchGlConfigurationsTemplate(): Observable<any> {
+    return this.http.get('/switchglconfigurations/template');
+  }
+
+  /**
+   * @param {any} switchGlConfiguration Switch GL configuration to be created.
+   * @returns {Observable<any>}
+   */
+  createSwitchGlConfiguration(switchGlConfiguration: any): Observable<any> {
+    return this.http.post('/switchglconfigurations', switchGlConfiguration);
+  }
+
+  /**
+   * @param {string} switchGlConfigurationId Switch GL configuration ID of switch GL configuration.
+   * @param {boolean} template True if template is required.
+   * @returns {Observable<any>} Switch GL configuration.
+   */
+  getSwitchGlConfiguration(switchGlConfigurationId: string, template: boolean = false): Observable<any> {
+    const httpParams = new HttpParams().set('template', template.toString());
+    return this.http.get(`/switchglconfigurations/${switchGlConfigurationId}`, { params: httpParams });
+  }
+
+  /**
+   * @param {string} switchGlConfigurationId Switch GL configuration ID of switch GL configuration to be updated.
+   * @param {any} switchGlConfiguration Switch GL configuration to be updated.
+   * @returns {Observable<any>}
+   */
+  updateSwitchGlConfiguration(switchGlConfigurationId: string, switchGlConfiguration: any): Observable<any> {
+    return this.http.put(`/switchglconfigurations/${switchGlConfigurationId}`, switchGlConfiguration);
+  }
+
+  /**
+   * @param {string} switchGlConfigurationId Switch GL configuration ID of switch GL configuration to be deleted.
+   * @returns {Observable<any>}
+   */
+  deleteSwitchGlConfiguration(switchGlConfigurationId: string): Observable<any> {
+    return this.http.delete(`/switchglconfigurations/${switchGlConfigurationId}`);
+  }
+
+  /**
    * @param {string} officeId Office ID to retrive opening balances accounts for.
    * @returns {Observable<any>}
    */
