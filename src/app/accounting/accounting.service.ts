@@ -15,6 +15,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 /** rxjs Imports */
 import { Observable } from 'rxjs';
 
+/** Custom Models */
+import {
+  NipSwitchAccountingCommandResult,
+  NipSwitchAccountingConfiguration,
+  NipSwitchAccountingConfigurationRequest
+} from './nip-switch-accounting-configurations/nip-switch-accounting-configuration.model';
+import { GLAccount } from 'app/shared/models/general.model';
+
 /**
  * Accounting service.
  */
@@ -177,6 +185,49 @@ export class AccountingService {
   }
 
   /**
+   * @returns {Observable<NipSwitchAccountingConfiguration[]>} NIP switch accounting configurations.
+   */
+  getNipSwitchAccountingConfigurations(): Observable<NipSwitchAccountingConfiguration[]> {
+    return this.http.get<NipSwitchAccountingConfiguration[]>('/nip-switch-accounting-configurations');
+  }
+
+  /**
+   * @param {string} switchId Normalized or unnormalized NIP switch identifier.
+   * @returns {Observable<NipSwitchAccountingConfiguration>} NIP switch accounting configuration.
+   */
+  getNipSwitchAccountingConfiguration(switchId: string): Observable<NipSwitchAccountingConfiguration> {
+    return this.http.get<NipSwitchAccountingConfiguration>(this.nipSwitchAccountingConfigurationUrl(switchId));
+  }
+
+  /**
+   * @param {string} switchId NIP switch identifier addressed by the Fineract resource.
+   * @param {NipSwitchAccountingConfigurationRequest} configuration Complete replacement request.
+   * @returns {Observable<NipSwitchAccountingCommandResult>} Fineract command result.
+   */
+  upsertNipSwitchAccountingConfiguration(
+    switchId: string,
+    configuration: NipSwitchAccountingConfigurationRequest
+  ): Observable<NipSwitchAccountingCommandResult> {
+    return this.http.put<NipSwitchAccountingCommandResult>(
+      this.nipSwitchAccountingConfigurationUrl(switchId),
+      configuration
+    );
+  }
+
+  /**
+   * Retrieves enabled detail GL accounts eligible for NIP configuration. Receivable choices can be limited to assets.
+   * @param {boolean} receivableOnly Whether to restrict results to asset accounts for the Receivable mapping.
+   * @returns {Observable<GLAccount[]>} Eligible GL accounts.
+   */
+  getNipSwitchAccountingGlAccounts(receivableOnly: boolean = false): Observable<GLAccount[]> {
+    let httpParams = new HttpParams().set('usage', '1').set('disabled', 'false');
+    if (receivableOnly) {
+      httpParams = httpParams.set('type', '1');
+    }
+    return this.http.get<GLAccount[]>('/glaccounts', { params: httpParams });
+  }
+
+  /**
    * @returns {Observable<any>} Switch GL configurations template.
    */
   getSwitchGlConfigurationsTemplate(): Observable<any> {
@@ -216,6 +267,14 @@ export class AccountingService {
    */
   deleteSwitchGlConfiguration(switchGlConfigurationId: string): Observable<any> {
     return this.http.delete(`/switchglconfigurations/${switchGlConfigurationId}`);
+  }
+
+  /**
+   * @param {string} switchId NIP switch identifier.
+   * @returns {string} Encoded NIP switch accounting configuration resource URL.
+   */
+  private nipSwitchAccountingConfigurationUrl(switchId: string): string {
+    return `/nip-switch-accounting-configurations/${encodeURIComponent(switchId)}`;
   }
 
   /**
