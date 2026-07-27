@@ -74,3 +74,8 @@ export function hasOutboundNipSwitchAccountingMappings(direction: NipSwitchAccou
 export function hasInboundNipSwitchAccountingMappings(direction: NipSwitchAccountingDirection): boolean {
   return direction === 'INBOUND' || direction === 'BOTH';
 }
+
+/** Matches Fineract's public switch identifier normalization for route navigation. */
+export function normalizeNipSwitchAccountingSwitchId(switchId: string): string {
+  return switchId.trim().toUpperCase();
+}

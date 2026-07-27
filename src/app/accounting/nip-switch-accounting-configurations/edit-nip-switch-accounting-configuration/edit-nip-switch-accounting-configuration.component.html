@@ -1,0 +1,66 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container">
+  <mat-card
+    ><form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-card-content
+        ><div class="layout-column">
+          <mat-form-field><mat-label>Switch ID</mat-label><input matInput formControlName="switchId" /></mat-form-field>
+          <mat-form-field
+            ><mat-label>Direction</mat-label
+            ><mat-select required formControlName="direction">
+              @for (direction of directions; track direction) {
+                <mat-option [value]="direction">{{ direction }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          @if (form.controls.switchPayableGlAccountId.enabled) {
+            <mifosx-gl-account-selector
+              [inputFormControl]="form.controls.switchPayableGlAccountId"
+              [glAccountList]="accountOptions('switchPayableGlAccountId')"
+              [required]="true"
+              inputLabel="Switch Payable"
+            ></mifosx-gl-account-selector>
+          }
+          @if (form.controls.switchReceivableGlAccountId.enabled) {
+            <mifosx-gl-account-selector
+              [inputFormControl]="form.controls.switchReceivableGlAccountId"
+              [glAccountList]="accountOptions('switchReceivableGlAccountId')"
+              [required]="true"
+              inputLabel="Switch Receivable"
+            ></mifosx-gl-account-selector>
+          }
+          @if (form.controls.switchFeeGlAccountId.enabled) {
+            <mifosx-gl-account-selector
+              [inputFormControl]="form.controls.switchFeeGlAccountId"
+              [glAccountList]="accountOptions('switchFeeGlAccountId')"
+              [required]="true"
+              inputLabel="Switch Fee"
+            ></mifosx-gl-account-selector>
+          }
+          @if (form.controls.commissionIncomeGlAccountId.enabled) {
+            <mifosx-gl-account-selector
+              [inputFormControl]="form.controls.commissionIncomeGlAccountId"
+              [glAccountList]="accountOptions('commissionIncomeGlAccountId')"
+              [required]="true"
+              inputLabel="Commission Income"
+            ></mifosx-gl-account-selector>
+          }
+          <mat-checkbox formControlName="active">{{ 'labels.inputs.Active' | translate }}</mat-checkbox>
+        </div></mat-card-content
+      ><mat-card-actions
+        ><button type="button" mat-raised-button [routerLink]="['../']">
+          {{ 'labels.buttons.Cancel' | translate }}</button
+        ><button mat-raised-button color="primary" [disabled]="form.invalid">
+          {{ 'labels.buttons.Submit' | translate }}
+        </button></mat-card-actions
+      >
+    </form></mat-card
+  >
+</div>
