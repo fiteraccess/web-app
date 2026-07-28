@@ -80,12 +80,9 @@ export class EditNipSwitchAccountingConfigurationComponent {
   }
 
   private navigateToConfiguration(result: NipSwitchAccountingCommandResult, submittedSwitchId: string): void {
-    this.router.navigate(
-      [
-        '../../',
-        result.resourceIdentifier ?? submittedSwitchId
-      ],
-      { relativeTo: this.route }
-    );
+    this.router.navigate([
+      '/accounting/nip-switch-accounting-configurations/view',
+      result.resourceIdentifier ?? submittedSwitchId
+    ]);
   }
 }

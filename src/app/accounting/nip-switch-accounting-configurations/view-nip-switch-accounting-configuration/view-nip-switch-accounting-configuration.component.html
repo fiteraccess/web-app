@@ -7,38 +7,45 @@
 -->
 
 <div class="layout-row align-end container m-b-20">
-  <button mat-raised-button color="primary" [routerLink]="['edit']">{{ 'labels.buttons.Edit' | translate }}</button>
+  <button
+    mat-raised-button
+    color="primary"
+    [routerLink]="['edit']"
+    *mifosxHasPermission="'UPDATE_NIP_SWITCH_ACCOUNTING_CONFIGURATION'"
+  >
+    {{ 'labels.buttons.Edit' | translate }}
+  </button>
 </div>
 <div class="container">
   <mat-card
     ><mat-card-content
       ><div class="layout-row-wrap">
-        <div class="flex-50 header">Switch ID</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Switch ID' | translate }}</div>
         <div class="flex-50">{{ configuration?.switchId }}</div>
-        <div class="flex-50 header">Direction</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Direction' | translate }}</div>
         <div class="flex-50">{{ configuration?.direction }}</div>
         @if (
           configuration?.switchPayableGlAccountId !== null && configuration?.switchPayableGlAccountId !== undefined
         ) {
-          <div class="flex-50 header">Switch Payable</div>
+          <div class="flex-50 header">{{ 'labels.inputs.Switch Payable' | translate }}</div>
           <div class="flex-50">{{ glAccountLabel(configuration.switchPayableGlAccountId) }}</div>
         }
         @if (
           configuration?.switchReceivableGlAccountId !== null &&
           configuration?.switchReceivableGlAccountId !== undefined
         ) {
-          <div class="flex-50 header">Switch Receivable</div>
+          <div class="flex-50 header">{{ 'labels.inputs.Switch Receivable' | translate }}</div>
           <div class="flex-50">{{ glAccountLabel(configuration.switchReceivableGlAccountId) }}</div>
         }
         @if (configuration?.switchFeeGlAccountId !== null && configuration?.switchFeeGlAccountId !== undefined) {
-          <div class="flex-50 header">Switch Fee</div>
+          <div class="flex-50 header">{{ 'labels.inputs.Switch Fee' | translate }}</div>
           <div class="flex-50">{{ glAccountLabel(configuration.switchFeeGlAccountId) }}</div>
         }
         @if (
           configuration?.commissionIncomeGlAccountId !== null &&
           configuration?.commissionIncomeGlAccountId !== undefined
         ) {
-          <div class="flex-50 header">Commission Income</div>
+          <div class="flex-50 header">{{ 'labels.inputs.Commission Income' | translate }}</div>
           <div class="flex-50">{{ glAccountLabel(configuration.commissionIncomeGlAccountId) }}</div>
         }
         <div class="flex-50 header">{{ 'labels.inputs.Active' | translate }}</div>

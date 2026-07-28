@@ -368,7 +368,7 @@
       "Home": "Home"
     },
     "buttons": {
-      "Add Switch GL Configuration": "Add Switch GL Configuration",
+      "Add NIP Switch Accounting Configuration": "Add NIP Switch Accounting Configuration",
       "Accept Transfer": "Accept Transfer",
       "Actions": "Actions",
       "Activate": "Activate",
@@ -969,7 +969,7 @@
       "NotEqual": "Not equal"
     },
     "heading": {
-      "Switch GL Configurations": "Switch GL Configurations",
+      "NIP Switch Accounting Configurations": "NIP Switch Accounting Configurations",
       "Account Linked Financial": "List of accounts linked to different financial activities. To know more click:",
       "Account Name": "Account Name",
       "Account Number Preferences": "Account Number Preferences",
@@ -1430,11 +1430,13 @@
       "Edit Balance Cap": "Edit Balance Cap"
     },
     "inputs": {
-      "Switch Code": "Switch Code",
+      "Switch ID": "Switch ID",
       "Direction": "Direction",
-      "Principal GL Account": "Principal GL Account",
-      "Switch Fee GL Account": "Switch Fee GL Account",
-      "Bank Commission GL Account": "Bank Commission GL Account",
+      "Switch Payable": "Switch Payable",
+      "Switch Receivable": "Switch Receivable",
+      "Switch Fee": "Switch Fee",
+      "Commission Income": "Commission Income",
+      "GL Mappings": "GL Mappings",
       "Floating rate": "Floating Rate",
       "Differential rate": "Differential Rate",
       "BVN": "BVN",

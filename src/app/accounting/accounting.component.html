@@ -147,16 +147,16 @@
             </mat-list-item>
           </div>
 
-          <mat-list-item *mifosxHasPermission="'READ_SWITCHGLCONFIGURATION'">
+          <mat-list-item *mifosxHasPermission="'READ_NIP_SWITCH_ACCOUNTING_CONFIGURATION'">
             <div class="menu-list-item-content">
-              <div class="menu-left-section" [routerLink]="['switch-gl-configurations']">
+              <div class="menu-left-section" [routerLink]="['nip-switch-accounting-configurations']">
                 <mat-icon matListIcon>
                   <fa-icon icon="exchange" size="sm"></fa-icon>
                 </mat-icon>
                 <div matLine>
-                  {{ 'labels.heading.Switch GL Configurations' | translate }}
+                  {{ 'labels.heading.NIP Switch Accounting Configurations' | translate }}
                   @if (arrowBooleans[10]) {
-                    <p matLine [routerLink]="['switch-gl-configurations']" class="menu-explanation">
+                    <p matLine [routerLink]="['nip-switch-accounting-configurations']" class="menu-explanation">
                       {{ 'labels.text.Map NIP switches to GL accounts, per direction' | translate }}
                     </p>
                   }

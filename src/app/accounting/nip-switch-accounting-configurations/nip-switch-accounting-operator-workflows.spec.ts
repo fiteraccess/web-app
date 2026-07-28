@@ -88,10 +88,12 @@ describe('NIP switch accounting operator workflows', () => {
     expect(failure?.message).toBe('Not found');
   });
 
-  it('summarizes list mappings and navigates rows by switchId', () => {
+  it('renders each mapping column with a GL label or an unavailable-value fallback', () => {
     const component = TestBed.runInInjectionContext(() => new NipSwitchAccountingConfigurationsComponent());
     component.glAccounts = accounts;
-    expect(component.mappingsSummary({ ...configuration, switchReceivableGlAccountId: 1 })).toContain('(1000) Cash');
+    expect(component.glAccountLabel(1)).toBe('(1000) Cash');
+    expect(component.glAccountLabel(99)).toBe('99');
+    expect(component.glAccountLabel()).toBe('—');
   });
 
   it('creates through PUT and follows Fineract normalized identity', () => {
@@ -110,13 +112,10 @@ describe('NIP switch accounting operator workflows', () => {
       switchReceivableGlAccountId: 1,
       active: true
     });
-    expect(router.navigate).toHaveBeenCalledWith(
-      [
-        '../view',
-        'NIP-1'
-      ],
-      expect.anything()
-    );
+    expect(router.navigate).toHaveBeenCalledWith([
+      '/accounting/nip-switch-accounting-configurations/view',
+      'NIP-1'
+    ]);
   });
 
   it('displays raw identifiers when a detail GL lookup no longer contains the account', () => {
@@ -146,13 +145,10 @@ describe('NIP switch accounting operator workflows', () => {
       commissionIncomeGlAccountId: 3,
       active: false
     });
-    expect(router.navigate).toHaveBeenCalledWith(
-      [
-        '../../',
-        'NIP-1'
-      ],
-      expect.anything()
-    );
+    expect(router.navigate).toHaveBeenCalledWith([
+      '/accounting/nip-switch-accounting-configurations/view',
+      'NIP-1'
+    ]);
   });
 });
 

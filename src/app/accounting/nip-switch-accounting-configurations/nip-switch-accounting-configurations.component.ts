@@ -59,7 +59,10 @@ export class NipSwitchAccountingConfigurationsComponent implements OnInit {
   displayedColumns = [
     'switchId',
     'direction',
-    'mappings',
+    'switchPayable',
+    'switchReceivable',
+    'switchFee',
+    'commissionIncome',
     'active'
   ];
   dataSource = new MatTableDataSource<NipSwitchAccountingConfiguration>();
@@ -84,46 +87,14 @@ export class NipSwitchAccountingConfigurationsComponent implements OnInit {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     this.dataSource.sortingDataAccessor = (configuration, property) => {
-      if (property === 'mappings') {
-        return this.mappingsSummary(configuration);
-      }
       const value = configuration[property as keyof NipSwitchAccountingConfiguration];
       return typeof value === 'boolean' ? String(value) : (value as string | number);
     };
   }
 
-  mappingsSummary(configuration: NipSwitchAccountingConfiguration): string {
-    const mappings = [
-      [
-        'Switch Payable',
-        configuration.switchPayableGlAccountId
-      ],
-      [
-        'Switch Receivable',
-        configuration.switchReceivableGlAccountId
-      ],
-      [
-        'Switch Fee',
-        configuration.switchFeeGlAccountId
-      ],
-      [
-        'Commission Income',
-        configuration.commissionIncomeGlAccountId
-      ]
-    ].filter(
-      ([
-        ,
-        accountId
-      ]) => accountId !== null && accountId !== undefined
-    );
-
-    return mappings
-      .map(
-        ([
-          label,
-          accountId
-        ]) => `${label}: ${nipSwitchAccountingGlAccountLabel(accountId as number, this.glAccounts)}`
-      )
-      .join(' · ');
+  glAccountLabel(accountId?: number): string {
+    return accountId === null || accountId === undefined
+      ? '—'
+      : nipSwitchAccountingGlAccountLabel(accountId, this.glAccounts);
   }
 }

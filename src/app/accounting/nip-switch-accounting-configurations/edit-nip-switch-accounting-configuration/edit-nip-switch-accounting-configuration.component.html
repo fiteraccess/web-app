@@ -11,9 +11,12 @@
     ><form [formGroup]="form" (ngSubmit)="submit()">
       <mat-card-content
         ><div class="layout-column">
-          <mat-form-field><mat-label>Switch ID</mat-label><input matInput formControlName="switchId" /></mat-form-field>
           <mat-form-field
-            ><mat-label>Direction</mat-label
+            ><mat-label>{{ 'labels.inputs.Switch ID' | translate }}</mat-label
+            ><input matInput formControlName="switchId"
+          /></mat-form-field>
+          <mat-form-field
+            ><mat-label>{{ 'labels.inputs.Direction' | translate }}</mat-label
             ><mat-select required formControlName="direction">
               @for (direction of directions; track direction) {
                 <mat-option [value]="direction">{{ direction }}</mat-option>
@@ -25,7 +28,7 @@
               [inputFormControl]="form.controls.switchPayableGlAccountId"
               [glAccountList]="accountOptions('switchPayableGlAccountId')"
               [required]="true"
-              inputLabel="Switch Payable"
+              [inputLabel]="'labels.inputs.Switch Payable' | translate"
             ></mifosx-gl-account-selector>
           }
           @if (form.controls.switchReceivableGlAccountId.enabled) {
@@ -33,7 +36,7 @@
               [inputFormControl]="form.controls.switchReceivableGlAccountId"
               [glAccountList]="accountOptions('switchReceivableGlAccountId')"
               [required]="true"
-              inputLabel="Switch Receivable"
+              [inputLabel]="'labels.inputs.Switch Receivable' | translate"
             ></mifosx-gl-account-selector>
           }
           @if (form.controls.switchFeeGlAccountId.enabled) {
@@ -41,7 +44,7 @@
               [inputFormControl]="form.controls.switchFeeGlAccountId"
               [glAccountList]="accountOptions('switchFeeGlAccountId')"
               [required]="true"
-              inputLabel="Switch Fee"
+              [inputLabel]="'labels.inputs.Switch Fee' | translate"
             ></mifosx-gl-account-selector>
           }
           @if (form.controls.commissionIncomeGlAccountId.enabled) {
@@ -49,7 +52,7 @@
               [inputFormControl]="form.controls.commissionIncomeGlAccountId"
               [glAccountList]="accountOptions('commissionIncomeGlAccountId')"
               [required]="true"
-              inputLabel="Commission Income"
+              [inputLabel]="'labels.inputs.Commission Income' | translate"
             ></mifosx-gl-account-selector>
           }
           <mat-checkbox formControlName="active">{{ 'labels.inputs.Active' | translate }}</mat-checkbox>
@@ -57,7 +60,12 @@
       ><mat-card-actions
         ><button type="button" mat-raised-button [routerLink]="['../']">
           {{ 'labels.buttons.Cancel' | translate }}</button
-        ><button mat-raised-button color="primary" [disabled]="form.invalid">
+        ><button
+          mat-raised-button
+          color="primary"
+          [disabled]="form.invalid"
+          *mifosxHasPermission="'UPDATE_NIP_SWITCH_ACCOUNTING_CONFIGURATION'"
+        >
           {{ 'labels.buttons.Submit' | translate }}
         </button></mat-card-actions
       >
