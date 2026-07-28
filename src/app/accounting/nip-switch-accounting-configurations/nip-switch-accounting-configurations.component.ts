@@ -33,7 +33,6 @@ import { nipSwitchAccountingGlAccountLabel } from './nip-switch-accounting-gl-ac
 @Component({
   selector: 'mifosx-nip-switch-accounting-configurations',
   templateUrl: './nip-switch-accounting-configurations.component.html',
-  styleUrls: ['./nip-switch-accounting-configurations.component.scss'],
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
     MatTable,

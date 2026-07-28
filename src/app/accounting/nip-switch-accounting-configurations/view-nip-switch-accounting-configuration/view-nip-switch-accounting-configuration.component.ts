@@ -18,7 +18,6 @@ import { NipSwitchAccountingConfiguration } from '../nip-switch-accounting-confi
 @Component({
   selector: 'mifosx-view-nip-switch-accounting-configuration',
   templateUrl: './view-nip-switch-accounting-configuration.component.html',
-  styleUrls: ['./view-nip-switch-accounting-configuration.component.scss'],
   imports: [...STANDALONE_SHARED_IMPORTS]
 })
 export class ViewNipSwitchAccountingConfigurationComponent {

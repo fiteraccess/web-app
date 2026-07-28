@@ -30,7 +30,6 @@ import {
 @Component({
   selector: 'mifosx-edit-nip-switch-accounting-configuration',
   templateUrl: './edit-nip-switch-accounting-configuration.component.html',
-  styleUrls: ['./edit-nip-switch-accounting-configuration.component.scss'],
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
     GlAccountSelectorComponent
