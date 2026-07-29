@@ -301,6 +301,10 @@
     "validation.msg.kyc.missing": "No existing KYC record was found for this client."
   },
   "labels": {
+    "switchDirection": {
+      "outbound": "Outbound",
+      "inbound": "Inbound"
+    },
     "version": {
       "Tenant": "Tenant",
       "Mifos WebApp": "Mifos® WebApp",
@@ -364,6 +368,7 @@
       "Home": "Home"
     },
     "buttons": {
+      "Add NIP Switch Accounting Configuration": "Add NIP Switch Accounting Configuration",
       "Accept Transfer": "Accept Transfer",
       "Actions": "Actions",
       "Activate": "Activate",
@@ -964,6 +969,7 @@
       "NotEqual": "Not equal"
     },
     "heading": {
+      "NIP Switch Accounting Configurations": "NIP Switch Accounting Configurations",
       "Account Linked Financial": "List of accounts linked to different financial activities. To know more click:",
       "Account Name": "Account Name",
       "Account Number Preferences": "Account Number Preferences",
@@ -1424,6 +1430,13 @@
       "Edit Balance Cap": "Edit Balance Cap"
     },
     "inputs": {
+      "Switch ID": "Switch ID",
+      "Direction": "Direction",
+      "Switch Payable": "Switch Payable",
+      "Switch Receivable": "Switch Receivable",
+      "Switch Fee": "Switch Fee",
+      "Commission Income": "Commission Income",
+      "GL Mappings": "GL Mappings",
       "Floating rate": "Floating Rate",
       "Differential rate": "Differential Rate",
       "BVN": "BVN",
@@ -3086,6 +3099,7 @@
       "Balance Cap": "Balance Cap"
     },
     "text": {
+      "Map NIP switches to GL accounts, per direction": "Map NIP switches to GL accounts, per direction",
       "About Us": "About Us",
       "A": "A",
       "Account Transfers": "Account Transfers",

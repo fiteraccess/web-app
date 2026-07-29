@@ -24,6 +24,10 @@ import { FinancialActivityMappingsComponent } from './financial-activity-mapping
 import { CreateFinancialActivityMappingComponent } from './financial-activity-mappings/create-financial-activity-mapping/create-financial-activity-mapping.component';
 import { ViewFinancialActivityMappingComponent } from './financial-activity-mappings/view-financial-activity-mapping/view-financial-activity-mapping.component';
 import { EditFinancialActivityMappingComponent } from './financial-activity-mappings/edit-financial-activity-mapping/edit-financial-activity-mapping.component';
+import { NipSwitchAccountingConfigurationsComponent } from './nip-switch-accounting-configurations/nip-switch-accounting-configurations.component';
+import { CreateNipSwitchAccountingConfigurationComponent } from './nip-switch-accounting-configurations/create-nip-switch-accounting-configuration/create-nip-switch-accounting-configuration.component';
+import { ViewNipSwitchAccountingConfigurationComponent } from './nip-switch-accounting-configurations/view-nip-switch-accounting-configuration/view-nip-switch-accounting-configuration.component';
+import { EditNipSwitchAccountingConfigurationComponent } from './nip-switch-accounting-configurations/edit-nip-switch-accounting-configuration/edit-nip-switch-accounting-configuration.component';
 import { MigrateOpeningBalancesComponent } from './migrate-opening-balances/migrate-opening-balances.component';
 import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
 import { CreateGlAccountComponent } from './chart-of-accounts/create-gl-account/create-gl-account.component';
@@ -53,6 +57,9 @@ import { FinancialActivityMappingsResolver } from './financial-activity-mappings
 import { FinancialActivityMappingsTemplateResolver } from './financial-activity-mappings/create-financial-activity-mapping/financial-activity-mappings-template.resolver';
 import { FinancialActivityMappingResolver } from './financial-activity-mappings/view-financial-activity-mapping/financial-activity-mapping.resolver';
 import { FinancialActivityMappingAndTemplateResolver } from './financial-activity-mappings/edit-financial-activity-mapping/financial-activity-mapping-and-template.resolver';
+import { NipSwitchAccountingConfigurationsResolver } from './nip-switch-accounting-configurations/nip-switch-accounting-configurations.resolver';
+import { NipSwitchAccountingConfigurationResolver } from './nip-switch-accounting-configurations/nip-switch-accounting-configuration.resolver';
+import { NipSwitchAccountingGlAccountsResolver } from './nip-switch-accounting-configurations/nip-switch-accounting-gl-accounts.resolver';
 import { ChartOfAccountsResolver } from './chart-of-accounts/chart-of-accounts.resolver';
 import { ChartOfAccountsTemplateResolver } from './chart-of-accounts/create-gl-account/chart-of-accounts-template.resolver';
 import { GlAccountAndChartOfAccountsTemplateResolver } from './chart-of-accounts/gl-account-and-chart-of-accounts-template.resolver';
@@ -170,6 +177,55 @@ const routes: Routes = [
                   data: { title: 'Edit Financial Activity Mapping', breadcrumb: 'Edit', routeParamBreadcrumb: false },
                   resolve: {
                     financialActivityAccountAndTemplate: FinancialActivityMappingAndTemplateResolver
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          path: 'nip-switch-accounting-configurations',
+          data: { title: 'NIP Switch Accounting Configurations', breadcrumb: 'NIP Switch Accounting Configurations' },
+          children: [
+            {
+              path: '',
+              component: NipSwitchAccountingConfigurationsComponent,
+              resolve: {
+                nipSwitchAccountingConfigurations: NipSwitchAccountingConfigurationsResolver,
+                nipSwitchAccountingGlAccounts: NipSwitchAccountingGlAccountsResolver
+              }
+            },
+            {
+              path: 'create',
+              component: CreateNipSwitchAccountingConfigurationComponent,
+              data: { title: 'Create NIP Switch Accounting Configuration', breadcrumb: 'Create' },
+              resolve: {
+                nipSwitchAccountingGlAccounts: NipSwitchAccountingGlAccountsResolver
+              }
+            },
+            {
+              path: 'view/:switchId',
+              data: { title: 'View NIP Switch Accounting Configuration', routeParamBreadcrumb: 'switchId' },
+              children: [
+                {
+                  path: '',
+                  component: ViewNipSwitchAccountingConfigurationComponent,
+                  resolve: {
+                    nipSwitchAccountingConfiguration: NipSwitchAccountingConfigurationResolver,
+                    nipSwitchAccountingGlAccounts: NipSwitchAccountingGlAccountsResolver
+                  }
+                },
+                {
+                  path: 'edit',
+                  component: EditNipSwitchAccountingConfigurationComponent,
+                  data: {
+                    title: 'Edit NIP Switch Accounting Configuration',
+                    breadcrumb: 'Edit',
+                    routeParamBreadcrumb: false
+                  },
+                  resolve: {
+                    nipSwitchAccountingConfiguration: NipSwitchAccountingConfigurationResolver,
+                    nipSwitchAccountingGlAccounts: NipSwitchAccountingGlAccountsResolver
                   }
                 }
               ]
@@ -415,6 +471,9 @@ const routes: Routes = [
     FinancialActivityMappingsTemplateResolver,
     FinancialActivityMappingResolver,
     FinancialActivityMappingAndTemplateResolver,
+    NipSwitchAccountingConfigurationsResolver,
+    NipSwitchAccountingConfigurationResolver,
+    NipSwitchAccountingGlAccountsResolver,
     ChartOfAccountsResolver,
     ChartOfAccountsTemplateResolver,
     GlAccountAndChartOfAccountsTemplateResolver,
