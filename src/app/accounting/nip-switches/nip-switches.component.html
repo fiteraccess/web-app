@@ -1,0 +1,58 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="layout-row align-end container m-b-20">
+  @if (canWrite) {
+    <button mat-raised-button color="primary" [routerLink]="['create']">
+      {{ 'labels.buttons.Add NIP Switch' | translate }}
+    </button>
+  }
+</div>
+
+<div class="mat-elevation-z8 container">
+  <table class="full-width" aria-label="NIP Switches">
+    <thead>
+      <tr>
+        <th>Switch ID</th>
+        <th>Direction</th>
+        <th>Accounting</th>
+        <th>Transfer configuration</th>
+        <th>Active</th>
+        <th>Status</th>
+        @if (canWrite) {
+          <th>Action</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (configuration of switches; track configuration.switchId) {
+        <tr>
+          <td>
+            <a [routerLink]="['view', configuration.switchId]">{{ configuration.switchId }}</a>
+          </td>
+          <td>{{ direction(configuration) }}</td>
+          <td>{{ configuration.accounting.configured ? 'Configured' : 'Missing' }}</td>
+          <td>{{ configuration.transferConfiguration.configured ? 'Configured' : 'Missing' }}</td>
+          <td>{{ active(configuration) }}</td>
+          <td>{{ 'labels.commons.' + configuration.configurationStatus | translate }}</td>
+          @if (canWrite) {
+            <td>
+              <a [routerLink]="['view', configuration.switchId]">
+                {{ 'labels.buttons.' + actionLabel(configuration) | translate }}
+              </a>
+            </td>
+          }
+        </tr>
+      } @empty {
+        <tr>
+          <td [attr.colspan]="canWrite ? 7 : 6">No NIP switches are configured.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

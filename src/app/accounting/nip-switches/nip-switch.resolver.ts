@@ -7,17 +7,17 @@
  */
 
 import { Injectable, inject } from '@angular/core';
+import { ActivatedRouteSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { AccountingService } from '../accounting.service';
-import { NipSwitchAccountingConfiguration } from './nip-switch-accounting-configuration.model';
+import { NipSwitchConfiguration } from './nip-switch-configuration.model';
 
-/** Resolves NIP switch accounting configurations keyed by their public switch ID. */
 @Injectable()
-export class NipSwitchAccountingConfigurationsResolver {
+export class NipSwitchResolver {
   private accountingService = inject(AccountingService);
 
-  resolve(): Observable<NipSwitchAccountingConfiguration[]> {
-    return this.accountingService.getNipSwitchAccountingConfigurations();
+  resolve(route: ActivatedRouteSnapshot): Observable<NipSwitchConfiguration> {
+    return this.accountingService.getNipSwitchConfiguration(route.paramMap.get('switchId') ?? '');
   }
 }

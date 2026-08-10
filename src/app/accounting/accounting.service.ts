@@ -13,14 +13,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
 /** rxjs Imports */
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 /** Custom Models */
 import {
-  NipSwitchAccountingCommandResult,
-  NipSwitchAccountingConfiguration,
-  NipSwitchAccountingConfigurationRequest
-} from './nip-switch-accounting-configurations/nip-switch-accounting-configuration.model';
+  NipSwitchConfiguration,
+  NipSwitchConfigurationCollection,
+  NipSwitchConfigurationReplacement,
+  NipSwitchConfigurationSaveResponse
+} from './nip-switches/nip-switch-configuration.model';
 import { GLAccount } from 'app/shared/models/general.model';
 
 /**
@@ -178,33 +179,33 @@ export class AccountingService {
   }
 
   /**
-   * @returns {Observable<NipSwitchAccountingConfiguration[]>} NIP switch accounting configurations.
+   * @returns {Observable<NipSwitchConfiguration[]>} Actual composite NIP switch configurations.
    */
-  getNipSwitchAccountingConfigurations(): Observable<NipSwitchAccountingConfiguration[]> {
-    return this.http.get<NipSwitchAccountingConfiguration[]>('/nip-switch-accounting-configurations');
+  getNipSwitchConfigurations(): Observable<NipSwitchConfiguration[]> {
+    return this.http
+      .get<NipSwitchConfigurationCollection>('/access/api/v1/admin/nip-switch-configurations')
+      .pipe(map(({ switches }) => switches));
   }
 
   /**
-   * @param {string} switchId Normalized or unnormalized NIP switch identifier.
-   * @returns {Observable<NipSwitchAccountingConfiguration>} NIP switch accounting configuration.
+   * @param {string} switchId NIP switch identifier.
+   * @returns {Observable<NipSwitchConfiguration>} Actual composite state for one switch.
    */
-  getNipSwitchAccountingConfiguration(switchId: string): Observable<NipSwitchAccountingConfiguration> {
-    return this.http.get<NipSwitchAccountingConfiguration>(this.nipSwitchAccountingConfigurationUrl(switchId));
+  getNipSwitchConfiguration(switchId: string): Observable<NipSwitchConfiguration> {
+    return this.http.get<NipSwitchConfiguration>(this.nipSwitchConfigurationUrl(switchId));
   }
 
   /**
-   * @param {string} switchId NIP switch identifier addressed by the Fineract resource.
-   * @param {NipSwitchAccountingConfigurationRequest} configuration Complete replacement request.
-   * @returns {Observable<NipSwitchAccountingCommandResult>} Fineract command result.
+   * Creates or reconciles one switch using a complete desired-state replacement.
+   * @param {string} switchId NIP switch identifier.
+   * @param {NipSwitchConfigurationReplacement} configuration Complete replacement request.
+   * @returns {Observable<NipSwitchConfigurationSaveResponse>} Actual state and component operation outcomes.
    */
-  upsertNipSwitchAccountingConfiguration(
+  upsertNipSwitchConfiguration(
     switchId: string,
-    configuration: NipSwitchAccountingConfigurationRequest
-  ): Observable<NipSwitchAccountingCommandResult> {
-    return this.http.put<NipSwitchAccountingCommandResult>(
-      this.nipSwitchAccountingConfigurationUrl(switchId),
-      configuration
-    );
+    configuration: NipSwitchConfigurationReplacement
+  ): Observable<NipSwitchConfigurationSaveResponse> {
+    return this.http.put<NipSwitchConfigurationSaveResponse>(this.nipSwitchConfigurationUrl(switchId), configuration);
   }
 
   /**
@@ -212,7 +213,7 @@ export class AccountingService {
    * @param {boolean} receivableOnly Whether to restrict results to asset accounts for the Receivable mapping.
    * @returns {Observable<GLAccount[]>} Eligible GL accounts.
    */
-  getNipSwitchAccountingGlAccounts(receivableOnly: boolean = false): Observable<GLAccount[]> {
+  getNipSwitchGlAccounts(receivableOnly: boolean = false): Observable<GLAccount[]> {
     let httpParams = new HttpParams().set('usage', '1').set('disabled', 'false');
     if (receivableOnly) {
       httpParams = httpParams.set('type', '1');
@@ -222,10 +223,10 @@ export class AccountingService {
 
   /**
    * @param {string} switchId NIP switch identifier.
-   * @returns {string} Encoded NIP switch accounting configuration resource URL.
+   * @returns {string} Encoded composite NIP switch configuration URL.
    */
-  private nipSwitchAccountingConfigurationUrl(switchId: string): string {
-    return `/nip-switch-accounting-configurations/${encodeURIComponent(switchId)}`;
+  private nipSwitchConfigurationUrl(switchId: string): string {
+    return `/access/api/v1/admin/nip-switch-configurations/${encodeURIComponent(switchId)}`;
   }
 
   /**

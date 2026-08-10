@@ -24,10 +24,6 @@ import { FinancialActivityMappingsComponent } from './financial-activity-mapping
 import { CreateFinancialActivityMappingComponent } from './financial-activity-mappings/create-financial-activity-mapping/create-financial-activity-mapping.component';
 import { ViewFinancialActivityMappingComponent } from './financial-activity-mappings/view-financial-activity-mapping/view-financial-activity-mapping.component';
 import { EditFinancialActivityMappingComponent } from './financial-activity-mappings/edit-financial-activity-mapping/edit-financial-activity-mapping.component';
-import { NipSwitchAccountingConfigurationsComponent } from './nip-switch-accounting-configurations/nip-switch-accounting-configurations.component';
-import { CreateNipSwitchAccountingConfigurationComponent } from './nip-switch-accounting-configurations/create-nip-switch-accounting-configuration/create-nip-switch-accounting-configuration.component';
-import { ViewNipSwitchAccountingConfigurationComponent } from './nip-switch-accounting-configurations/view-nip-switch-accounting-configuration/view-nip-switch-accounting-configuration.component';
-import { EditNipSwitchAccountingConfigurationComponent } from './nip-switch-accounting-configurations/edit-nip-switch-accounting-configuration/edit-nip-switch-accounting-configuration.component';
 import { MigrateOpeningBalancesComponent } from './migrate-opening-balances/migrate-opening-balances.component';
 import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
 import { CreateGlAccountComponent } from './chart-of-accounts/create-gl-account/create-gl-account.component';
@@ -68,10 +64,6 @@ import { PipesModule } from 'app/pipes/pipes.module';
     CreateFinancialActivityMappingComponent,
     ViewFinancialActivityMappingComponent,
     EditFinancialActivityMappingComponent,
-    NipSwitchAccountingConfigurationsComponent,
-    CreateNipSwitchAccountingConfigurationComponent,
-    ViewNipSwitchAccountingConfigurationComponent,
-    EditNipSwitchAccountingConfigurationComponent,
     MigrateOpeningBalancesComponent,
     ChartOfAccountsComponent,
     CreateGlAccountComponent,

@@ -368,7 +368,7 @@
       "Home": "Home"
     },
     "buttons": {
-      "Add NIP Switch Accounting Configuration": "Add NIP Switch Accounting Configuration",
+      "Add NIP Switch": "Add NIP Switch",
       "Accept Transfer": "Accept Transfer",
       "Actions": "Actions",
       "Activate": "Activate",
@@ -414,6 +414,9 @@
       "Bulk JLG Loan Application": "Bulk JLG Loan Application",
       "Buy Back Loan": "Buy Back Loan",
       "Cancel": "Cancel",
+      "Resolve mismatch": "Resolve mismatch",
+      "Retry Save": "Retry Save",
+      "Save Switch": "Save Switch",
       "Cancel Sell Loan": "Cancel Sell Loan",
       "Capture": "Capture",
       "Centers Saving Application": "Centers Saving Application",
@@ -905,6 +908,13 @@
       "move to next meeting day": "move to next meeting day"
     },
     "commons": {
+      "COMPLETE": "Complete",
+      "FAILED": "Failed",
+      "INCOMPLETE": "Incomplete",
+      "INCONSISTENT": "Inconsistent",
+      "NOT_ATTEMPTED": "Not attempted",
+      "PARTIAL": "Partial",
+      "SAVED": "Saved",
       "50 characters long": "50 characters long",
       "12 characters long": "12 characters long",
       "Amount must be": "Amount must be",
@@ -969,7 +979,12 @@
       "NotEqual": "Not equal"
     },
     "heading": {
-      "NIP Switch Accounting Configurations": "NIP Switch Accounting Configurations",
+      "Accounting configuration": "Accounting configuration",
+      "Fixed switch-fee allocations": "Fixed switch-fee allocations",
+      "NIP Switch": "NIP Switch",
+      "NIP Switches": "NIP Switches",
+      "Save outcome": "Save outcome",
+      "Transfer configuration": "Transfer configuration",
       "Account Linked Financial": "List of accounts linked to different financial activities. To know more click:",
       "Account Name": "Account Name",
       "Account Number Preferences": "Account Number Preferences",
@@ -3099,7 +3114,10 @@
       "Balance Cap": "Balance Cap"
     },
     "text": {
-      "Map NIP switches to GL accounts, per direction": "Map NIP switches to GL accounts, per direction",
+      "Fixed switch-fee allocations are not required for inbound.": "Fixed switch-fee allocations are not required for inbound.",
+      "Manage switch accounting, transfer configuration, and fixed switch fees": "Manage switch accounting, transfer configuration, and fixed switch fees.",
+      "Review both actual components and select the intended state. The application does not choose a source of truth.": "Review both actual components and select the intended state. The application does not choose a source of truth.",
+      "The application will not choose a source of truth. Confirm the complete intended state below.": "The application will not choose a source of truth. Confirm the complete intended state below.",
       "About Us": "About Us",
       "A": "A",
       "Account Transfers": "Account Transfers",

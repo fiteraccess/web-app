@@ -1,0 +1,182 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+.workflow-container {
+  max-width: 1080px;
+}
+
+.workflow-card,
+.outcome-card {
+  overflow: hidden;
+}
+
+.workflow-heading {
+  margin-bottom: 24px;
+
+  h2 {
+    margin: 0 0 6px;
+  }
+
+  p {
+    margin: 0;
+    opacity: 0.72;
+  }
+}
+
+.mismatch-panel,
+.form-section {
+  padding: 20px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+}
+
+.mismatch-panel {
+  margin-bottom: 24px;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.form-section {
+  margin-top: 16px;
+}
+
+.section-heading {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+
+  h3 {
+    margin: 0 0 4px;
+  }
+
+  p {
+    margin: 0;
+    opacity: 0.72;
+  }
+}
+
+.status-badge {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.actual-state-grid,
+.outcome-grid {
+  display: grid;
+  grid-template-columns: repeat(2, calc(50% - 8px));
+  gap: 16px;
+}
+
+.actual-state-card {
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--mat-sys-surface);
+
+  &.missing {
+    border: 1px dashed var(--mat-sys-error);
+  }
+
+  p {
+    margin: 12px 0 0;
+  }
+
+  dl {
+    display: grid;
+    gap: 10px;
+    margin: 16px 0 0;
+  }
+
+  dl div {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  dt {
+    opacity: 0.72;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.actual-state-heading {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+
+  span {
+    font-size: 0.78rem;
+    opacity: 0.72;
+  }
+}
+
+.allocation-row {
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+
+  .allocation-currency,
+  .allocation-fee {
+    flex: 1 1 280px;
+  }
+}
+
+.empty-guidance {
+  width: 100%;
+  margin: 4px 0;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-low);
+  opacity: 0.82;
+}
+
+.validation-message {
+  color: var(--mat-sys-error);
+}
+
+.outcome-card {
+  .outcome-grid > div {
+    padding: 16px;
+    border-radius: 10px;
+    background: var(--mat-sys-surface-container-low);
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
+@media (width <= 720px) {
+  .mismatch-panel,
+  .form-section {
+    padding: 16px;
+  }
+
+  .section-heading {
+    flex-direction: column;
+  }
+
+  .actual-state-grid,
+  .outcome-grid {
+    grid-template-columns: 100%;
+  }
+
+  .allocation-row button {
+    width: 100%;
+  }
+}

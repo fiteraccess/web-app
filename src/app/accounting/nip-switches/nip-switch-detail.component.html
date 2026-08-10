@@ -1,0 +1,69 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container">
+  <div class="layout-row align-space-between-center">
+    <h2>{{ 'labels.heading.NIP Switch' | translate }}: {{ configuration.switchId }}</h2>
+    @if (canWrite) {
+      <a mat-raised-button color="primary" [routerLink]="[actionLabel === 'Edit' ? 'edit' : 'resolve']">
+        {{ 'labels.buttons.' + actionLabel | translate }}
+      </a>
+    }
+  </div>
+
+  <p>
+    Status: <strong>{{ 'labels.commons.' + configuration.configurationStatus | translate }}</strong>
+  </p>
+
+  @if (configuration.configurationStatus !== 'COMPLETE') {
+    <p class="mat-body-strong">
+      {{
+        'labels.text.Review both actual components and select the intended state. The application does not choose a source of truth.'
+          | translate
+      }}
+    </p>
+  }
+
+  <div class="layout-row gap-20">
+    <section class="flex-50">
+      <h3>{{ 'labels.heading.Accounting configuration' | translate }}</h3>
+      @if (configuration.accounting.configured) {
+        <p>Configured: Yes</p>
+        <p>Direction: {{ configuration.accounting.direction }}</p>
+        <p>Active: {{ configuration.accounting.active ? 'Yes' : 'No' }}</p>
+        <p>Switch Payable: {{ glAccountLabel(configuration.accounting.switchPayableGlAccountId) }}</p>
+        <p>Switch Fee: {{ glAccountLabel(configuration.accounting.switchFeeGlAccountId) }}</p>
+        <p>Commission Income: {{ glAccountLabel(configuration.accounting.commissionIncomeGlAccountId) }}</p>
+        <p>Switch Receivable: {{ glAccountLabel(configuration.accounting.switchReceivableGlAccountId) }}</p>
+      } @else {
+        <p>Configured: No — accounting configuration is missing.</p>
+      }
+    </section>
+
+    <section class="flex-50">
+      <h3>{{ 'labels.heading.Transfer configuration' | translate }}</h3>
+      @if (configuration.transferConfiguration.configured) {
+        <p>Configured: Yes</p>
+        <p>Direction: {{ configuration.transferConfiguration.direction }}</p>
+        <p>Active: {{ configuration.transferConfiguration.active ? 'Yes' : 'No' }}</p>
+        <h4>{{ 'labels.heading.Fixed switch-fee allocations' | translate }}</h4>
+        @for (allocation of configuration.transferConfiguration.switchFeeAllocations; track allocation.currencyCode) {
+          <p>{{ allocation.currencyCode }}: {{ allocation.switchFee }}</p>
+        } @empty {
+          <p>None required for inbound.</p>
+        }
+      } @else {
+        <p>Configured: No — transfer configuration is missing.</p>
+      }
+    </section>
+  </div>
+
+  @if (sharedValuesDiffer) {
+    <p>Direction or active values differ between Accounting and Transfer configuration.</p>
+  }
+</div>

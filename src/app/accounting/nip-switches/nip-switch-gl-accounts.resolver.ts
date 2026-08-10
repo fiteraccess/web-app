@@ -9,15 +9,15 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { AccountingService } from '../accounting.service';
 import { GLAccount } from 'app/shared/models/general.model';
 
-/** Resolves enabled detail GL accounts used for NIP display and selection. */
+import { AccountingService } from '../accounting.service';
+
 @Injectable()
-export class NipSwitchAccountingGlAccountsResolver {
+export class NipSwitchGlAccountsResolver {
   private accountingService = inject(AccountingService);
 
   resolve(): Observable<GLAccount[]> {
-    return this.accountingService.getNipSwitchAccountingGlAccounts();
+    return this.accountingService.getNipSwitchGlAccounts();
   }
 }
