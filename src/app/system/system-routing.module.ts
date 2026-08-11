@@ -58,6 +58,7 @@ import { SystemInformationComponent } from './system-information/system-informat
 import { AboutUsComponent } from './about-us/about-us.component';
 import { TierPolicyComponent } from './tier-policy/tier-policy.component';
 import { NipFeePolicyComponent } from './nip-fee-policy/nip-fee-policy.component';
+import { StatementFeeScheduleComponent } from './statement-fee-schedule/statement-fee-schedule.component';
 import { ChannelPolicyComponent } from './channel-policy/channel-policy.component';
 import { ChannelRoutesComponent } from './channel-policy/channel-routes.component';
 
@@ -640,6 +641,14 @@ const routes: Routes = [
           path: 'nip-fee-policy',
           data: { title: 'NIP Fee Policy', breadcrumb: 'NIP Fee Policy' },
           component: NipFeePolicyComponent,
+          resolve: {
+            currencies: CurrenciesResolver
+          }
+        },
+        {
+          path: 'statement-fee-schedule',
+          data: { title: 'Statement Fee Schedule', breadcrumb: 'Statement Fee Schedule' },
+          component: StatementFeeScheduleComponent,
           resolve: {
             currencies: CurrenciesResolver
           }

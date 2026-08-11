@@ -1,0 +1,73 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container">
+  <mat-card>
+    <mat-card-content>
+      <h2>{{ 'labels.heading.Statement Fee Schedule' | translate }}</h2>
+      <p class="description">
+        {{
+          'labels.text.The fee charged for a bank-certified (signed) e-statement. Unsigned statements are never charged.'
+            | translate
+        }}
+      </p>
+
+      @if (errorMessage) {
+        <div class="error-message" role="alert">{{ errorMessage | translate }}</div>
+      }
+
+      @if (loading) {
+        <p>{{ 'labels.text.Loading' | translate }}</p>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <div class="layout-row-wrap gap-20px">
+            <mat-form-field>
+              <mat-label>{{ 'labels.inputs.Currency' | translate }}</mat-label>
+              <mat-select
+                [value]="currencyCode"
+                [disabled]="currencySelectionDisabled"
+                (selectionChange)="onCurrencyChange($event)"
+              >
+                @for (currency of currencies; track currency.code) {
+                  <mat-option [value]="currency.code">
+                    {{ currency.code }}{{ currency.name ? ' — ' + currency.name : '' }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ 'labels.inputs.Fee Amount' | translate }}</mat-label>
+              <input matInput type="number" min="0" step="0.01" formControlName="feeAmount" />
+              <mat-hint>{{ 'labels.text.Charged when the customer requests a signed statement' | translate }}</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>{{ 'labels.inputs.VAT Rate (%)' | translate }}</mat-label>
+              <input matInput type="number" min="0" max="99.999999" step="0.01" formControlName="vatRatePercent" />
+              <mat-hint>{{ 'labels.text.For example 7.5' | translate }}</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="preview layout-row-wrap gap-20px">
+            <span>{{ 'labels.inputs.VAT' | translate }}: {{ vatAmount | number: '1.2-8' }}</span>
+            <span>{{ 'labels.inputs.Total Charged' | translate }}: {{ totalFee | number: '1.2-8' }}</span>
+          </div>
+
+          @if (canWrite) {
+            <mat-card-actions>
+              <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving">
+                {{ 'labels.buttons.Save' | translate }}
+              </button>
+            </mat-card-actions>
+          }
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -302,6 +302,17 @@
             </div>
           </mat-list-item>
 
+          <mat-list-item [routerLink]="['statement-fee-schedule']" *mifosxHasPermission="'READ_STATEMENTFEESCHEDULE'">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['statement-fee-schedule']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="money-bill-wave" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>{{ 'labels.heading.Statement Fee Schedule' | translate }}</div>
+              </div>
+            </div>
+          </mat-list-item>
+
           <mat-list-item [routerLink]="['channel-policy']" *mifosxHasPermission="'MANAGE_CHANNEL'">
             <div class="menu-list-item-content">
               <div class="menu-left-section" [routerLink]="['channel-policy']">
