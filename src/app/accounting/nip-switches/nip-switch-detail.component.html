@@ -6,64 +6,155 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
+@if (canWrite) {
+  <div class="container m-b-20 layout-row align-end gap-2px responsive-column">
+    <a mat-raised-button color="primary" [routerLink]="[actionLabel === 'Edit' ? 'edit' : 'resolve']">
+      {{ 'labels.buttons.' + actionLabel | translate }}
+    </a>
+  </div>
+}
+
 <div class="container">
-  <div class="layout-row align-space-between-center">
-    <h2>{{ 'labels.heading.NIP Switch' | translate }}: {{ configuration.switchId }}</h2>
-    @if (canWrite) {
-      <a mat-raised-button color="primary" [routerLink]="[actionLabel === 'Edit' ? 'edit' : 'resolve']">
-        {{ 'labels.buttons.' + actionLabel | translate }}
-      </a>
-    }
-  </div>
+  <mat-card class="m-b-20">
+    <mat-card-content class="content-rows">
+      <h2>{{ 'labels.heading.NIP Switch' | translate }}: {{ configuration.switchId }}</h2>
+      <div class="content-row">
+        <div class="label">Status</div>
+        <div class="value">{{ 'labels.commons.' + configuration.configurationStatus | translate }}</div>
+      </div>
 
-  <p>
-    Status: <strong>{{ 'labels.commons.' + configuration.configurationStatus | translate }}</strong>
-  </p>
-
-  @if (configuration.configurationStatus !== 'COMPLETE') {
-    <p class="mat-body-strong">
-      {{
-        'labels.text.Review both actual components and select the intended state. The application does not choose a source of truth.'
-          | translate
-      }}
-    </p>
-  }
-
-  <div class="layout-row gap-20">
-    <section class="flex-50">
-      <h3>{{ 'labels.heading.Accounting configuration' | translate }}</h3>
-      @if (configuration.accounting.configured) {
-        <p>Configured: Yes</p>
-        <p>Direction: {{ configuration.accounting.direction }}</p>
-        <p>Active: {{ configuration.accounting.active ? 'Yes' : 'No' }}</p>
-        <p>Switch Payable: {{ glAccountLabel(configuration.accounting.switchPayableGlAccountId) }}</p>
-        <p>Switch Fee: {{ glAccountLabel(configuration.accounting.switchFeeGlAccountId) }}</p>
-        <p>Commission Income: {{ glAccountLabel(configuration.accounting.commissionIncomeGlAccountId) }}</p>
-        <p>Switch Receivable: {{ glAccountLabel(configuration.accounting.switchReceivableGlAccountId) }}</p>
-      } @else {
-        <p>Configured: No — accounting configuration is missing.</p>
+      @if (configuration.configurationStatus !== 'COMPLETE') {
+        <div class="content-row">
+          <div class="label">Action required</div>
+          <div class="value">
+            {{
+              'labels.text.Review both actual components and select the intended state. The application does not choose a source of truth.'
+                | translate
+            }}
+          </div>
+        </div>
       }
-    </section>
 
-    <section class="flex-50">
-      <h3>{{ 'labels.heading.Transfer configuration' | translate }}</h3>
-      @if (configuration.transferConfiguration.configured) {
-        <p>Configured: Yes</p>
-        <p>Direction: {{ configuration.transferConfiguration.direction }}</p>
-        <p>Active: {{ configuration.transferConfiguration.active ? 'Yes' : 'No' }}</p>
-        <h4>{{ 'labels.heading.Fixed switch-fee allocations' | translate }}</h4>
-        @for (allocation of configuration.transferConfiguration.switchFeeAllocations; track allocation.currencyCode) {
-          <p>{{ allocation.currencyCode }}: {{ allocation.switchFee }}</p>
-        } @empty {
-          <p>None required for inbound.</p>
+      @if (sharedValuesDiffer) {
+        <div class="content-row">
+          <div class="label">Difference</div>
+          <div class="value">
+            Direction or active values differ between Accounting and Transfer configuration. Neither component is
+            treated as the source of truth.
+          </div>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <div class="component-grid m-b-20">
+    <mat-card>
+      <mat-card-content class="content-rows">
+        <h3>{{ 'labels.heading.Accounting configuration' | translate }}</h3>
+        <div class="content-row">
+          <div class="label">Configured</div>
+          <div class="value">{{ configuration.accounting.configured ? 'Yes' : 'No' }}</div>
+        </div>
+
+        @if (configuration.accounting.configured) {
+          <div class="content-row">
+            <div class="label">Direction</div>
+            <div class="value">{{ configuration.accounting.direction }}</div>
+          </div>
+          <div class="content-row">
+            <div class="label">Active</div>
+            <div class="value">{{ configuration.accounting.active ? 'Yes' : 'No' }}</div>
+          </div>
+          @if (configuration.accounting.switchPayableGlAccountId !== null) {
+            <div class="content-row">
+              <div class="label">Switch payable</div>
+              <div class="value">{{ glAccountLabel(configuration.accounting.switchPayableGlAccountId) }}</div>
+            </div>
+          }
+          @if (configuration.accounting.switchFeeGlAccountId !== null) {
+            <div class="content-row">
+              <div class="label">Switch fee</div>
+              <div class="value">{{ glAccountLabel(configuration.accounting.switchFeeGlAccountId) }}</div>
+            </div>
+          }
+          @if (configuration.accounting.commissionIncomeGlAccountId !== null) {
+            <div class="content-row">
+              <div class="label">Commission income</div>
+              <div class="value">{{ glAccountLabel(configuration.accounting.commissionIncomeGlAccountId) }}</div>
+            </div>
+          }
+          @if (configuration.accounting.switchReceivableGlAccountId !== null) {
+            <div class="content-row">
+              <div class="label">Switch receivable</div>
+              <div class="value">{{ glAccountLabel(configuration.accounting.switchReceivableGlAccountId) }}</div>
+            </div>
+          }
+        } @else {
+          <p>Accounting configuration is missing.</p>
         }
-      } @else {
-        <p>Configured: No — transfer configuration is missing.</p>
-      }
-    </section>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content class="content-rows">
+        <h3>{{ 'labels.heading.Transfer configuration' | translate }}</h3>
+        <div class="content-row">
+          <div class="label">Configured</div>
+          <div class="value">{{ configuration.transferConfiguration.configured ? 'Yes' : 'No' }}</div>
+        </div>
+
+        @if (configuration.transferConfiguration.configured) {
+          <div class="content-row">
+            <div class="label">Direction</div>
+            <div class="value">{{ configuration.transferConfiguration.direction }}</div>
+          </div>
+          <div class="content-row">
+            <div class="label">Active</div>
+            <div class="value">{{ configuration.transferConfiguration.active ? 'Yes' : 'No' }}</div>
+          </div>
+        } @else {
+          <p>Transfer configuration is missing.</p>
+        }
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  @if (sharedValuesDiffer) {
-    <p>Direction or active values differ between Accounting and Transfer configuration.</p>
+  @if (configuration.transferConfiguration.configured) {
+    <mat-card class="m-b-20">
+      <mat-card-content>
+        <h3>{{ 'labels.heading.Fixed switch-fee allocations' | translate }}</h3>
+        @if (configuration.transferConfiguration.switchFeeAllocations.length > 0) {
+          <div class="table-container mat-elevation-z8">
+            <table
+              mat-table
+              class="full-width"
+              [dataSource]="configuration.transferConfiguration.switchFeeAllocations"
+              aria-label="Fixed switch-fee allocations"
+            >
+              <ng-container matColumnDef="currencyCode">
+                <th mat-header-cell *matHeaderCellDef>Currency</th>
+                <td mat-cell *matCellDef="let allocation">{{ allocation.currencyCode }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="switchFee">
+                <th mat-header-cell *matHeaderCellDef>Fixed fee</th>
+                <td mat-cell *matCellDef="let allocation">{{ allocation.switchFee }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="allocationColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: allocationColumns"></tr>
+            </table>
+          </div>
+        } @else {
+          <p>No fee allocations are required for inbound transfers.</p>
+        }
+      </mat-card-content>
+    </mat-card>
   }
+
+  <div class="layout-row align-center">
+    <button type="button" color="primary" mat-raised-button [routerLink]="['/accounting/nip-switches']">
+      {{ 'labels.buttons.Back' | translate }}
+    </button>
+  </div>
 </div>

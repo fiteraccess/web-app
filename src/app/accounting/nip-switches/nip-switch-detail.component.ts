@@ -7,6 +7,7 @@
  */
 
 import { Component, inject } from '@angular/core';
+import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { AuthenticationService } from 'app/core/authentication/authentication.service';
@@ -21,9 +22,11 @@ import { nipSwitchActionLabel, nipSwitchSharedValuesDiffer } from './nip-switch-
 @Component({
   selector: 'mifosx-nip-switch-detail',
   templateUrl: './nip-switch-detail.component.html',
+  styleUrl: './nip-switch-detail.component.scss',
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
-    RouterLink
+    RouterLink,
+    MatTableModule
   ]
 })
 export class NipSwitchDetailComponent {
@@ -31,6 +34,10 @@ export class NipSwitchDetailComponent {
   private route = inject(ActivatedRoute);
 
   readonly canWrite = canWriteNipSwitches(this.authenticationService.getCredentials()?.permissions ?? []);
+  readonly allocationColumns = [
+    'currencyCode',
+    'switchFee'
+  ];
   configuration: NipSwitchConfiguration;
   glAccounts: GLAccount[] = [];
 
