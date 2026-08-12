@@ -15,6 +15,7 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AccountingService } from '../../accounting.service';
 import { GLAccount } from 'app/shared/models/general.model';
 import { GlAccountSelectorComponent } from '../../../shared/accounting/gl-account-selector/gl-account-selector.component';
+import { resolveFinancialActivityGlAccountOptions } from '../../../shared/accounting/financial-activity-gl-account-options.util';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 
 /**
@@ -87,21 +88,11 @@ export class CreateFinancialActivityMappingComponent implements OnInit {
    */
   setGlAccountData() {
     this.financialActivityMappingForm.get('financialActivityId').valueChanges.subscribe((financialActivityId) => {
-      switch (financialActivityId) {
-        case 100:
-        case 101:
-        case 102:
-        case 103:
-          this.glAccountData = this.glAccountOptions.assetAccountOptions;
-          break;
-        case 200:
-        case 201:
-          this.glAccountData = this.glAccountOptions.liabilityAccountOptions;
-          break;
-        case 300:
-          this.glAccountData = this.glAccountOptions.equityAccountOptions;
-          break;
-      }
+      this.glAccountData = resolveFinancialActivityGlAccountOptions(
+        this.glAccountOptions,
+        this.financialActivityData,
+        financialActivityId
+      );
     });
   }
 

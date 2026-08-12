@@ -361,7 +361,9 @@
         "fundSource": "Fund Source",
         "liabilityTransfer": "Liability Transfer",
         "openingBalancesTransferContra": "Opening Balances Transfer Contra",
-        "payableDividends": "Payable Dividends"
+        "payableDividends": "Payable Dividends",
+        "signedStatementFeeIncome": "Signed Statement Fee Income",
+        "vatPayable": "VAT Payable"
       }
     },
     "breadcrumbs": {
