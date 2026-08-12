@@ -52,8 +52,18 @@ export class GlAccountSelectorComponent implements OnInit, OnChanges, OnDestroy 
       this.searchGLAccount();
     });
 
-    this.placeHolderLabel = this.translateService.instant('labels.text.Search');
-    this.noEntriesFoundLabel = this.translateService.instant('labels.text.No data found');
+    // .get() (not .instant()) waits for the translation file to finish loading — .instant() returns the
+    // raw key when this component mounts before that load completes, which is intermittent by nature.
+    this.translateService
+      .get([
+        'labels.text.Search',
+        'labels.text.No data found'
+      ])
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe((translations) => {
+        this.placeHolderLabel = translations['labels.text.Search'];
+        this.noEntriesFoundLabel = translations['labels.text.No data found'];
+      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
