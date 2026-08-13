@@ -9,7 +9,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { AuthenticationService } from 'app/core/authentication/authentication.service';
 import { environment } from '../../../environments/environment';
@@ -28,7 +28,7 @@ const SCHEDULE: StatementFeeSchedule = {
 };
 
 describe('StatementFeeScheduleComponent', () => {
-  let service: { getSchedule: jest.Mock; replaceSchedule: jest.Mock };
+  let service: { getSchedule: jest.Mock };
   let authenticationService: { getCredentials: jest.Mock };
   let route: { snapshot: { data: Record<string, any> } };
   let router: { navigate: jest.Mock };
@@ -39,8 +39,7 @@ describe('StatementFeeScheduleComponent', () => {
     originalRbac = environment.productionModeEnableRBAC;
     environment.productionModeEnableRBAC = true;
     service = {
-      getSchedule: jest.fn().mockReturnValue(of(SCHEDULE)),
-      replaceSchedule: jest.fn().mockReturnValue(of(SCHEDULE))
+      getSchedule: jest.fn().mockReturnValue(of(SCHEDULE))
     };
     authenticationService = {
       getCredentials: jest.fn().mockReturnValue({
@@ -76,29 +75,15 @@ describe('StatementFeeScheduleComponent', () => {
     component.ngOnInit();
 
     expect(service.getSchedule).toHaveBeenCalledWith('NGN');
-    expect(component.form.controls.feeAmount.value).toBe(20);
-    expect(component.form.controls.vatRatePercent.value).toBe(7.5);
+    expect(component.feeAmount).toBe(20);
+    expect(component.vatRatePercent).toBe(7.5);
   });
 
-  it('computes the VAT and total from the edited values', () => {
+  it('computes the VAT and total from the loaded schedule', () => {
     component.ngOnInit();
 
     expect(component.vatAmount).toBe(1.5);
     expect(component.totalFee).toBe(21.5);
-  });
-
-  it('sends a single-band schedule built from the fee amount and VAT rate', () => {
-    component.ngOnInit();
-    component.form.controls.feeAmount.setValue(30);
-    component.form.controls.vatRatePercent.setValue(10);
-
-    component.save();
-
-    expect(service.replaceSchedule).toHaveBeenCalledWith('NGN', {
-      currencyCode: 'NGN',
-      vatRate: 0.1,
-      bands: [{ order: 1, upperThreshold: null, totalFee: 33, vatBase: 30 }]
-    });
   });
 
   it('offers every configured currency and loads a newly selected schedule', () => {
@@ -122,23 +107,6 @@ describe('StatementFeeScheduleComponent', () => {
     expect(service.getSchedule).toHaveBeenNthCalledWith(2, 'KES');
   });
 
-  it('keeps the current currency when a dirty switch is cancelled', () => {
-    route.snapshot.data['currencies'].selectedCurrencyOptions = [
-      { code: 'NGN' },
-      { code: 'KES' }];
-    const confirm = jest.spyOn(window, 'confirm').mockReturnValue(false);
-    component.ngOnInit();
-    component.form.controls.feeAmount.setValue(25);
-    component.form.markAsDirty();
-
-    component.onCurrencyChange('KES');
-
-    expect(confirm).toHaveBeenCalled();
-    expect(component.currencyCode).toBe('NGN');
-    expect(component.form.controls.feeAmount.value).toBe(25);
-    expect(service.getSchedule).toHaveBeenCalledTimes(1);
-  });
-
   it('does not request a schedule when no backend currency is configured', () => {
     route.snapshot.data['currencies'].selectedCurrencyOptions = [];
 
@@ -149,29 +117,6 @@ describe('StatementFeeScheduleComponent', () => {
     );
     expect(component.loading).toBe(false);
     expect(service.getSchedule).not.toHaveBeenCalled();
-  });
-
-  it('disables currency selection while saving', () => {
-    const saveResponse = new Subject<StatementFeeSchedule>();
-    service.replaceSchedule.mockReturnValue(saveResponse);
-    component.ngOnInit();
-
-    component.save();
-
-    expect(component.saving).toBe(true);
-    expect(component.currencySelectionDisabled).toBe(true);
-    saveResponse.next(SCHEDULE);
-    expect(component.currencySelectionDisabled).toBe(false);
-  });
-
-  it('loads read-only state without permitting a save', () => {
-    authenticationService.getCredentials.mockReturnValue({ permissions: ['READ_STATEMENTFEESCHEDULE'] });
-    component.ngOnInit();
-    component.save();
-
-    expect(component.canWrite).toBe(false);
-    expect(component.form.controls.feeAmount.disabled).toBe(true);
-    expect(service.replaceSchedule).not.toHaveBeenCalled();
   });
 
   it('does not load and routes away without read permission', () => {
@@ -198,24 +143,14 @@ describe('StatementFeeScheduleComponent', () => {
     expect(component.errorMessage).toBe('Statement fee schedule must have exactly one band');
   });
 
-  it('initializes an editable schedule when none exists yet', () => {
+  it('shows a zeroed schedule and an explanatory message when none exists yet', () => {
     service.getSchedule.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
 
     component.ngOnInit();
 
     expect(component.loading).toBe(false);
-    expect(component.errorMessage).toBe('');
-    expect(component.form.controls.feeAmount.value).toBe(0);
-    expect(component.form.controls.vatRatePercent.value).toBe(0);
-  });
-
-  it('explains a missing schedule to a read-only user', () => {
-    authenticationService.getCredentials.mockReturnValue({ permissions: ['READ_STATEMENTFEESCHEDULE'] });
-    service.getSchedule.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
-
-    component.ngOnInit();
-
     expect(component.errorMessage).toBe('No statement fee schedule is configured for NGN.');
-    expect(component.form.controls.feeAmount.disabled).toBe(true);
+    expect(component.feeAmount).toBe(0);
+    expect(component.vatRatePercent).toBe(0);
   });
 });

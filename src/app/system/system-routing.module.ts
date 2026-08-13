@@ -59,6 +59,7 @@ import { AboutUsComponent } from './about-us/about-us.component';
 import { TierPolicyComponent } from './tier-policy/tier-policy.component';
 import { NipFeePolicyComponent } from './nip-fee-policy/nip-fee-policy.component';
 import { StatementFeeScheduleComponent } from './statement-fee-schedule/statement-fee-schedule.component';
+import { EditStatementFeeScheduleComponent } from './statement-fee-schedule/edit-statement-fee-schedule/edit-statement-fee-schedule.component';
 import { ChannelPolicyComponent } from './channel-policy/channel-policy.component';
 import { ChannelRoutesComponent } from './channel-policy/channel-routes.component';
 
@@ -648,10 +649,23 @@ const routes: Routes = [
         {
           path: 'statement-fee-schedule',
           data: { title: 'Statement Fee Schedule', breadcrumb: 'Statement Fee Schedule' },
-          component: StatementFeeScheduleComponent,
-          resolve: {
-            currencies: CurrenciesResolver
-          }
+          children: [
+            {
+              path: '',
+              component: StatementFeeScheduleComponent,
+              resolve: {
+                currencies: CurrenciesResolver
+              }
+            },
+            {
+              path: 'edit',
+              component: EditStatementFeeScheduleComponent,
+              data: { title: 'Edit Statement Fee Schedule', breadcrumb: 'Edit', routeParamBreadcrumb: false },
+              resolve: {
+                currencies: CurrenciesResolver
+              }
+            }
+          ]
         },
         {
           path: 'channel-policy',

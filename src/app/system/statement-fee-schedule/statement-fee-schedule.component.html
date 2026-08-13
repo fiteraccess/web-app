@@ -6,10 +6,25 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
+<div class="container m-b-20 layout-row align-end gap-20px">
+  <button
+    mat-raised-button
+    color="primary"
+    [routerLink]="['edit']"
+    [queryParams]="{ currency: currencyCode }"
+    *mifosxHasPermission="'WRITE_STATEMENTFEESCHEDULE'"
+  >
+    <fa-icon icon="edit" class="m-r-10"></fa-icon>
+    {{ 'labels.buttons.Edit' | translate }}
+  </button>
+</div>
+
 <div class="container">
   <mat-card>
+    <mat-card-title class="m-t-20 m-l-20"
+      ><h4>{{ 'labels.heading.Statement Fee Schedule' | translate }}</h4></mat-card-title
+    >
     <mat-card-content>
-      <h2>{{ 'labels.heading.Statement Fee Schedule' | translate }}</h2>
       <p class="description">
         {{
           'labels.text.The fee charged for a bank-certified (signed) e-statement. Unsigned statements are never charged.'
@@ -24,49 +39,28 @@
       @if (loading) {
         <p>{{ 'labels.text.Loading' | translate }}</p>
       } @else {
-        <form [formGroup]="form" (ngSubmit)="save()">
-          <div class="layout-row-wrap gap-20px">
-            <mat-form-field>
-              <mat-label>{{ 'labels.inputs.Currency' | translate }}</mat-label>
-              <mat-select
-                [value]="currencyCode"
-                [disabled]="currencySelectionDisabled"
-                (selectionChange)="onCurrencyChange($event)"
-              >
-                @for (currency of currencies; track currency.code) {
-                  <mat-option [value]="currency.code">
-                    {{ currency.code }}{{ currency.name ? ' — ' + currency.name : '' }}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+        <div class="layout-row-wrap gap-20px">
+          <mat-form-field>
+            <mat-label>{{ 'labels.inputs.Currency' | translate }}</mat-label>
+            <mat-select [value]="currencyCode" (selectionChange)="onCurrencyChange($event)">
+              @for (currency of currencies; track currency.code) {
+                <mat-option [value]="currency.code">
+                  {{ currency.code }}{{ currency.name ? ' — ' + currency.name : '' }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
 
-            <mat-form-field>
-              <mat-label>{{ 'labels.inputs.Fee Amount' | translate }}</mat-label>
-              <input matInput type="number" min="0" step="0.01" formControlName="feeAmount" />
-              <mat-hint>{{ 'labels.text.Charged when the customer requests a signed statement' | translate }}</mat-hint>
-            </mat-form-field>
+        <div class="layout-row-wrap gap-20px">
+          <span>{{ 'labels.inputs.Fee Amount' | translate }}: {{ feeAmount | number: '1.2-8' }}</span>
+          <span>{{ 'labels.inputs.VAT Rate (%)' | translate }}: {{ vatRatePercent | number: '1.0-6' }}</span>
+        </div>
 
-            <mat-form-field>
-              <mat-label>{{ 'labels.inputs.VAT Rate (%)' | translate }}</mat-label>
-              <input matInput type="number" min="0" max="99.999999" step="0.01" formControlName="vatRatePercent" />
-              <mat-hint>{{ 'labels.text.For example 7.5' | translate }}</mat-hint>
-            </mat-form-field>
-          </div>
-
-          <div class="preview layout-row-wrap gap-20px">
-            <span>{{ 'labels.inputs.VAT' | translate }}: {{ vatAmount | number: '1.2-8' }}</span>
-            <span>{{ 'labels.inputs.Total Charged' | translate }}: {{ totalFee | number: '1.2-8' }}</span>
-          </div>
-
-          @if (canWrite) {
-            <mat-card-actions>
-              <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving">
-                {{ 'labels.buttons.Save' | translate }}
-              </button>
-            </mat-card-actions>
-          }
-        </form>
+        <div class="preview layout-row-wrap gap-20px">
+          <span>{{ 'labels.inputs.VAT' | translate }}: {{ vatAmount | number: '1.2-8' }}</span>
+          <span>{{ 'labels.inputs.Total Charged' | translate }}: {{ totalFee | number: '1.2-8' }}</span>
+        </div>
       }
     </mat-card-content>
   </mat-card>
