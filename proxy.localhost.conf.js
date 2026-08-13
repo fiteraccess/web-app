@@ -43,6 +43,33 @@ module.exports = [
     }
   },
   {
+    context: ['/access'],
+    // Synapse's own Access API surface (/access/api/v1/*) — NIP fee policy, tier policy, channel policy,
+    // statement fee schedule, etc. Distinct from /fineract-provider, which is the Fineract pass-through.
+    target: 'http://localhost:8444',
+    changeOrigin: true,
+    secure: false,
+    logLevel: 'debug',
+    onProxyReq: function (proxyReq, req, res) {
+      console.log('[Proxy] Proxying:', req.method, req.url, '->', this.target + (req.url || ''));
+    },
+    onError: function (err, req, res) {
+      console.error(
+        '[Proxy] Error while proxying request:',
+        req && req.method,
+        req && req.url,
+        '->',
+        this.target,
+        '-',
+        err && err.message
+      );
+      if (res && !res.headersSent) {
+        res.writeHead(502, { 'Content-Type': 'text/plain' });
+        res.end('Proxy error: ' + (err && err.message ? err.message : 'Unknown error'));
+      }
+    }
+  },
+  {
     context: ['/external-nationalid'],
     target: 'https://apis.mifos.community',
     pathRewrite: { '^/external-nationalid': '/1.0/nationalid' },
