@@ -24,10 +24,9 @@ import { FinancialActivityMappingsComponent } from './financial-activity-mapping
 import { CreateFinancialActivityMappingComponent } from './financial-activity-mappings/create-financial-activity-mapping/create-financial-activity-mapping.component';
 import { ViewFinancialActivityMappingComponent } from './financial-activity-mappings/view-financial-activity-mapping/view-financial-activity-mapping.component';
 import { EditFinancialActivityMappingComponent } from './financial-activity-mappings/edit-financial-activity-mapping/edit-financial-activity-mapping.component';
-import { NipSwitchAccountingConfigurationsComponent } from './nip-switch-accounting-configurations/nip-switch-accounting-configurations.component';
-import { CreateNipSwitchAccountingConfigurationComponent } from './nip-switch-accounting-configurations/create-nip-switch-accounting-configuration/create-nip-switch-accounting-configuration.component';
-import { ViewNipSwitchAccountingConfigurationComponent } from './nip-switch-accounting-configurations/view-nip-switch-accounting-configuration/view-nip-switch-accounting-configuration.component';
-import { EditNipSwitchAccountingConfigurationComponent } from './nip-switch-accounting-configurations/edit-nip-switch-accounting-configuration/edit-nip-switch-accounting-configuration.component';
+import { NipSwitchesComponent } from './nip-switches/nip-switches.component';
+import { NipSwitchDetailComponent } from './nip-switches/nip-switch-detail.component';
+import { NipSwitchWorkflowComponent } from './nip-switches/nip-switch-workflow.component';
 import { MigrateOpeningBalancesComponent } from './migrate-opening-balances/migrate-opening-balances.component';
 import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
 import { CreateGlAccountComponent } from './chart-of-accounts/create-gl-account/create-gl-account.component';
@@ -57,9 +56,11 @@ import { FinancialActivityMappingsResolver } from './financial-activity-mappings
 import { FinancialActivityMappingsTemplateResolver } from './financial-activity-mappings/create-financial-activity-mapping/financial-activity-mappings-template.resolver';
 import { FinancialActivityMappingResolver } from './financial-activity-mappings/view-financial-activity-mapping/financial-activity-mapping.resolver';
 import { FinancialActivityMappingAndTemplateResolver } from './financial-activity-mappings/edit-financial-activity-mapping/financial-activity-mapping-and-template.resolver';
-import { NipSwitchAccountingConfigurationsResolver } from './nip-switch-accounting-configurations/nip-switch-accounting-configurations.resolver';
-import { NipSwitchAccountingConfigurationResolver } from './nip-switch-accounting-configurations/nip-switch-accounting-configuration.resolver';
-import { NipSwitchAccountingGlAccountsResolver } from './nip-switch-accounting-configurations/nip-switch-accounting-gl-accounts.resolver';
+import { NipSwitchGlAccountsResolver } from './nip-switches/nip-switch-gl-accounts.resolver';
+import { NipSwitchesResolver } from './nip-switches/nip-switches.resolver';
+import { NipSwitchResolver } from './nip-switches/nip-switch.resolver';
+import { nipSwitchReadGuard, nipSwitchWriteGuard } from './nip-switches/nip-switch-permissions';
+import { NIP_SWITCH_LEGACY_ROUTES } from './nip-switches/nip-switch-legacy-routes';
 import { ChartOfAccountsResolver } from './chart-of-accounts/chart-of-accounts.resolver';
 import { ChartOfAccountsTemplateResolver } from './chart-of-accounts/create-gl-account/chart-of-accounts-template.resolver';
 import { GlAccountAndChartOfAccountsTemplateResolver } from './chart-of-accounts/gl-account-and-chart-of-accounts-template.resolver';
@@ -80,7 +81,7 @@ import { ExternalAssetOwnerJournalEntryResolver } from 'app/loans/common-resolve
 import { ExternalAssetConfigurationResolver } from './common-resolvers/external-asset-configuration.resolver';
 
 /** Accounting Routes */
-const routes: Routes = [
+export const ACCOUNTING_ROUTES: Routes = [
   Route.withShell([
     {
       path: 'accounting',
@@ -183,52 +184,62 @@ const routes: Routes = [
             }
           ]
         },
+        ...NIP_SWITCH_LEGACY_ROUTES,
         {
-          path: 'nip-switch-accounting-configurations',
-          data: { title: 'NIP Switch Accounting Configurations', breadcrumb: 'NIP Switch Accounting Configurations' },
+          path: 'nip-switches',
+          canActivate: [nipSwitchReadGuard],
+          data: { title: 'NIP Switches', breadcrumb: 'NIP Switches' },
           children: [
             {
               path: '',
-              component: NipSwitchAccountingConfigurationsComponent,
+              component: NipSwitchesComponent,
               resolve: {
-                nipSwitchAccountingConfigurations: NipSwitchAccountingConfigurationsResolver,
-                nipSwitchAccountingGlAccounts: NipSwitchAccountingGlAccountsResolver
+                nipSwitches: NipSwitchesResolver,
+                nipSwitchGlAccounts: NipSwitchGlAccountsResolver,
+                currencies: CurrenciesResolver
               }
             },
             {
               path: 'create',
-              component: CreateNipSwitchAccountingConfigurationComponent,
-              data: { title: 'Create NIP Switch Accounting Configuration', breadcrumb: 'Create' },
+              component: NipSwitchWorkflowComponent,
+              canActivate: [nipSwitchWriteGuard],
+              data: { title: 'Add NIP Switch', breadcrumb: 'Add', workflowMode: 'add' },
               resolve: {
-                nipSwitchAccountingGlAccounts: NipSwitchAccountingGlAccountsResolver
+                nipSwitchGlAccounts: NipSwitchGlAccountsResolver,
+                currencies: CurrenciesResolver
+              }
+            },
+            {
+              path: 'view/:switchId/edit',
+              component: NipSwitchWorkflowComponent,
+              canActivate: [nipSwitchWriteGuard],
+              data: { title: 'Edit NIP Switch', breadcrumb: 'Edit', workflowMode: 'edit' },
+              resolve: {
+                nipSwitch: NipSwitchResolver,
+                nipSwitchGlAccounts: NipSwitchGlAccountsResolver,
+                currencies: CurrenciesResolver
+              }
+            },
+            {
+              path: 'view/:switchId/resolve',
+              component: NipSwitchWorkflowComponent,
+              canActivate: [nipSwitchWriteGuard],
+              data: { title: 'Resolve NIP Switch mismatch', breadcrumb: 'Resolve mismatch', workflowMode: 'resolve' },
+              resolve: {
+                nipSwitch: NipSwitchResolver,
+                nipSwitchGlAccounts: NipSwitchGlAccountsResolver,
+                currencies: CurrenciesResolver
               }
             },
             {
               path: 'view/:switchId',
-              data: { title: 'View NIP Switch Accounting Configuration', routeParamBreadcrumb: 'switchId' },
-              children: [
-                {
-                  path: '',
-                  component: ViewNipSwitchAccountingConfigurationComponent,
-                  resolve: {
-                    nipSwitchAccountingConfiguration: NipSwitchAccountingConfigurationResolver,
-                    nipSwitchAccountingGlAccounts: NipSwitchAccountingGlAccountsResolver
-                  }
-                },
-                {
-                  path: 'edit',
-                  component: EditNipSwitchAccountingConfigurationComponent,
-                  data: {
-                    title: 'Edit NIP Switch Accounting Configuration',
-                    breadcrumb: 'Edit',
-                    routeParamBreadcrumb: false
-                  },
-                  resolve: {
-                    nipSwitchAccountingConfiguration: NipSwitchAccountingConfigurationResolver,
-                    nipSwitchAccountingGlAccounts: NipSwitchAccountingGlAccountsResolver
-                  }
-                }
-              ]
+              component: NipSwitchDetailComponent,
+              data: { title: 'NIP Switch', routeParamBreadcrumb: 'switchId' },
+              resolve: {
+                nipSwitch: NipSwitchResolver,
+                nipSwitchGlAccounts: NipSwitchGlAccountsResolver,
+                currencies: CurrenciesResolver
+              }
             }
           ]
         },
@@ -458,7 +469,7 @@ const routes: Routes = [
  * Configures the accounting routes.
  */
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
+  imports: [RouterModule.forChild(ACCOUNTING_ROUTES)],
   exports: [RouterModule],
   providers: [
     OfficesResolver,
@@ -471,9 +482,9 @@ const routes: Routes = [
     FinancialActivityMappingsTemplateResolver,
     FinancialActivityMappingResolver,
     FinancialActivityMappingAndTemplateResolver,
-    NipSwitchAccountingConfigurationsResolver,
-    NipSwitchAccountingConfigurationResolver,
-    NipSwitchAccountingGlAccountsResolver,
+    NipSwitchesResolver,
+    NipSwitchResolver,
+    NipSwitchGlAccountsResolver,
     ChartOfAccountsResolver,
     ChartOfAccountsTemplateResolver,
     GlAccountAndChartOfAccountsTemplateResolver,

@@ -147,31 +147,36 @@
             </mat-list-item>
           </div>
 
-          <mat-list-item *mifosxHasPermission="'READ_NIP_SWITCH_ACCOUNTING_CONFIGURATION'">
-            <div class="menu-list-item-content">
-              <div class="menu-left-section" [routerLink]="['nip-switch-accounting-configurations']">
-                <mat-icon matListIcon>
-                  <fa-icon icon="exchange" size="sm"></fa-icon>
-                </mat-icon>
-                <div matLine>
-                  {{ 'labels.heading.NIP Switch Accounting Configurations' | translate }}
+          @if (canReadNipSwitches) {
+            <mat-list-item>
+              <div class="menu-list-item-content">
+                <div class="menu-left-section" [routerLink]="['nip-switches']">
+                  <mat-icon matListIcon>
+                    <fa-icon icon="exchange" size="sm"></fa-icon>
+                  </mat-icon>
+                  <div matLine>
+                    {{ 'labels.heading.NIP Switches' | translate }}
+                    @if (arrowBooleans[10]) {
+                      <p matLine [routerLink]="['nip-switches']" class="menu-explanation">
+                        {{
+                          'labels.text.Manage switch accounting, transfer configuration, and fixed switch fees'
+                            | translate
+                        }}
+                      </p>
+                    }
+                  </div>
+                </div>
+                <div class="menu-right-section">
+                  @if (!arrowBooleans[10]) {
+                    <fa-icon (click)="arrowBooleansToggle(10)" icon="arrow-down" size="md"></fa-icon>
+                  }
                   @if (arrowBooleans[10]) {
-                    <p matLine [routerLink]="['nip-switch-accounting-configurations']" class="menu-explanation">
-                      {{ 'labels.text.Map NIP switches to GL accounts, per direction' | translate }}
-                    </p>
+                    <fa-icon (click)="arrowBooleansToggle(10)" icon="arrow-up" size="md"></fa-icon>
                   }
                 </div>
               </div>
-              <div class="menu-right-section">
-                @if (!arrowBooleans[10]) {
-                  <fa-icon (click)="arrowBooleansToggle(10)" icon="arrow-down" size="md"></fa-icon>
-                }
-                @if (arrowBooleans[10]) {
-                  <fa-icon (click)="arrowBooleansToggle(10)" icon="arrow-up" size="md"></fa-icon>
-                }
-              </div>
-            </div>
-          </mat-list-item>
+            </mat-list-item>
+          }
         </mat-nav-list>
       </div>
 

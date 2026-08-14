@@ -12,31 +12,69 @@ import { TestBed } from '@angular/core/testing';
 
 import { AccountingService } from './accounting.service';
 import {
-  NipSwitchAccountingBothRequest,
-  NipSwitchAccountingConfiguration,
-  NipSwitchAccountingCommandResult
-} from './nip-switch-accounting-configurations/nip-switch-accounting-configuration.model';
+  NipSwitchConfiguration,
+  NipSwitchConfigurationReplacement,
+  NipSwitchConfigurationSaveResponse,
+  NipSwitchConfigurationStructuredError
+} from './nip-switches/nip-switch-configuration.model';
 
-const CONFIGURATION: NipSwitchAccountingConfiguration = {
-  switchId: 'NIBSS',
-  direction: 'BOTH',
+const COMPOSITE_CONFIGURATION: NipSwitchConfiguration = {
+  switchId: 'NIP',
+  configurationStatus: 'COMPLETE',
+  accounting: {
+    configured: true,
+    direction: 'OUTBOUND',
+    switchPayableGlAccountId: 101,
+    switchFeeGlAccountId: 102,
+    commissionIncomeGlAccountId: 103,
+    switchReceivableGlAccountId: null,
+    active: true
+  },
+  transferConfiguration: {
+    configured: true,
+    direction: 'OUTBOUND',
+    active: true,
+    switchFeeAllocations: [{ currencyCode: 'NGN', switchFee: 5 }]
+  }
+};
+
+const COMPOSITE_REPLACEMENT: NipSwitchConfigurationReplacement = {
+  direction: 'OUTBOUND',
   switchPayableGlAccountId: 101,
   switchFeeGlAccountId: 102,
   commissionIncomeGlAccountId: 103,
-  switchReceivableGlAccountId: 104,
-  active: true
+  active: true,
+  switchFeeAllocations: [
+    { currencyCode: 'NGN', switchFee: 5 },
+    { currencyCode: 'USD', switchFee: 0 }
+  ]
 };
 
-const REPLACEMENT: NipSwitchAccountingBothRequest = {
-  direction: 'BOTH',
-  switchPayableGlAccountId: 101,
-  switchFeeGlAccountId: 102,
-  commissionIncomeGlAccountId: 103,
-  switchReceivableGlAccountId: 104,
-  active: true
+const COMPLETE_SAVE_RESPONSE: NipSwitchConfigurationSaveResponse = {
+  ...COMPOSITE_CONFIGURATION,
+  configurationStatus: 'COMPLETE',
+  operation: {
+    status: 'COMPLETE',
+    accounting: { status: 'SAVED', error: null },
+    transferConfiguration: { status: 'SAVED', error: null }
+  }
 };
 
-describe('AccountingService NIP switch accounting methods', () => {
+const PARTIAL_SAVE_ERROR: NipSwitchConfigurationStructuredError = {
+  code: 'NIP_SWITCH_PARTIAL_SAVE',
+  message: 'The switch was only partially saved.',
+  operation: {
+    status: 'PARTIAL',
+    accounting: { status: 'SAVED', error: null },
+    transferConfiguration: {
+      status: 'FAILED',
+      error: { code: 'ROUTE_SAVE_FAILED', message: 'Transfer configuration could not be saved.' }
+    }
+  },
+  retryable: true
+};
+
+describe('AccountingService NIP switch methods', () => {
   let service: AccountingService;
   let http: HttpTestingController;
 
@@ -53,38 +91,8 @@ describe('AccountingService NIP switch accounting methods', () => {
 
   afterEach(() => http.verify());
 
-  it('lists NIP switch accounting configurations with GET', () => {
-    service.getNipSwitchAccountingConfigurations().subscribe((result) => expect(result).toEqual([CONFIGURATION]));
-
-    const request = http.expectOne('/nip-switch-accounting-configurations');
-    expect(request.request.method).toBe('GET');
-    request.flush([CONFIGURATION]);
-  });
-
-  it('retrieves a NIP switch accounting configuration using an encoded switch ID', () => {
-    service
-      .getNipSwitchAccountingConfiguration('NIBSS / TEST')
-      .subscribe((result) => expect(result).toEqual(CONFIGURATION));
-
-    const request = http.expectOne('/nip-switch-accounting-configurations/NIBSS%20%2F%20TEST');
-    expect(request.request.method).toBe('GET');
-    request.flush(CONFIGURATION);
-  });
-
-  it('uses PUT and the exact replacement body for a NIP switch accounting configuration', () => {
-    const result: NipSwitchAccountingCommandResult = { resourceId: 9, resourceIdentifier: 'NIBSS' };
-    service
-      .upsertNipSwitchAccountingConfiguration('NIBSS / TEST', REPLACEMENT)
-      .subscribe((response) => expect(response).toEqual(result));
-
-    const request = http.expectOne('/nip-switch-accounting-configurations/NIBSS%20%2F%20TEST');
-    expect(request.request.method).toBe('PUT');
-    expect(request.request.body).toEqual(REPLACEMENT);
-    request.flush(result);
-  });
-
   it('loads enabled detail GL accounts without requiring manual journal entry eligibility', () => {
-    service.getNipSwitchAccountingGlAccounts().subscribe();
+    service.getNipSwitchGlAccounts().subscribe();
 
     const request = http.expectOne((candidate) => candidate.url === '/glaccounts');
     expect(request.request.method).toBe('GET');
@@ -96,10 +104,55 @@ describe('AccountingService NIP switch accounting methods', () => {
   });
 
   it('restricts Receivable GL account retrieval to assets', () => {
-    service.getNipSwitchAccountingGlAccounts(true).subscribe();
+    service.getNipSwitchGlAccounts(true).subscribe();
 
     const request = http.expectOne((candidate) => candidate.url === '/glaccounts');
     expect(request.request.params.get('type')).toBe('1');
     request.flush([]);
+  });
+
+  it('unwraps the composite NIP switch collection', () => {
+    service.getNipSwitchConfigurations().subscribe((result) => expect(result).toEqual([COMPOSITE_CONFIGURATION]));
+
+    const request = http.expectOne('/access/api/v1/admin/nip-switch-configurations');
+    expect(request.request.method).toBe('GET');
+    request.flush({ switches: [COMPOSITE_CONFIGURATION] });
+  });
+
+  it('retrieves composite detail using an encoded switch ID', () => {
+    service
+      .getNipSwitchConfiguration('NIP / TEST')
+      .subscribe((result) => expect(result).toEqual(COMPOSITE_CONFIGURATION));
+
+    const request = http.expectOne('/access/api/v1/admin/nip-switch-configurations/NIP%20%2F%20TEST');
+    expect(request.request.method).toBe('GET');
+    request.flush(COMPOSITE_CONFIGURATION);
+  });
+
+  it('sends the exact composite replacement and returns successful component outcomes', () => {
+    service
+      .upsertNipSwitchConfiguration('NIP / TEST', COMPOSITE_REPLACEMENT)
+      .subscribe((result) => expect(result).toEqual(COMPLETE_SAVE_RESPONSE));
+
+    const request = http.expectOne('/access/api/v1/admin/nip-switch-configurations/NIP%20%2F%20TEST');
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(COMPOSITE_REPLACEMENT);
+    request.flush(COMPLETE_SAVE_RESPONSE);
+  });
+
+  it('preserves a structured partial error for component-aware handling', (done) => {
+    service.upsertNipSwitchConfiguration('NIP', COMPOSITE_REPLACEMENT).subscribe({
+      next: () => fail('expected a structured partial error'),
+      error: (response) => {
+        expect(response.status).toBe(502);
+        expect(response.error).toEqual(PARTIAL_SAVE_ERROR);
+        done();
+      }
+    });
+
+    const request = http.expectOne('/access/api/v1/admin/nip-switch-configurations/NIP');
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(COMPOSITE_REPLACEMENT);
+    request.flush(PARTIAL_SAVE_ERROR, { status: 502, statusText: 'Bad Gateway' });
   });
 });

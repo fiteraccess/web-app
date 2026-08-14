@@ -18,6 +18,8 @@ import { MatIcon } from '@angular/material/icon';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { MatLine } from '@angular/material/grid-list';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { AuthenticationService } from 'app/core/authentication/authentication.service';
+import { canReadNipSwitches } from './nip-switches/nip-switch-permissions';
 
 /**
  * Accounting component.
@@ -37,8 +39,11 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 })
 export class AccountingComponent implements AfterViewInit {
   private router = inject(Router);
+  private authenticationService = inject(AuthenticationService);
   private configurationWizardService = inject(ConfigurationWizardService);
   private popoverService = inject(PopoverService);
+
+  readonly canReadNipSwitches = canReadNipSwitches(this.authenticationService.getCredentials()?.permissions ?? []);
 
   /* Reference of Chart of Accounts */
   @ViewChild('chartofAccounts') chartofAccounts: ElementRef<any>;
