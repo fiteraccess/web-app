@@ -62,6 +62,8 @@ import { StatementFeeScheduleComponent } from './statement-fee-schedule/statemen
 import { EditStatementFeeScheduleComponent } from './statement-fee-schedule/edit-statement-fee-schedule/edit-statement-fee-schedule.component';
 import { ChannelPolicyComponent } from './channel-policy/channel-policy.component';
 import { ChannelRoutesComponent } from './channel-policy/channel-routes.component';
+import { BillingFeeConfigComponent } from './billing-fee-config/billing-fee-config.component';
+import { EditBillingFeeConfigComponent } from './billing-fee-config/edit-billing-fee-config/edit-billing-fee-config.component';
 
 /** Custom Resolvers */
 import { AccountNumberPreferencesResolver } from './account-number-preferences/account-number-preferences.resolver';
@@ -110,6 +112,10 @@ import {
   ChannelResolver,
   ChannelRoutesResolver
 } from './channel-policy/channel-policy.resolver';
+import {
+  BillingFeeConfigListResolver,
+  BillingFeeConfigResolver
+} from './billing-fee-config/billing-fee-config.resolver';
 import { PaymentTypesResolver } from '../organization/payment-types/payment-types.resolver';
 import { CurrenciesResolver } from '../organization/currencies/currencies.resolver';
 
@@ -683,6 +689,28 @@ const routes: Routes = [
               resolve: { routes: ChannelRoutesResolver, channel: ChannelResolver }
             }
           ]
+        },
+        {
+          path: 'billing-fee-configs',
+          data: { title: 'Billing Fee Config', breadcrumb: 'Billing Fee Config' },
+          children: [
+            {
+              path: '',
+              component: BillingFeeConfigComponent,
+              resolve: { schedules: BillingFeeConfigListResolver }
+            },
+            {
+              path: 'new',
+              component: EditBillingFeeConfigComponent,
+              data: { title: 'New Fee Schedule', breadcrumb: 'New' }
+            },
+            {
+              path: ':billerCode/:productCode',
+              component: EditBillingFeeConfigComponent,
+              data: { title: 'Edit Fee Schedule', routeParamBreadcrumb: 'billerCode' },
+              resolve: { schedule: BillingFeeConfigResolver }
+            }
+          ]
         }
       ]
     }
@@ -729,7 +757,9 @@ const routes: Routes = [
     ChannelResolver,
     ChannelRoutesResolver,
     PaymentTypesResolver,
-    CurrenciesResolver
+    CurrenciesResolver,
+    BillingFeeConfigListResolver,
+    BillingFeeConfigResolver
   ]
 })
 export class SystemRoutingModule {}

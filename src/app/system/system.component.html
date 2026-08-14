@@ -346,6 +346,17 @@
               </div>
             </div>
           </mat-list-item>
+
+          <mat-list-item [routerLink]="['billing-fee-configs']" *mifosxHasPermission="'READ_BILLINGFEECONFIG'">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['billing-fee-configs']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="receipt" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>{{ 'labels.heading.Billing Fee Config' | translate }}</div>
+              </div>
+            </div>
+          </mat-list-item>
         </mat-nav-list>
       </div>
 
