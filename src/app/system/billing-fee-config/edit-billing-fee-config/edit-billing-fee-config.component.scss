@@ -33,7 +33,13 @@
 }
 
 .remove-component-button {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
   flex: 0 0 auto;
+
+  ::ng-deep svg {
+    width: 14px;
+    height: 14px;
+  }
 }

@@ -49,7 +49,9 @@ export function createAggregatorAccountingForm(
     commissionIncomeGlAccountId: new FormControl(configuration.commissionIncomeGlAccountId ?? null, {
       validators: [Validators.required]
     }),
-    convenienceFeeIncomeGlAccountId: new FormControl(configuration.convenienceFeeIncomeGlAccountId ?? null),
+    convenienceFeeIncomeGlAccountId: new FormControl(configuration.convenienceFeeIncomeGlAccountId ?? null, {
+      validators: [Validators.required]
+    }),
     active: new FormControl(configuration.active ?? true, { nonNullable: true })
   });
 }
@@ -94,7 +96,7 @@ export function buildAggregatorAccountingReplacement(
   return {
     aggregatorPayableGlAccountId: requiredGlAccountId(value.aggregatorPayableGlAccountId),
     commissionIncomeGlAccountId: requiredGlAccountId(value.commissionIncomeGlAccountId),
-    convenienceFeeIncomeGlAccountId: value.convenienceFeeIncomeGlAccountId ?? null,
+    convenienceFeeIncomeGlAccountId: requiredGlAccountId(value.convenienceFeeIncomeGlAccountId),
     active: value.active
   };
 }
