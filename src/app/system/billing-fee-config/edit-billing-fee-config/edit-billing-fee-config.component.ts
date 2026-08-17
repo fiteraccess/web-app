@@ -8,7 +8,15 @@
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 import { MatIconButton } from '@angular/material/button';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
@@ -17,19 +25,41 @@ import { AuthenticationService } from 'app/core/authentication/authentication.se
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 import { environment } from '../../../../environments/environment';
 
-import { BillingFeeComponent, BillingFeeSchedule } from '../billing-fee-config.model';
+import {
+  BILLING_FEE_COMPONENT_CODES,
+  BILLING_FEE_COMPONENT_TB_TRANSFER_CODES,
+  BillingFeeComponent,
+  BillingFeeComponentCode,
+  BillingFeeSchedule
+} from '../billing-fee-config.model';
 import { BillingFeeConfigService } from '../billing-fee-config.service';
+
+/** Percent rates are wire-level fractions (`0.01` = 1%) but operator-facing input is a 0-100 percentage —
+ * mirrors `EditStatementFeeScheduleComponent`'s `vatRatePercent` conversion at the form/wire boundary. A
+ * component's rate must be strictly under 100% (Synapse rejects a PERCENT rate >= 1 as a fraction). */
+function percentUnderHundred(): ValidatorFn {
+  return (control: AbstractControl<number>): ValidationErrors | null => {
+    const value = Number(control.value);
+    return Number.isFinite(value) && value >= 100 ? { percentTooLarge: true } : null;
+  };
+}
+
+/** In-form stand-in for "depends on the bill amount" (wire-level `dependsOnComponentCode: null`).
+ * `mat-select` does not reliably render a `null`-valued option's text in its closed-state trigger —
+ * the selection itself is correct (it shows highlighted when the panel is open), but the collapsed
+ * control displays blank. Using a real string sentinel here, converted to/from `null` only at the
+ * form/wire boundary, sidesteps that entirely. */
+const DEPENDS_ON_AMOUNT = 'AMOUNT';
 
 /**
  * AB-510: create/edit page for one (billerCode, productCode) fee schedule. Mirrors
  * `NipFeePolicyComponent`'s FormArray pattern (there: `bands`, here: `components`) — same
  * add/remove, dirty-tracking, permission-gated editing, and server-message-on-error shape.
  *
- * In create mode (route `billing-fee-configs/new`, no resolved data) `billerCode`/`productCode` are
- * editable text inputs, since they form the immutable composite key. In edit mode (route
- * `billing-fee-configs/:billerCode/:productCode`) they render as disabled — case in point:
- * `NipFeePolicyComponent` disables `currencyCode` in the same way since it's the resolved schedule's
- * own key, not something a save re-targets.
+ * `billerCode`/`productCode` are editable in both create and edit mode. Synapse's upsert endpoint is
+ * keyed by the URL path, not the body, so changing either in edit mode submits to a *new* key —
+ * the original schedule is not renamed or removed. `keyChanged` surfaces that as an inline warning
+ * before submit.
  */
 @Component({
   selector: 'mifosx-edit-billing-fee-config',
@@ -48,10 +78,14 @@ export class EditBillingFeeConfigComponent implements OnInit {
   private router = inject(Router);
   private billingFeeConfigService = inject(BillingFeeConfigService);
 
+  readonly componentCodes = BILLING_FEE_COMPONENT_CODES;
+
   isCreate = true;
   canWrite = false;
   saving = false;
   errorMessage = '';
+  private originalBillerCode = '';
+  private originalProductCode = '';
 
   readonly form = this.formBuilder.group({
     billerCode: [
@@ -73,6 +107,19 @@ export class EditBillingFeeConfigComponent implements OnInit {
     return this.form.controls.components;
   }
 
+  /** Whether the operator has changed the immutable key fields away from the loaded schedule's —
+   * submitting now targets a new (billerCode, productCode) rather than updating this one. */
+  get keyChanged(): boolean {
+    if (this.isCreate) {
+      return false;
+    }
+    const value = this.form.getRawValue();
+    return (
+      value.billerCode.trim().toUpperCase() !== this.originalBillerCode ||
+      value.productCode.trim().toUpperCase() !== this.originalProductCode
+    );
+  }
+
   ngOnInit(): void {
     const permissions = this.authenticationService.getCredentials()?.permissions || [];
     if (!this.hasPermission('READ_BILLINGFEECONFIG', permissions)) {
@@ -83,6 +130,8 @@ export class EditBillingFeeConfigComponent implements OnInit {
 
     const resolved = this.route.snapshot.data['schedule'] as BillingFeeSchedule | undefined;
     this.isCreate = !resolved;
+    this.originalBillerCode = resolved?.billerCode ?? '';
+    this.originalProductCode = resolved?.productCode ?? '';
     this.populateForm(resolved ?? this.emptySchedule());
   }
 
@@ -102,7 +151,7 @@ export class EditBillingFeeConfigComponent implements OnInit {
   /** The `componentCode` values already in the form, for the "depends on" select — excludes `self`. */
   dependencyOptions(selfIndex: number): string[] {
     return this.components.controls
-      .map((control, index) => ({ index, code: (control.value.componentCode as string)?.trim() }))
+      .map((control, index) => ({ index, code: control.value.componentCode as string }))
       .filter(({ index, code }) => index !== selfIndex && !!code)
       .map(({ code }) => code);
   }
@@ -119,10 +168,8 @@ export class EditBillingFeeConfigComponent implements OnInit {
     this.billingFeeConfigService.putSchedule(schedule.billerCode, schedule.productCode, schedule).subscribe({
       next: (saved) => {
         this.saving = false;
-        this.isCreate = false;
-        this.populateForm(saved);
         this.router.navigate([
-          '/system/billing-fee-configs',
+          '/system/billing-fee-configs/view',
           saved.billerCode,
           saved.productCode
         ]);
@@ -168,32 +215,58 @@ export class EditBillingFeeConfigComponent implements OnInit {
   }
 
   private createComponent(component: BillingFeeComponent): FormGroup {
-    return this.formBuilder.group({
+    const group = this.formBuilder.group({
       componentCode: [
         component.componentCode,
         Validators.required
       ],
-      dependsOnComponentCode: [component.dependsOnComponentCode],
+      dependsOnComponentCode: [component.dependsOnComponentCode ?? DEPENDS_ON_AMOUNT],
       rate: [
-        component.rate,
-        [
-          Validators.required,
-          Validators.min(0)
-        ]
+        this.toDisplayRate(component.rate, component.rateType),
+        this.rateValidators(component.rateType)
       ],
       rateType: [
         component.rateType,
         Validators.required
       ],
-      enabled: [component.enabled],
-      tbTransferCode: [
-        component.tbTransferCode,
-        [
-          Validators.required,
-          Validators.min(1)
-        ]
-      ]
+      enabled: [component.enabled]
     });
+
+    group.controls.rateType.valueChanges.subscribe((rateType) => {
+      const currentDisplayRate = group.controls.rate.value;
+      // Re-interpret the currently displayed number under the new rate type's convention rather than
+      // converting it — a value the operator typed as "1" (meaning 1%) is not the same quantity as a
+      // flat amount of 1, so there is no meaningful arithmetic conversion between the two conventions.
+      group.controls.rate.setValidators(this.rateValidators(rateType));
+      group.controls.rate.setValue(currentDisplayRate, { emitEvent: false });
+      group.controls.rate.updateValueAndValidity();
+    });
+
+    return group;
+  }
+
+  private rateValidators(rateType: 'PERCENT' | 'FLAT'): ValidatorFn[] {
+    return rateType === 'PERCENT' ? [
+          Validators.required,
+          Validators.min(0),
+          percentUnderHundred()
+        ] : [
+          Validators.required,
+          Validators.min(0)
+        ];
+  }
+
+  private toDisplayRate(wireRate: number, rateType: 'PERCENT' | 'FLAT'): number {
+    return rateType === 'PERCENT' ? this.round(wireRate * 100, 6) : wireRate;
+  }
+
+  private toWireRate(displayRate: number, rateType: 'PERCENT' | 'FLAT'): number {
+    return rateType === 'PERCENT' ? this.round(displayRate / 100, 8) : displayRate;
+  }
+
+  private round(value: number, decimalPlaces: number): number {
+    const factor = 10 ** decimalPlaces;
+    return Math.round(value * factor) / factor;
   }
 
   private scheduleFromForm(): BillingFeeSchedule {
@@ -202,24 +275,24 @@ export class EditBillingFeeConfigComponent implements OnInit {
       billerCode: value.billerCode.trim().toUpperCase(),
       productCode: value.productCode.trim().toUpperCase(),
       aggregatorCode: value.aggregatorCode.trim().toUpperCase(),
-      components: value.components.map((component) => ({
-        componentCode: component.componentCode.trim().toUpperCase(),
-        dependsOnComponentCode: component.dependsOnComponentCode?.trim()?.toUpperCase() || null,
-        rate: Number(component.rate),
-        rateType: component.rateType,
-        enabled: !!component.enabled,
-        tbTransferCode: Number(component.tbTransferCode)
-      }))
+      components: value.components.map((component) => {
+        const componentCode = component.componentCode as BillingFeeComponentCode;
+        return {
+          componentCode,
+          dependsOnComponentCode:
+            component.dependsOnComponentCode === DEPENDS_ON_AMOUNT ? null : component.dependsOnComponentCode,
+          rate: this.toWireRate(Number(component.rate), component.rateType),
+          rateType: component.rateType,
+          enabled: !!component.enabled,
+          tbTransferCode: BILLING_FEE_COMPONENT_TB_TRANSFER_CODES[componentCode]
+        };
+      })
     };
   }
 
   private setEditing(): void {
     if (this.canWrite) {
       this.form.enable({ emitEvent: false });
-      if (!this.isCreate) {
-        this.form.controls.billerCode.disable({ emitEvent: false });
-        this.form.controls.productCode.disable({ emitEvent: false });
-      }
       return;
     }
     this.form.disable({ emitEvent: false });

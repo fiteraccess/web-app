@@ -23,3 +23,17 @@
   margin-bottom: 16px;
   color: var(--mdc-theme-error, #b00020);
 }
+
+.warning-message {
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: rgb(255 152 0 / 12%);
+  color: #b26a00;
+}
+
+.remove-component-button {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+}

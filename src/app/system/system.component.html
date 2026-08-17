@@ -312,51 +312,6 @@
               </div>
             </div>
           </mat-list-item>
-
-          <mat-list-item [routerLink]="['channel-policy']" *mifosxHasPermission="'MANAGE_CHANNEL'">
-            <div class="menu-list-item-content">
-              <div class="menu-left-section" [routerLink]="['channel-policy']">
-                <mat-icon matListIcon>
-                  <fa-icon icon="link" size="sm"></fa-icon>
-                </mat-icon>
-                <div matLine>
-                  {{ 'labels.heading.Channel Policy' | translate }}
-                  @if (arrowBooleans[17]) {
-                    <p matLine [routerLink]="['channel-policy']" class="menu-explanation">
-                      {{ 'labels.text.Channel Policy Description' | translate }}
-                    </p>
-                  }
-                </div>
-              </div>
-              <div class="menu-right-section">
-                @if (!arrowBooleans[17]) {
-                  <fa-icon
-                    (click)="arrowBooleansToggle(17); $event.stopPropagation()"
-                    icon="arrow-down"
-                    size="md"
-                  ></fa-icon>
-                }
-                @if (arrowBooleans[17]) {
-                  <fa-icon
-                    (click)="arrowBooleansToggle(17); $event.stopPropagation()"
-                    icon="arrow-up"
-                    size="md"
-                  ></fa-icon>
-                }
-              </div>
-            </div>
-          </mat-list-item>
-
-          <mat-list-item [routerLink]="['billing-fee-configs']" *mifosxHasPermission="'READ_BILLINGFEECONFIG'">
-            <div class="menu-list-item-content">
-              <div class="menu-left-section" [routerLink]="['billing-fee-configs']">
-                <mat-icon matListIcon>
-                  <fa-icon icon="receipt" size="sm"></fa-icon>
-                </mat-icon>
-                <div matLine>{{ 'labels.heading.Billing Fee Config' | translate }}</div>
-              </div>
-            </div>
-          </mat-list-item>
         </mat-nav-list>
       </div>
 
@@ -602,6 +557,51 @@
             </div>
           </mat-list-item>
 
+          <mat-list-item [routerLink]="['channel-policy']" *mifosxHasPermission="'MANAGE_CHANNEL'">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['channel-policy']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="link" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>
+                  {{ 'labels.heading.Channel Policy' | translate }}
+                  @if (arrowBooleans[17]) {
+                    <p matLine [routerLink]="['channel-policy']" class="menu-explanation">
+                      {{ 'labels.text.Channel Policy Description' | translate }}
+                    </p>
+                  }
+                </div>
+              </div>
+              <div class="menu-right-section">
+                @if (!arrowBooleans[17]) {
+                  <fa-icon
+                    (click)="arrowBooleansToggle(17); $event.stopPropagation()"
+                    icon="arrow-down"
+                    size="md"
+                  ></fa-icon>
+                }
+                @if (arrowBooleans[17]) {
+                  <fa-icon
+                    (click)="arrowBooleansToggle(17); $event.stopPropagation()"
+                    icon="arrow-up"
+                    size="md"
+                  ></fa-icon>
+                }
+              </div>
+            </div>
+          </mat-list-item>
+
+          <mat-list-item [routerLink]="['billing-fee-configs']" *mifosxHasPermission="'READ_BILLINGFEECONFIG'">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['billing-fee-configs']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="receipt" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>{{ 'labels.heading.Billing Fee Configurations' | translate }}</div>
+              </div>
+            </div>
+          </mat-list-item>
+
           <mat-list-item [routerLink]="['system-information']">
             <div class="menu-list-item-content">
               <div class="menu-left-section" [routerLink]="['system-information']">
@@ -740,7 +740,7 @@
 </ng-template>
 
 <ng-template #templateConfigurations let-popover="popover">
-  <h2>{{ 'labels.heading.Configuration' | translate }}</h2>
+  <h2>{{ 'labels.heading.Configurations' | translate }}</h2>
   <p class="mw300">{{ 'labels.text.Configurations page allows you to further customize' | translate }}</p>
   <div class="layout-row align-end gap-2px responsive-column">
     <button mat-raised-button color="warn" (click)="popover.close(); configurationWizardService.closeConfigWizard()">

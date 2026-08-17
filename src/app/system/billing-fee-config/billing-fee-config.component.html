@@ -47,7 +47,7 @@
       <tr
         mat-row
         *matRowDef="let row; columns: displayedColumns"
-        [routerLink]="[row.billerCode, row.productCode]"
+        [routerLink]="['view', row.billerCode, row.productCode]"
         class="select-row"
       ></tr>
     </table>
