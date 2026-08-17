@@ -6,13 +6,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 
 import { GLAccount } from 'app/shared/models/general.model';
 
 import {
   AggregatorAccountingConfiguration,
-  AggregatorAccountingConfigurationRequest
+  AggregatorAccountingConfigurationRequest,
+  normalizeAggregatorCode
 } from './aggregator-accounting-configuration.model';
 
 type AggregatorAccountingFormValue = {
@@ -51,6 +52,27 @@ export function createAggregatorAccountingForm(
     convenienceFeeIncomeGlAccountId: new FormControl(configuration.convenienceFeeIncomeGlAccountId ?? null),
     active: new FormControl(configuration.active ?? true, { nonNullable: true })
   });
+}
+
+/** Rejects an aggregator code that already has a configuration — the create endpoint is a full-replacement
+ * upsert, so submitting an existing code would silently overwrite it rather than erroring. */
+export function duplicateAggregatorCodeValidator(existingCodes: ReadonlySet<string>): ValidatorFn {
+  return (control: AbstractControl<string>): ValidationErrors | null => {
+    if (!control.value) {
+      return null;
+    }
+    return existingCodes.has(normalizeAggregatorCode(control.value)) ? { duplicateAggregatorCode: true } : null;
+  };
+}
+
+/** Applies the duplicate-code guard to a create-mode form, given the currently configured aggregators. */
+export function preventDuplicateAggregatorCode(
+  form: AggregatorAccountingForm,
+  existingConfigurations: readonly AggregatorAccountingConfiguration[]
+): void {
+  const existingCodes = new Set(existingConfigurations.map((configuration) => configuration.aggregatorCode));
+  form.controls.aggregatorCode.addValidators(duplicateAggregatorCodeValidator(existingCodes));
+  form.controls.aggregatorCode.updateValueAndValidity({ emitEvent: false });
 }
 
 /** Initializes the shared form from a configuration returned by Fineract. */

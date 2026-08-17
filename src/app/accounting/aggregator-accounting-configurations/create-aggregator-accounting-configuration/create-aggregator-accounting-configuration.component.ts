@@ -17,10 +17,12 @@ import {
   buildAggregatorAccountingReplacement,
   createAggregatorAccountingForm,
   getAggregatorAccountingGlAccountOptions,
+  preventDuplicateAggregatorCode,
   AggregatorAccountingForm
 } from '../aggregator-accounting-configuration-form.model';
 import {
   AggregatorAccountingCommandResult,
+  AggregatorAccountingConfiguration,
   normalizeAggregatorCode
 } from '../aggregator-accounting-configuration.model';
 
@@ -46,10 +48,16 @@ export class CreateAggregatorAccountingConfigurationComponent {
   accountOptions: GLAccount[] = [];
 
   constructor() {
-    this.route.data.subscribe((data: { aggregatorAccountingGlAccounts: GLAccount[] }) => {
-      this.glAccounts = data.aggregatorAccountingGlAccounts ?? [];
-      this.accountOptions = getAggregatorAccountingGlAccountOptions(this.glAccounts);
-    });
+    this.route.data.subscribe(
+      (data: {
+        aggregatorAccountingConfigurations: AggregatorAccountingConfiguration[];
+        aggregatorAccountingGlAccounts: GLAccount[];
+      }) => {
+        this.glAccounts = data.aggregatorAccountingGlAccounts ?? [];
+        this.accountOptions = getAggregatorAccountingGlAccountOptions(this.glAccounts);
+        preventDuplicateAggregatorCode(this.form, data.aggregatorAccountingConfigurations ?? []);
+      }
+    );
   }
 
   submit(): void {
