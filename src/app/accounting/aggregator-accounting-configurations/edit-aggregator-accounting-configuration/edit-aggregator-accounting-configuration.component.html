@@ -30,12 +30,9 @@
           <mifosx-gl-account-selector
             [inputFormControl]="form.controls.convenienceFeeIncomeGlAccountId"
             [glAccountList]="accountOptions"
-            [required]="false"
+            [required]="true"
             [inputLabel]="'labels.inputs.Convenience Fee Income' | translate"
           ></mifosx-gl-account-selector>
-          <p>
-            {{ 'labels.text.Leave Convenience Fee Income unset to fall back to Commission Income' | translate }}
-          </p>
           <mat-checkbox formControlName="active">{{ 'labels.inputs.Active' | translate }}</mat-checkbox>
         </div></mat-card-content
       ><mat-card-actions

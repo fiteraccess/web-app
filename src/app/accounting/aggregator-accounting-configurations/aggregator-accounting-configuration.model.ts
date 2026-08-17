@@ -10,7 +10,7 @@
 export interface AggregatorAccountingConfigurationRequest {
   aggregatorPayableGlAccountId: number;
   commissionIncomeGlAccountId: number;
-  convenienceFeeIncomeGlAccountId?: number | null;
+  convenienceFeeIncomeGlAccountId: number;
   active: boolean;
 }
 
@@ -19,7 +19,7 @@ export interface AggregatorAccountingConfiguration {
   aggregatorCode: string;
   aggregatorPayableGlAccountId: number;
   commissionIncomeGlAccountId: number;
-  convenienceFeeIncomeGlAccountId?: number | null;
+  convenienceFeeIncomeGlAccountId: number;
   active: boolean;
 }
 

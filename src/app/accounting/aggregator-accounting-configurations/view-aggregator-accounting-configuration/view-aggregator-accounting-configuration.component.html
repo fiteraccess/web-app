@@ -27,13 +27,7 @@
         <div class="flex-50 header">{{ 'labels.inputs.Commission Income' | translate }}</div>
         <div class="flex-50">{{ glAccountLabel(configuration?.commissionIncomeGlAccountId) }}</div>
         <div class="flex-50 header">{{ 'labels.inputs.Convenience Fee Income' | translate }}</div>
-        <div class="flex-50">
-          {{
-            configuration?.convenienceFeeIncomeGlAccountId
-              ? glAccountLabel(configuration.convenienceFeeIncomeGlAccountId)
-              : ('labels.text.Falls back to Commission Income' | translate)
-          }}
-        </div>
+        <div class="flex-50">{{ glAccountLabel(configuration?.convenienceFeeIncomeGlAccountId) }}</div>
         <div class="flex-50 header">{{ 'labels.inputs.Active' | translate }}</div>
         <div class="flex-50">
           {{ (configuration?.active ? 'labels.commons.Yes' : 'labels.commons.No') | translate }}
