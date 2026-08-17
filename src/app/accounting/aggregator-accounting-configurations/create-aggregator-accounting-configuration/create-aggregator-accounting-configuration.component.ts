@@ -40,15 +40,16 @@ export class CreateAggregatorAccountingConfigurationComponent {
 
   form: AggregatorAccountingForm = createAggregatorAccountingForm();
   glAccounts: GLAccount[] = [];
+  // Computed once per load, not as a getter: `[glAccountList]` re-binds on every change-detection
+  // pass, and a getter returning a fresh filtered array each time makes GlAccountSelectorComponent's
+  // ngOnChanges treat it as "changed" continuously, which keeps resetting its own search filter.
+  accountOptions: GLAccount[] = [];
 
   constructor() {
     this.route.data.subscribe((data: { aggregatorAccountingGlAccounts: GLAccount[] }) => {
       this.glAccounts = data.aggregatorAccountingGlAccounts ?? [];
+      this.accountOptions = getAggregatorAccountingGlAccountOptions(this.glAccounts);
     });
-  }
-
-  get accountOptions(): GLAccount[] {
-    return getAggregatorAccountingGlAccountOptions(this.glAccounts);
   }
 
   submit(): void {
