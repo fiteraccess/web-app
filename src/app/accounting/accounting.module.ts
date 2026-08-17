@@ -24,6 +24,10 @@ import { FinancialActivityMappingsComponent } from './financial-activity-mapping
 import { CreateFinancialActivityMappingComponent } from './financial-activity-mappings/create-financial-activity-mapping/create-financial-activity-mapping.component';
 import { ViewFinancialActivityMappingComponent } from './financial-activity-mappings/view-financial-activity-mapping/view-financial-activity-mapping.component';
 import { EditFinancialActivityMappingComponent } from './financial-activity-mappings/edit-financial-activity-mapping/edit-financial-activity-mapping.component';
+import { AggregatorAccountingConfigurationsComponent } from './aggregator-accounting-configurations/aggregator-accounting-configurations.component';
+import { CreateAggregatorAccountingConfigurationComponent } from './aggregator-accounting-configurations/create-aggregator-accounting-configuration/create-aggregator-accounting-configuration.component';
+import { ViewAggregatorAccountingConfigurationComponent } from './aggregator-accounting-configurations/view-aggregator-accounting-configuration/view-aggregator-accounting-configuration.component';
+import { EditAggregatorAccountingConfigurationComponent } from './aggregator-accounting-configurations/edit-aggregator-accounting-configuration/edit-aggregator-accounting-configuration.component';
 import { MigrateOpeningBalancesComponent } from './migrate-opening-balances/migrate-opening-balances.component';
 import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
 import { CreateGlAccountComponent } from './chart-of-accounts/create-gl-account/create-gl-account.component';
@@ -64,6 +68,10 @@ import { PipesModule } from 'app/pipes/pipes.module';
     CreateFinancialActivityMappingComponent,
     ViewFinancialActivityMappingComponent,
     EditFinancialActivityMappingComponent,
+    AggregatorAccountingConfigurationsComponent,
+    CreateAggregatorAccountingConfigurationComponent,
+    ViewAggregatorAccountingConfigurationComponent,
+    EditAggregatorAccountingConfigurationComponent,
     MigrateOpeningBalancesComponent,
     ChartOfAccountsComponent,
     CreateGlAccountComponent,

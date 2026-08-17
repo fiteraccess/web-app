@@ -177,6 +177,32 @@
               </div>
             </mat-list-item>
           }
+
+          <mat-list-item *mifosxHasPermission="'READ_AGGREGATOR_ACCOUNTING_CONFIGURATION'">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['aggregator-accounting-configurations']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="exchange" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>
+                  {{ 'labels.heading.Aggregator Accounting Configurations' | translate }}
+                  @if (arrowBooleans[11]) {
+                    <p matLine [routerLink]="['aggregator-accounting-configurations']" class="menu-explanation">
+                      {{ 'labels.text.Map bills/airtime aggregators to GL accounts' | translate }}
+                    </p>
+                  }
+                </div>
+              </div>
+              <div class="menu-right-section">
+                @if (!arrowBooleans[11]) {
+                  <fa-icon (click)="arrowBooleansToggle(11)" icon="arrow-down" size="md"></fa-icon>
+                }
+                @if (arrowBooleans[11]) {
+                  <fa-icon (click)="arrowBooleansToggle(11)" icon="arrow-up" size="md"></fa-icon>
+                }
+              </div>
+            </div>
+          </mat-list-item>
         </mat-nav-list>
       </div>
 
