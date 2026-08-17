@@ -17,6 +17,15 @@
         <div class="error-message" role="alert">{{ errorMessage | translate }}</div>
       }
 
+      @if (keyChanged) {
+        <div class="warning-message" role="alert">
+          {{
+            'labels.text.Changing Biller Code or Product Code creates a new configuration under the new code — the original configuration is not renamed or removed'
+              | translate
+          }}
+        </div>
+      }
+
       <form [formGroup]="form" (ngSubmit)="save()">
         <div class="layout-row-wrap gap-20px">
           <mat-form-field>
@@ -47,10 +56,11 @@
                       mat-icon-button
                       color="warn"
                       type="button"
+                      class="remove-component-button"
                       (click)="removeComponent(index)"
                       [disabled]="components.length === 1"
                     >
-                      <fa-icon icon="trash"></fa-icon>
+                      <fa-icon icon="trash" size="sm"></fa-icon>
                     </button>
                   }
                 </div>
@@ -58,14 +68,17 @@
                 <div class="layout-row-wrap gap-20px">
                   <mat-form-field>
                     <mat-label>{{ 'labels.inputs.Component Code' | translate }}</mat-label>
-                    <input matInput formControlName="componentCode" />
-                    <mat-hint>{{ 'labels.text.For example COMMISSION, CONVENIENCE_FEE, VAT' | translate }}</mat-hint>
+                    <mat-select formControlName="componentCode">
+                      @for (code of componentCodes; track code) {
+                        <mat-option [value]="code">{{ code }}</mat-option>
+                      }
+                    </mat-select>
                   </mat-form-field>
 
                   <mat-form-field>
                     <mat-label>{{ 'labels.inputs.Depends On' | translate }}</mat-label>
                     <mat-select formControlName="dependsOnComponentCode">
-                      <mat-option [value]="null">{{ 'labels.text.None' | translate }}</mat-option>
+                      <mat-option value="AMOUNT">{{ 'labels.text.Amount' | translate }}</mat-option>
                       @for (code of dependencyOptions(index); track code) {
                         <mat-option [value]="code">{{ code }}</mat-option>
                       }
@@ -84,21 +97,28 @@
                   </mat-form-field>
 
                   <mat-form-field>
-                    <mat-label>{{ 'labels.inputs.Rate' | translate }}</mat-label>
-                    <input matInput type="number" min="0" step="0.0001" formControlName="rate" />
+                    <mat-label>
+                      {{
+                        (component.value.rateType === 'PERCENT' ? 'labels.inputs.Rate (%)' : 'labels.inputs.Rate')
+                          | translate
+                      }}
+                    </mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      min="0"
+                      [max]="component.value.rateType === 'PERCENT' ? 99.9999 : null"
+                      step="0.0001"
+                      formControlName="rate"
+                    />
                     <mat-hint>
                       {{
                         (component.value.rateType === 'PERCENT'
-                          ? 'labels.text.Enter as a fraction, for example 0.01 for 1%'
+                          ? 'labels.text.Enter a percentage from 0 to 100, for example 7.5 for 7.5%'
                           : 'labels.text.Enter the flat amount, for example 100'
                         ) | translate
                       }}
                     </mat-hint>
-                  </mat-form-field>
-
-                  <mat-form-field>
-                    <mat-label>{{ 'labels.inputs.TigerBeetle Transfer Code' | translate }}</mat-label>
-                    <input matInput type="number" min="1" step="1" formControlName="tbTransferCode" />
                   </mat-form-field>
 
                   <mat-checkbox formControlName="enabled">{{ 'labels.inputs.Enabled' | translate }}</mat-checkbox>
@@ -115,7 +135,7 @@
               {{ 'labels.heading.Add Component' | translate }}
             </button>
             <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving">
-              {{ 'labels.buttons.Save' | translate }}
+              {{ 'labels.buttons.Submit' | translate }}
             </button>
           </mat-card-actions>
         }

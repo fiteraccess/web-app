@@ -64,6 +64,7 @@ import { ChannelPolicyComponent } from './channel-policy/channel-policy.componen
 import { ChannelRoutesComponent } from './channel-policy/channel-routes.component';
 import { BillingFeeConfigComponent } from './billing-fee-config/billing-fee-config.component';
 import { EditBillingFeeConfigComponent } from './billing-fee-config/edit-billing-fee-config/edit-billing-fee-config.component';
+import { ViewBillingFeeConfigComponent } from './billing-fee-config/view-billing-fee-config/view-billing-fee-config.component';
 
 /** Custom Resolvers */
 import { AccountNumberPreferencesResolver } from './account-number-preferences/account-number-preferences.resolver';
@@ -692,7 +693,7 @@ const routes: Routes = [
         },
         {
           path: 'billing-fee-configs',
-          data: { title: 'Billing Fee Config', breadcrumb: 'Billing Fee Config' },
+          data: { title: 'Billing Fee Configurations', breadcrumb: 'Billing Fee Configurations' },
           children: [
             {
               path: '',
@@ -705,10 +706,21 @@ const routes: Routes = [
               data: { title: 'New Fee Schedule', breadcrumb: 'New' }
             },
             {
-              path: ':billerCode/:productCode',
-              component: EditBillingFeeConfigComponent,
-              data: { title: 'Edit Fee Schedule', routeParamBreadcrumb: 'billerCode' },
-              resolve: { schedule: BillingFeeConfigResolver }
+              path: 'view/:billerCode/:productCode',
+              data: { title: 'View Fee Schedule', routeParamBreadcrumb: 'billerCode' },
+              children: [
+                {
+                  path: '',
+                  component: ViewBillingFeeConfigComponent,
+                  resolve: { schedule: BillingFeeConfigResolver }
+                },
+                {
+                  path: 'edit',
+                  component: EditBillingFeeConfigComponent,
+                  data: { title: 'Edit Fee Schedule', breadcrumb: 'Edit', routeParamBreadcrumb: false },
+                  resolve: { schedule: BillingFeeConfigResolver }
+                }
+              ]
             }
           ]
         }
