@@ -1,0 +1,55 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container">
+  <mat-card
+    ><form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-card-content
+        ><div class="layout-column">
+          <mat-form-field
+            ><mat-label>{{ 'labels.inputs.Aggregator Code' | translate }}</mat-label
+            ><input matInput required formControlName="aggregatorCode"
+          /></mat-form-field>
+          <mifosx-gl-account-selector
+            [inputFormControl]="form.controls.aggregatorPayableGlAccountId"
+            [glAccountList]="accountOptions"
+            [required]="true"
+            [inputLabel]="'labels.inputs.Aggregator Payable' | translate"
+          ></mifosx-gl-account-selector>
+          <mifosx-gl-account-selector
+            [inputFormControl]="form.controls.commissionIncomeGlAccountId"
+            [glAccountList]="accountOptions"
+            [required]="true"
+            [inputLabel]="'labels.inputs.Commission Income' | translate"
+          ></mifosx-gl-account-selector>
+          <mifosx-gl-account-selector
+            [inputFormControl]="form.controls.convenienceFeeIncomeGlAccountId"
+            [glAccountList]="accountOptions"
+            [required]="false"
+            [inputLabel]="'labels.inputs.Convenience Fee Income' | translate"
+          ></mifosx-gl-account-selector>
+          <p>
+            {{ 'labels.text.Leave Convenience Fee Income unset to fall back to Commission Income' | translate }}
+          </p>
+          <mat-checkbox formControlName="active">{{ 'labels.inputs.Active' | translate }}</mat-checkbox>
+        </div></mat-card-content
+      ><mat-card-actions
+        ><button type="button" mat-raised-button [routerLink]="['../']">
+          {{ 'labels.buttons.Cancel' | translate }}</button
+        ><button
+          mat-raised-button
+          color="primary"
+          [disabled]="form.invalid"
+          *mifosxHasPermission="'UPDATE_AGGREGATOR_ACCOUNTING_CONFIGURATION'"
+        >
+          {{ 'labels.buttons.Submit' | translate }}
+        </button></mat-card-actions
+      >
+    </form></mat-card
+  >
+</div>

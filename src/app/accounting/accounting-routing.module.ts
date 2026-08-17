@@ -27,6 +27,10 @@ import { EditFinancialActivityMappingComponent } from './financial-activity-mapp
 import { NipSwitchesComponent } from './nip-switches/nip-switches.component';
 import { NipSwitchDetailComponent } from './nip-switches/nip-switch-detail.component';
 import { NipSwitchWorkflowComponent } from './nip-switches/nip-switch-workflow.component';
+import { AggregatorAccountingConfigurationsComponent } from './aggregator-accounting-configurations/aggregator-accounting-configurations.component';
+import { CreateAggregatorAccountingConfigurationComponent } from './aggregator-accounting-configurations/create-aggregator-accounting-configuration/create-aggregator-accounting-configuration.component';
+import { ViewAggregatorAccountingConfigurationComponent } from './aggregator-accounting-configurations/view-aggregator-accounting-configuration/view-aggregator-accounting-configuration.component';
+import { EditAggregatorAccountingConfigurationComponent } from './aggregator-accounting-configurations/edit-aggregator-accounting-configuration/edit-aggregator-accounting-configuration.component';
 import { MigrateOpeningBalancesComponent } from './migrate-opening-balances/migrate-opening-balances.component';
 import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
 import { CreateGlAccountComponent } from './chart-of-accounts/create-gl-account/create-gl-account.component';
@@ -61,6 +65,8 @@ import { NipSwitchesResolver } from './nip-switches/nip-switches.resolver';
 import { NipSwitchResolver } from './nip-switches/nip-switch.resolver';
 import { nipSwitchReadGuard, nipSwitchWriteGuard } from './nip-switches/nip-switch-permissions';
 import { NIP_SWITCH_LEGACY_ROUTES } from './nip-switches/nip-switch-legacy-routes';
+import { AggregatorAccountingConfigurationsResolver } from './aggregator-accounting-configurations/aggregator-accounting-configurations.resolver';
+import { AggregatorAccountingConfigurationResolver } from './aggregator-accounting-configurations/aggregator-accounting-configuration.resolver';
 import { ChartOfAccountsResolver } from './chart-of-accounts/chart-of-accounts.resolver';
 import { ChartOfAccountsTemplateResolver } from './chart-of-accounts/create-gl-account/chart-of-accounts-template.resolver';
 import { GlAccountAndChartOfAccountsTemplateResolver } from './chart-of-accounts/gl-account-and-chart-of-accounts-template.resolver';
@@ -240,6 +246,55 @@ export const ACCOUNTING_ROUTES: Routes = [
                 nipSwitchGlAccounts: NipSwitchGlAccountsResolver,
                 currencies: CurrenciesResolver
               }
+            }
+          ]
+        },
+        {
+          path: 'aggregator-accounting-configurations',
+          data: { title: 'Aggregator Accounting Configurations', breadcrumb: 'Aggregator Accounting Configurations' },
+          children: [
+            {
+              path: '',
+              component: AggregatorAccountingConfigurationsComponent,
+              resolve: {
+                aggregatorAccountingConfigurations: AggregatorAccountingConfigurationsResolver,
+                aggregatorAccountingGlAccounts: NipSwitchGlAccountsResolver
+              }
+            },
+            {
+              path: 'create',
+              component: CreateAggregatorAccountingConfigurationComponent,
+              data: { title: 'Create Aggregator Accounting Configuration', breadcrumb: 'Create' },
+              resolve: {
+                aggregatorAccountingGlAccounts: NipSwitchGlAccountsResolver
+              }
+            },
+            {
+              path: 'view/:aggregatorCode',
+              data: { title: 'View Aggregator Accounting Configuration', routeParamBreadcrumb: 'aggregatorCode' },
+              children: [
+                {
+                  path: '',
+                  component: ViewAggregatorAccountingConfigurationComponent,
+                  resolve: {
+                    aggregatorAccountingConfiguration: AggregatorAccountingConfigurationResolver,
+                    aggregatorAccountingGlAccounts: NipSwitchGlAccountsResolver
+                  }
+                },
+                {
+                  path: 'edit',
+                  component: EditAggregatorAccountingConfigurationComponent,
+                  data: {
+                    title: 'Edit Aggregator Accounting Configuration',
+                    breadcrumb: 'Edit',
+                    routeParamBreadcrumb: false
+                  },
+                  resolve: {
+                    aggregatorAccountingConfiguration: AggregatorAccountingConfigurationResolver,
+                    aggregatorAccountingGlAccounts: NipSwitchGlAccountsResolver
+                  }
+                }
+              ]
             }
           ]
         },
@@ -485,6 +540,8 @@ export const ACCOUNTING_ROUTES: Routes = [
     NipSwitchesResolver,
     NipSwitchResolver,
     NipSwitchGlAccountsResolver,
+    AggregatorAccountingConfigurationsResolver,
+    AggregatorAccountingConfigurationResolver,
     ChartOfAccountsResolver,
     ChartOfAccountsTemplateResolver,
     GlAccountAndChartOfAccountsTemplateResolver,

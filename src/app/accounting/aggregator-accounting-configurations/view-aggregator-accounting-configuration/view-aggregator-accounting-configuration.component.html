@@ -1,0 +1,48 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="layout-row align-end container m-b-20">
+  <button
+    mat-raised-button
+    color="primary"
+    [routerLink]="['edit']"
+    *mifosxHasPermission="'UPDATE_AGGREGATOR_ACCOUNTING_CONFIGURATION'"
+  >
+    {{ 'labels.buttons.Edit' | translate }}
+  </button>
+</div>
+<div class="container">
+  <mat-card
+    ><mat-card-content
+      ><div class="layout-row-wrap">
+        <div class="flex-50 header">{{ 'labels.inputs.Aggregator Code' | translate }}</div>
+        <div class="flex-50">{{ configuration?.aggregatorCode }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Aggregator Payable' | translate }}</div>
+        <div class="flex-50">{{ glAccountLabel(configuration?.aggregatorPayableGlAccountId) }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Commission Income' | translate }}</div>
+        <div class="flex-50">{{ glAccountLabel(configuration?.commissionIncomeGlAccountId) }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Convenience Fee Income' | translate }}</div>
+        <div class="flex-50">
+          {{
+            configuration?.convenienceFeeIncomeGlAccountId
+              ? glAccountLabel(configuration.convenienceFeeIncomeGlAccountId)
+              : ('labels.text.Falls back to Commission Income' | translate)
+          }}
+        </div>
+        <div class="flex-50 header">{{ 'labels.inputs.Active' | translate }}</div>
+        <div class="flex-50">
+          {{ (configuration?.active ? 'labels.commons.Yes' : 'labels.commons.No') | translate }}
+        </div>
+      </div></mat-card-content
+    ><mat-card-actions
+      ><button type="button" mat-raised-button [routerLink]="['../..']">
+        {{ 'labels.buttons.Back' | translate }}
+      </button></mat-card-actions
+    ></mat-card
+  >
+</div>

@@ -22,6 +22,11 @@ import {
   NipSwitchConfigurationReplacement,
   NipSwitchConfigurationSaveResponse
 } from './nip-switches/nip-switch-configuration.model';
+import {
+  AggregatorAccountingCommandResult,
+  AggregatorAccountingConfiguration,
+  AggregatorAccountingConfigurationRequest
+} from './aggregator-accounting-configurations/aggregator-accounting-configuration.model';
 import { GLAccount } from 'app/shared/models/general.model';
 
 /**
@@ -227,6 +232,44 @@ export class AccountingService {
    */
   private nipSwitchConfigurationUrl(switchId: string): string {
     return `/access/api/v1/admin/nip-switch-configurations/${encodeURIComponent(switchId)}`;
+  }
+
+  /**
+   * @returns {Observable<AggregatorAccountingConfiguration[]>} Aggregator accounting configurations (AB-510).
+   */
+  getAggregatorAccountingConfigurations(): Observable<AggregatorAccountingConfiguration[]> {
+    return this.http.get<AggregatorAccountingConfiguration[]>('/aggregator-accounting-configurations');
+  }
+
+  /**
+   * @param {string} aggregatorCode Normalized or unnormalized aggregator identifier.
+   * @returns {Observable<AggregatorAccountingConfiguration>} Aggregator accounting configuration.
+   */
+  getAggregatorAccountingConfiguration(aggregatorCode: string): Observable<AggregatorAccountingConfiguration> {
+    return this.http.get<AggregatorAccountingConfiguration>(this.aggregatorAccountingConfigurationUrl(aggregatorCode));
+  }
+
+  /**
+   * @param {string} aggregatorCode Aggregator identifier addressed by the Fineract resource.
+   * @param {AggregatorAccountingConfigurationRequest} configuration Complete replacement request.
+   * @returns {Observable<AggregatorAccountingCommandResult>} Fineract command result.
+   */
+  upsertAggregatorAccountingConfiguration(
+    aggregatorCode: string,
+    configuration: AggregatorAccountingConfigurationRequest
+  ): Observable<AggregatorAccountingCommandResult> {
+    return this.http.put<AggregatorAccountingCommandResult>(
+      this.aggregatorAccountingConfigurationUrl(aggregatorCode),
+      configuration
+    );
+  }
+
+  /**
+   * @param {string} aggregatorCode Aggregator identifier.
+   * @returns {string} Encoded aggregator accounting configuration resource URL.
+   */
+  private aggregatorAccountingConfigurationUrl(aggregatorCode: string): string {
+    return `/aggregator-accounting-configurations/${encodeURIComponent(aggregatorCode)}`;
   }
 
   /**
