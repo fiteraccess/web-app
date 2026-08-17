@@ -14,8 +14,14 @@
           <mat-form-field
             ><mat-label>{{ 'labels.inputs.Aggregator Code' | translate }}</mat-label
             ><input matInput required formControlName="aggregatorCode" />
-            <mat-hint>{{ 'labels.text.For example CORALPAY or NOMIWORLD' | translate }}</mat-hint></mat-form-field
-          >
+            @if (form.controls.aggregatorCode.hasError('duplicateAggregatorCode')) {
+              <mat-error>{{
+                'labels.text.An aggregator accounting configuration already exists for this code' | translate
+              }}</mat-error>
+            } @else {
+              <mat-hint>{{ 'labels.text.For example CORALPAY or NOMIWORLD' | translate }}</mat-hint>
+            }
+          </mat-form-field>
           <mifosx-gl-account-selector
             [inputFormControl]="form.controls.aggregatorPayableGlAccountId"
             [glAccountList]="accountOptions"

@@ -3961,6 +3961,7 @@
       "For example CORALPAY or NOMIWORLD": "For example CORALPAY or NOMIWORLD",
       "For example COMMISSION, CONVENIENCE_FEE, VAT": "For example COMMISSION, CONVENIENCE_FEE, VAT",
       "Map bills/airtime aggregators to GL accounts": "Map bills/airtime aggregators to GL accounts",
+      "An aggregator accounting configuration already exists for this code": "An aggregator accounting configuration already exists for this code",
       "Leave Convenience Fee Income unset to fall back to Commission Income": "Leave Convenience Fee Income unset to fall back to Commission Income",
       "Falls back to Commission Income": "Falls back to Commission Income",
       "None": "None",

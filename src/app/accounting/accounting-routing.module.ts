@@ -266,6 +266,7 @@ export const ACCOUNTING_ROUTES: Routes = [
               component: CreateAggregatorAccountingConfigurationComponent,
               data: { title: 'Create Aggregator Accounting Configuration', breadcrumb: 'Create' },
               resolve: {
+                aggregatorAccountingConfigurations: AggregatorAccountingConfigurationsResolver,
                 aggregatorAccountingGlAccounts: NipSwitchGlAccountsResolver
               }
             },
