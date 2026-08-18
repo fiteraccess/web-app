@@ -97,6 +97,7 @@ export class TransactionsTabComponent implements OnInit {
   /** Form control to handle accural parameter */
   hideAccrualsParam: UntypedFormControl;
   hideReversedParam: UntypedFormControl;
+  hideReversalContrasParam: UntypedFormControl;
   /** Columns to be displayed in transactions table. */
   displayedColumns: string[] = [
     'row',
@@ -134,6 +135,7 @@ export class TransactionsTabComponent implements OnInit {
   ngOnInit() {
     this.hideAccrualsParam = new UntypedFormControl(false);
     this.hideReversedParam = new UntypedFormControl(false);
+    this.hideReversalContrasParam = new UntypedFormControl(false);
     this.setTransactions();
   }
 
@@ -207,19 +209,39 @@ export class TransactionsTabComponent implements OnInit {
   }
 
   hideAccruals() {
-    this.filterTransactions(this.hideReversedParam.value, this.hideAccrualsParam.value);
+    this.filterTransactions(
+      this.hideReversedParam.value,
+      this.hideAccrualsParam.value,
+      this.hideReversalContrasParam.value
+    );
   }
 
   hideReversed() {
-    this.filterTransactions(this.hideReversedParam.value, this.hideAccrualsParam.value);
+    this.filterTransactions(
+      this.hideReversedParam.value,
+      this.hideAccrualsParam.value,
+      this.hideReversalContrasParam.value
+    );
   }
 
-  filterTransactions(hideReversed: boolean, hideAccrual: boolean): void {
+  hideReversalContras() {
+    this.filterTransactions(
+      this.hideReversedParam.value,
+      this.hideAccrualsParam.value,
+      this.hideReversalContrasParam.value
+    );
+  }
+
+  filterTransactions(hideReversed: boolean, hideAccrual: boolean, hideReversalContras: boolean): void {
     let transactions: SavingsAccountTransaction[] = this.transactionsData;
 
-    if (hideAccrual || hideReversed) {
+    if (hideAccrual || hideReversed || hideReversalContras) {
       transactions = this.transactionsData.filter((t: SavingsAccountTransaction) => {
-        return !(hideReversed && t.reversed) && !(hideAccrual && t.transactionType.accrual);
+        return (
+          !(hideReversed && t.reversed) &&
+          !(hideAccrual && t.transactionType.accrual) &&
+          !(hideReversalContras && t.isReversal)
+        );
       });
     }
     this.dataSource = new MatTableDataSource(transactions);
