@@ -30,7 +30,7 @@
 
       <ng-container matColumnDef="productCode">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.inputs.Product Code' | translate }}</th>
-        <td mat-cell *matCellDef="let s">{{ s.productCode }}</td>
+        <td mat-cell *matCellDef="let s">{{ s.productCode ?? ('labels.text.Default' | translate) }}</td>
       </ng-container>
 
       <ng-container matColumnDef="aggregatorCode">
@@ -47,7 +47,7 @@
       <tr
         mat-row
         *matRowDef="let row; columns: displayedColumns"
-        [routerLink]="['view', row.billerCode, row.productCode]"
+        [routerLink]="row.productCode ? ['view', row.billerCode, row.productCode] : ['view', row.billerCode]"
         class="select-row"
       ></tr>
     </table>

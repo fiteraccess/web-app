@@ -3967,6 +3967,8 @@
       "Flat": "Flat",
       "Enter as a fraction, for example 0.01 for 1%": "Enter as a fraction, for example 0.01 for 1%",
       "Changing Biller Code or Product Code creates a new configuration under the new code — the original configuration is not renamed or removed": "Changing Biller Code or Product Code creates a new configuration under the new code — the original configuration is not renamed or removed",
+      "Default (all products)": "Default (all products)",
+      "Default": "Default",
       "Billing Fee Configurations": "Billing Fee Configurations",
       "New Fee Schedule": "New Fee Schedule",
       "View Fee Schedule": "View Fee Schedule",

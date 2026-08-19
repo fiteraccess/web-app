@@ -706,6 +706,32 @@ const routes: Routes = [
               data: { title: 'New Fee Schedule', breadcrumb: 'New' }
             },
             {
+              // No :productCode segment - the biller's default schedule (AB-510 follow-up:
+              // productCode is optional). MUST come before the :billerCode/:productCode route below:
+              // Angular's router tries routes in array order and this route's parent segment
+              // ('view/:billerCode') only ever consumes exactly 2 URL segments, backtracking to the
+              // next route in the array when neither of ITS children ('' or 'edit') matches what's
+              // left - so listing it first lets "view/X/edit" match this route's 'edit' child, while
+              // "view/X/Y" (a real productCode) still falls through to the route below. Reversing this
+              // order makes the 2-segment route greedily swallow "edit" as a literal productCode value
+              // instead (billerCode=X, productCode="edit") - exactly the bug this ordering fixes.
+              path: 'view/:billerCode',
+              data: { title: 'View Fee Schedule', routeParamBreadcrumb: 'billerCode' },
+              children: [
+                {
+                  path: '',
+                  component: ViewBillingFeeConfigComponent,
+                  resolve: { schedule: BillingFeeConfigResolver }
+                },
+                {
+                  path: 'edit',
+                  component: EditBillingFeeConfigComponent,
+                  data: { title: 'Edit Fee Schedule', breadcrumb: 'Edit', routeParamBreadcrumb: false },
+                  resolve: { schedule: BillingFeeConfigResolver }
+                }
+              ]
+            },
+            {
               path: 'view/:billerCode/:productCode',
               data: { title: 'View Fee Schedule', routeParamBreadcrumb: 'billerCode' },
               children: [

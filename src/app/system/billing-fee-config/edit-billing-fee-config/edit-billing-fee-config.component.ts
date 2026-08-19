@@ -85,17 +85,16 @@ export class EditBillingFeeConfigComponent implements OnInit {
   saving = false;
   errorMessage = '';
   private originalBillerCode = '';
-  private originalProductCode = '';
+  private originalProductCode: string | null = null;
 
   readonly form = this.formBuilder.group({
     billerCode: [
       '',
       Validators.required
     ],
-    productCode: [
-      '',
-      Validators.required
-    ],
+    // AB-510 follow-up: optional - blank means the biller's default schedule (every product under
+    // this biller resolves to it unless it has its own override).
+    productCode: [''],
     aggregatorCode: [
       '',
       Validators.required
@@ -116,7 +115,7 @@ export class EditBillingFeeConfigComponent implements OnInit {
     const value = this.form.getRawValue();
     return (
       value.billerCode.trim().toUpperCase() !== this.originalBillerCode ||
-      value.productCode.trim().toUpperCase() !== this.originalProductCode
+      this.normalizedProductCode(value.productCode) !== this.originalProductCode
     );
   }
 
@@ -131,7 +130,7 @@ export class EditBillingFeeConfigComponent implements OnInit {
     const resolved = this.route.snapshot.data['schedule'] as BillingFeeSchedule | undefined;
     this.isCreate = !resolved;
     this.originalBillerCode = resolved?.billerCode ?? '';
-    this.originalProductCode = resolved?.productCode ?? '';
+    this.originalProductCode = resolved?.productCode ?? null;
     this.populateForm(resolved ?? this.emptySchedule());
   }
 
@@ -168,11 +167,15 @@ export class EditBillingFeeConfigComponent implements OnInit {
     this.billingFeeConfigService.putSchedule(schedule.billerCode, schedule.productCode, schedule).subscribe({
       next: (saved) => {
         this.saving = false;
-        this.router.navigate([
-          '/system/billing-fee-configs/view',
-          saved.billerCode,
-          saved.productCode
-        ]);
+        const commands = saved.productCode ? [
+              '/system/billing-fee-configs/view',
+              saved.billerCode,
+              saved.productCode
+            ] : [
+              '/system/billing-fee-configs/view',
+              saved.billerCode
+            ];
+        this.router.navigate(commands);
       },
       error: (error: HttpErrorResponse) => {
         this.saving = false;
@@ -183,7 +186,7 @@ export class EditBillingFeeConfigComponent implements OnInit {
 
   private populateForm(schedule: BillingFeeSchedule): void {
     this.form.controls.billerCode.setValue(schedule.billerCode);
-    this.form.controls.productCode.setValue(schedule.productCode);
+    this.form.controls.productCode.setValue(schedule.productCode ?? '');
     this.form.controls.aggregatorCode.setValue(schedule.aggregatorCode);
     this.components.clear();
     schedule.components.forEach((component) => this.components.push(this.createComponent(component)));
@@ -269,11 +272,17 @@ export class EditBillingFeeConfigComponent implements OnInit {
     return Math.round(value * factor) / factor;
   }
 
+  /** Blank/whitespace-only input means "no product-specific override" - the biller's default. */
+  private normalizedProductCode(rawProductCode: string): string | null {
+    const trimmed = rawProductCode.trim().toUpperCase();
+    return trimmed === '' ? null : trimmed;
+  }
+
   private scheduleFromForm(): BillingFeeSchedule {
     const value = this.form.getRawValue();
     return {
       billerCode: value.billerCode.trim().toUpperCase(),
-      productCode: value.productCode.trim().toUpperCase(),
+      productCode: this.normalizedProductCode(value.productCode),
       aggregatorCode: value.aggregatorCode.trim().toUpperCase(),
       components: value.components.map((component) => {
         const componentCode = component.componentCode as BillingFeeComponentCode;

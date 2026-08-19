@@ -51,10 +51,15 @@ export interface BillingFeeComponent {
   tbTransferCode: number;
 }
 
-/** The resolved fee configuration for one (billerCode, productCode) pair. */
+/**
+ * The resolved fee configuration for one (billerCode, productCode) pair, or one billerCode alone
+ * (`productCode: null`) — a biller-level default every product under that biller resolves to unless
+ * it has its own product-specific override (AB-510 follow-up: productCode is not mandatory for
+ * commission lookup — most billers price at the biller level).
+ */
 export interface BillingFeeSchedule {
   billerCode: string;
-  productCode: string;
+  productCode: string | null;
   aggregatorCode: string;
   components: BillingFeeComponent[];
 }
