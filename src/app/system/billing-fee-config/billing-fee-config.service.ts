@@ -32,18 +32,32 @@ export class BillingFeeConfigService {
     return this.http.get<BillingFeeScheduleList>('/access/api/v1/admin/billing-fee-configs');
   }
 
-  /** Returns the schedule for one (billerCode, productCode) pair. */
-  getSchedule(billerCode: string, productCode: string): Observable<BillingFeeSchedule> {
-    return this.http.get<BillingFeeSchedule>(
-      `/access/api/v1/admin/billing-fee-configs/${encodeURIComponent(billerCode)}/${encodeURIComponent(productCode)}`
-    );
+  /**
+   * Returns the schedule for one (billerCode, productCode) pair, or the biller's default schedule
+   * when `productCode` is null/blank — routes to the `{billerCode}`-only endpoint.
+   */
+  getSchedule(billerCode: string, productCode: string | null): Observable<BillingFeeSchedule> {
+    return this.http.get<BillingFeeSchedule>(this.url(billerCode, productCode));
   }
 
-  /** Creates or atomically replaces the schedule for one (billerCode, productCode) pair. */
-  putSchedule(billerCode: string, productCode: string, schedule: BillingFeeSchedule): Observable<BillingFeeSchedule> {
-    return this.http.put<BillingFeeSchedule>(
-      `/access/api/v1/admin/billing-fee-configs/${encodeURIComponent(billerCode)}/${encodeURIComponent(productCode)}`,
-      schedule
-    );
+  /** Creates or atomically replaces the schedule for one (billerCode, productCode) pair, or the
+   * biller's default schedule when `productCode` is null/blank. */
+  putSchedule(
+    billerCode: string,
+    productCode: string | null,
+    schedule: BillingFeeSchedule
+  ): Observable<BillingFeeSchedule> {
+    return this.http.put<BillingFeeSchedule>(this.url(billerCode, productCode), schedule);
+  }
+
+  /** Deletes the schedule for one (billerCode, productCode) pair, or the biller's default schedule
+   * when `productCode` is null/blank. */
+  deleteSchedule(billerCode: string, productCode: string | null): Observable<void> {
+    return this.http.delete<void>(this.url(billerCode, productCode));
+  }
+
+  private url(billerCode: string, productCode: string | null): string {
+    const base = `/access/api/v1/admin/billing-fee-configs/${encodeURIComponent(billerCode)}`;
+    return productCode ? `${base}/${encodeURIComponent(productCode)}` : base;
   }
 }

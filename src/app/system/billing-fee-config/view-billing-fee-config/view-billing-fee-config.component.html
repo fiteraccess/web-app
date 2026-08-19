@@ -6,10 +6,14 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
-<div class="layout-row align-end container m-b-20">
-  <button mat-raised-button color="primary" [routerLink]="['edit']" *mifosxHasPermission="'WRITE_BILLINGFEECONFIG'">
+<div class="layout-row align-end gap-10px container m-b-20">
+  <button mat-raised-button color="primary" [routerLink]="editRoute()" *mifosxHasPermission="'WRITE_BILLINGFEECONFIG'">
     <fa-icon icon="edit" class="m-r-10"></fa-icon>
     {{ 'labels.buttons.Edit' | translate }}
+  </button>
+  <button mat-raised-button color="warn" (click)="deleteSchedule()" *mifosxHasPermission="'WRITE_BILLINGFEECONFIG'">
+    <fa-icon icon="trash" class="m-r-10"></fa-icon>
+    {{ 'labels.buttons.Delete' | translate }}
   </button>
 </div>
 
@@ -20,7 +24,9 @@
         <div class="flex-50 header">{{ 'labels.inputs.Biller Code' | translate }}</div>
         <div class="flex-50">{{ schedule?.billerCode }}</div>
         <div class="flex-50 header">{{ 'labels.inputs.Product Code' | translate }}</div>
-        <div class="flex-50">{{ schedule?.productCode }}</div>
+        <div class="flex-50">
+          {{ schedule?.productCode ?? ('labels.text.Default (all products)' | translate) }}
+        </div>
         <div class="flex-50 header">{{ 'labels.inputs.Aggregator' | translate }}</div>
         <div class="flex-50">{{ schedule?.aggregatorCode }}</div>
       </div>
@@ -75,7 +81,7 @@
 </div>
 
 <div class="container m-t-20">
-  <button type="button" mat-raised-button [routerLink]="['../../../']">
+  <button type="button" mat-raised-button [routerLink]="['/system/billing-fee-configs']">
     {{ 'labels.buttons.Back' | translate }}
   </button>
 </div>

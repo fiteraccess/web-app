@@ -29,14 +29,18 @@ export class BillingFeeConfigListResolver {
   }
 }
 
-/** Resolves one schedule (drill-in edit page) by its (billerCode, productCode) route params. */
+/**
+ * Resolves one schedule (drill-in edit page) by its (billerCode, productCode) route params. The
+ * `:billerCode`-only route (no `productCode` segment) resolves the biller's default schedule —
+ * `paramMap.get('productCode')` returns `null` when that segment is absent from the matched route.
+ */
 @Injectable()
 export class BillingFeeConfigResolver {
   private service = inject(BillingFeeConfigService);
 
   resolve(route: ActivatedRouteSnapshot): Observable<BillingFeeSchedule> {
     const billerCode = route.paramMap.get('billerCode') as string;
-    const productCode = route.paramMap.get('productCode') as string;
+    const productCode = route.paramMap.get('productCode');
     return this.service.getSchedule(billerCode, productCode);
   }
 }

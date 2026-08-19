@@ -8,7 +8,9 @@
 
 /** Angular Imports */
 import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
 import {
@@ -28,6 +30,9 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 
 /** Custom Models */
 import { BillingFeeSchedule } from './billing-fee-config.model';
+
+/** Custom Services */
+import { BillingFeeConfigService } from './billing-fee-config.service';
 
 /** Row shape for the table — flattens the schedule for the `enabledComponentCount` column. */
 interface BillingFeeScheduleRow extends BillingFeeSchedule {
@@ -62,6 +67,18 @@ interface BillingFeeScheduleRow extends BillingFeeSchedule {
 })
 export class BillingFeeConfigComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private billingFeeConfigService = inject(BillingFeeConfigService);
+
+  // The app's global RouteReusableStrategy reuses this component instance (and never re-runs the
+  // resolver) whenever the router navigates back to this same route config - e.g. returning here
+  // after creating a schedule on /new. Refetch directly on every reactivation so a newly-added
+  // biller shows up instead of the stale resolver snapshot from the first visit. Set up here (not in
+  // ngOnInit) so takeUntilDestroyed() has the injection context it needs.
+  private readonly navigationEnd$ = this.router.events.pipe(
+    filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+    takeUntilDestroyed()
+  );
 
   displayedColumns = [
     'billerCode',
@@ -75,7 +92,16 @@ export class BillingFeeConfigComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort, { static: true }) sort!: MatSort;
 
   ngOnInit(): void {
-    const schedules: BillingFeeSchedule[] = this.route.snapshot.data['schedules']?.schedules ?? [];
+    this.applySchedules(this.route.snapshot.data['schedules']?.schedules ?? []);
+
+    this.navigationEnd$.subscribe((event) => {
+      if (this.router.url === event.urlAfterRedirects) {
+        this.billingFeeConfigService.listSchedules().subscribe((list) => this.applySchedules(list.schedules));
+      }
+    });
+  }
+
+  private applySchedules(schedules: BillingFeeSchedule[]): void {
     this.dataSource.data = schedules.map((schedule) => ({
       ...schedule,
       enabledComponentCount: schedule.components.filter((component) => component.enabled).length
