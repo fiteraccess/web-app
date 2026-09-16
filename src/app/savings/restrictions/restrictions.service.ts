@@ -10,7 +10,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { LiftReason, RestrictionReason } from './restriction-reason.model';
+import { LiftReason, RestrictionReason, RestrictionReasonRuling } from './restriction-reason.model';
 
 /**
  * Account-restriction reads served by the proxy. URLs start with `/access/` so the api-prefix
@@ -28,5 +28,15 @@ export class RestrictionsService {
   /** The active reason codes a restriction may be lifted with. */
   getLiftReasons(): Observable<LiftReason[]> {
     return this.http.get<LiftReason[]>('/access/api/v1/restrictions/lift-reasons');
+  }
+
+  /**
+   * Records whether placing a PND under this reason demands a case/court/regulator reference. Fineract owns the
+   * reason itself; a CodeValue has nowhere to state this, so the proxy keeps the ruling.
+   */
+  setReasonLegal(reasonCode: number, legal: boolean): Observable<RestrictionReasonRuling> {
+    return this.http.put<RestrictionReasonRuling>(`/access/api/v1/admin/restriction-reasons/${reasonCode}`, {
+      legal
+    });
   }
 }

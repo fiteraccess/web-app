@@ -23,3 +23,10 @@ export interface LiftReason {
   name: string;
   description: string | null;
 }
+
+/** The proxy's answer after ruling on a reason — echoes the name so the caller can confirm what it ruled on. */
+export interface RestrictionReasonRuling {
+  reasonCode: number;
+  name: string;
+  legal: boolean;
+}

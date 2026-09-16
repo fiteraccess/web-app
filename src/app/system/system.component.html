@@ -302,6 +302,17 @@
             </div>
           </mat-list-item>
 
+          <mat-list-item [routerLink]="['restriction-reasons']" *mifosxHasPermission="'READ_CODEVALUE'">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['restriction-reasons']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="ban" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>{{ 'labels.heading.Restriction Reasons' | translate }}</div>
+              </div>
+            </div>
+          </mat-list-item>
+
           <mat-list-item [routerLink]="['statement-fee-schedule']" *mifosxHasPermission="'READ_STATEMENTFEESCHEDULE'">
             <div class="menu-list-item-content">
               <div class="menu-left-section" [routerLink]="['statement-fee-schedule']">

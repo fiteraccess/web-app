@@ -58,6 +58,7 @@ import { SystemInformationComponent } from './system-information/system-informat
 import { AboutUsComponent } from './about-us/about-us.component';
 import { TierPolicyComponent } from './tier-policy/tier-policy.component';
 import { NipFeePolicyComponent } from './nip-fee-policy/nip-fee-policy.component';
+import { RestrictionReasonsComponent } from './restriction-reasons/restriction-reasons.component';
 import { StatementFeeScheduleComponent } from './statement-fee-schedule/statement-fee-schedule.component';
 import { EditStatementFeeScheduleComponent } from './statement-fee-schedule/edit-statement-fee-schedule/edit-statement-fee-schedule.component';
 import { ChannelPolicyComponent } from './channel-policy/channel-policy.component';
@@ -652,6 +653,11 @@ const routes: Routes = [
           resolve: {
             currencies: CurrenciesResolver
           }
+        },
+        {
+          path: 'restriction-reasons',
+          data: { title: 'Restriction Reasons', breadcrumb: 'Restriction Reasons' },
+          component: RestrictionReasonsComponent
         },
         {
           path: 'statement-fee-schedule',

@@ -981,6 +981,7 @@
       "NotEqual": "Not equal"
     },
     "heading": {
+      "Restriction Reasons": "Restriction Reasons",
       "Unblock Deposit": "Unblock Deposit",
       "Unblock Withdrawal": "Unblock Withdrawal",
       "Unblock Savings Account": "Unblock Savings Account",
@@ -1459,6 +1460,7 @@
     },
     "inputs": {
       "Narration": "Narration",
+      "Requires a case or court reference": "Requires a case or court reference",
       "Switch ID": "Switch ID",
       "Direction": "Direction",
       "Switch Payable": "Switch Payable",
@@ -3146,6 +3148,8 @@
       "Balance Cap": "Balance Cap"
     },
     "text": {
+      "No restriction reasons configured": "No Block Withdrawal reasons are configured. Add them in Manage Codes.",
+      "Restriction reasons legal hint": "Block Withdrawal reasons come from Manage Codes. Mark the ones that are legal or regulatory — placing a restriction under those requires a case, court or regulator reference number.",
       "Lift restriction documentation": "Every lift is recorded with a reason from the unblock-reasons list and a narration. Both are required.",
       "Reference number legal regulatory hint": "Case, court or regulator reference. Required when the reason is legal or regulatory.",
       "Fixed switch-fee allocations are not required for inbound.": "Fixed switch-fee allocations are not required for inbound.",
