@@ -14,6 +14,8 @@ import { SavingsService } from 'app/savings/savings.service';
 import { SettingsService } from 'app/settings/settings.service';
 import { Currency } from 'app/shared/models/general.model';
 import { SystemService } from 'app/system/system.service';
+import { RestrictionsService } from 'app/savings/restrictions/restrictions.service';
+import { RestrictionReason } from 'app/savings/restrictions/restriction-reason.model';
 import { MatCard, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
 import { InputAmountComponent } from '../../../shared/input-amount/input-amount.component';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
@@ -45,6 +47,7 @@ export class ManageSavingsAccountComponent implements OnInit {
   private router = inject(Router);
   private systemService = inject(SystemService);
   private settingsService = inject(SettingsService);
+  private restrictionsService = inject(RestrictionsService);
 
   @Input() currency: Currency;
   /** Minimum date allowed. */
@@ -58,6 +61,13 @@ export class ManageSavingsAccountComponent implements OnInit {
   transactionCommand: TransactionCommandType;
 
   reasonOptions: any = [];
+  /** PND reasons carry the proxy's legal/regulatory flag; the reference number is mandatory for those. */
+  pndReasons: RestrictionReason[] = [];
+  referenceNumberRequired = false;
+
+  static readonly REASON_MAX_LENGTH = 256;
+  static readonly REFERENCE_NUMBER_MAX_LENGTH = 100;
+  static readonly NARRATION_MAX_LENGTH = 500;
 
   transactionType: TransactionType = {
     holdamount: false,
@@ -97,13 +107,21 @@ export class ManageSavingsAccountComponent implements OnInit {
   }
 
   getCodeValues() {
+    if (this.transactionType.blockwithdrawal) {
+      // PND reasons come from the proxy: same Manage Codes list, plus which of them are legal/regulatory —
+      // that is what decides whether the reference number below is mandatory.
+      this.restrictionsService.getPndReasons().subscribe((reasons: RestrictionReason[]) => {
+        this.pndReasons = reasons;
+        this.reasonOptions = reasons;
+      });
+      return;
+    }
+
     let codeName = 'SavingsTransactionFreezeReasons'; // Default Hold Amount
     if (this.transactionType.blockaccount) {
       codeName = 'SavingsAccountBlockReasons';
     } else if (this.transactionType.blockdeposit) {
       codeName = 'CreditTransactionFreezeReasons';
-    } else if (this.transactionType.blockwithdrawal) {
-      codeName = 'DebitTransactionFreezeReasons';
     }
 
     this.systemService.getCodes().subscribe((codes: any) => {
@@ -143,9 +161,49 @@ export class ManageSavingsAccountComponent implements OnInit {
         reasonForBlock: [
           '',
           Validators.required
+        ],
+        narration: [
+          '',
+          Validators.maxLength(ManageSavingsAccountComponent.NARRATION_MAX_LENGTH)
         ]
       });
+      if (this.transactionType.blockwithdrawal) {
+        this.manageSavingsAccountForm.addControl(
+          'referenceNumber',
+          this.formBuilder.control('', Validators.maxLength(ManageSavingsAccountComponent.REFERENCE_NUMBER_MAX_LENGTH))
+        );
+        this.manageSavingsAccountForm.controls.reasonForBlock.valueChanges.subscribe((reasonId: number) =>
+          this.requireReferenceNumberIfLegal(reasonId)
+        );
+      }
     }
+  }
+
+  /** A legal/regulatory PND must cite its case/court/regulator reference; any other PND may. */
+  private requireReferenceNumberIfLegal(reasonId: number) {
+    const reason = this.pndReasons.find((candidate) => candidate.id === Number(reasonId));
+    this.referenceNumberRequired = !!reason?.legalOrRegulatory;
+    const control = this.manageSavingsAccountForm.controls.referenceNumber;
+    const lengthValidator = Validators.maxLength(ManageSavingsAccountComponent.REFERENCE_NUMBER_MAX_LENGTH);
+    control.setValidators(
+      this.referenceNumberRequired ? [
+            Validators.required,
+            lengthValidator
+          ] : [lengthValidator]
+    );
+    control.updateValueAndValidity();
+  }
+
+  /** Optional text fields are omitted rather than sent as empty strings, which the proxy would validate. */
+  private withoutBlankOptionals(value: { [key: string]: any }): { [key: string]: any } {
+    const payload: { [key: string]: any } = {};
+    Object.keys(value).forEach((key) => {
+      const field = value[key];
+      if (!(typeof field === 'string' && field.trim() === '')) {
+        payload[key] = field;
+      }
+    });
+    return payload;
   }
 
   submit() {
@@ -174,9 +232,7 @@ export class ManageSavingsAccountComponent implements OnInit {
           this.router.navigate(['../../transactions'], { relativeTo: this.route });
         });
     } else {
-      payload = {
-        ...this.manageSavingsAccountForm.value
-      };
+      payload = this.withoutBlankOptionals(this.manageSavingsAccountForm.value);
       command = 'block';
       if (this.transactionType.blockdeposit) {
         command = 'blockCredit';

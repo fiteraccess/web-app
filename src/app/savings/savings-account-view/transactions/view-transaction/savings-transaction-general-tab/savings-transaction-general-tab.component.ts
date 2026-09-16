@@ -61,9 +61,9 @@ export class SavingsTransactionGeneralTabComponent {
 
   releaseAmount(): void {
     const releaseAmountDialogRef = this.dialog.open(ReleaseAmountDialogComponent);
-    releaseAmountDialogRef.afterClosed().subscribe((response: any) => {
-      if (response.confirm) {
-        const data = {};
+    releaseAmountDialogRef.afterClosed().subscribe((response: { confirm?: boolean; reason?: string } | undefined) => {
+      if (response?.confirm) {
+        const data = { reason: response.reason };
         this.savingsService
           .executeSavingsAccountTransactionsCommand(this.accountId, 'releaseAmount', data, this.transactionData.id)
           .subscribe(() => {

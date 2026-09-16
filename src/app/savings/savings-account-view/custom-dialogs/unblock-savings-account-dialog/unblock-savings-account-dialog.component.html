@@ -1,0 +1,44 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<h1 mat-dialog-title>{{ data.heading }}</h1>
+<form [formGroup]="unblockForm" (ngSubmit)="confirm()">
+  <div mat-dialog-content class="layout-column">
+    <p>{{ 'labels.text.Lift restriction documentation' | translate }}</p>
+    <mat-form-field class="flex-100">
+      <mat-label>{{ 'labels.inputs.Reason' | translate }}</mat-label>
+      <mat-select required formControlName="reasonCode">
+        @for (reason of liftReasons; track reason.id) {
+          <mat-option [value]="reason.id">{{ reason.name }}</mat-option>
+        }
+      </mat-select>
+      @if (unblockForm.controls.reasonCode.hasError('required')) {
+        <mat-error>
+          {{ 'labels.inputs.Reason' | translate }} {{ 'labels.commons.is' | translate }}
+          <strong>{{ 'labels.commons.required' | translate }}</strong>
+        </mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field class="flex-100">
+      <mat-label>{{ 'labels.inputs.Narration' | translate }}</mat-label>
+      <textarea matInput formControlName="narration" required maxlength="500" rows="3"></textarea>
+      @if (unblockForm.controls.narration.hasError('required')) {
+        <mat-error>
+          {{ 'labels.inputs.Narration' | translate }} {{ 'labels.commons.is' | translate }}
+          <strong>{{ 'labels.commons.required' | translate }}</strong>
+        </mat-error>
+      }
+    </mat-form-field>
+  </div>
+  <mat-dialog-actions align="end">
+    <button type="button" mat-raised-button mat-dialog-close>{{ 'labels.buttons.Cancel' | translate }}</button>
+    <button type="submit" mat-raised-button color="warn" [disabled]="!unblockForm.valid">
+      {{ 'labels.buttons.Confirm' | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>

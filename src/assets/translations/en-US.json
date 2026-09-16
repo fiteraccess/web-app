@@ -981,6 +981,9 @@
       "NotEqual": "Not equal"
     },
     "heading": {
+      "Unblock Deposit": "Unblock Deposit",
+      "Unblock Withdrawal": "Unblock Withdrawal",
+      "Unblock Savings Account": "Unblock Savings Account",
       "Accounting configuration": "Accounting configuration",
       "Fixed switch-fee allocations": "Fixed switch-fee allocations",
       "NIP Switch": "NIP Switch",
@@ -1455,6 +1458,7 @@
       "Edit Balance Cap": "Edit Balance Cap"
     },
     "inputs": {
+      "Narration": "Narration",
       "Switch ID": "Switch ID",
       "Direction": "Direction",
       "Switch Payable": "Switch Payable",
@@ -3142,6 +3146,8 @@
       "Balance Cap": "Balance Cap"
     },
     "text": {
+      "Lift restriction documentation": "Every lift is recorded with a reason from the unblock-reasons list and a narration. Both are required.",
+      "Reference number legal regulatory hint": "Case, court or regulator reference. Required when the reason is legal or regulatory.",
       "Fixed switch-fee allocations are not required for inbound.": "Fixed switch-fee allocations are not required for inbound.",
       "Manage switch accounting, transfer configuration, and fixed switch fees": "Manage switch accounting, transfer configuration, and fixed switch fees.",
       "Review both actual components and select the intended state. The application does not choose a source of truth.": "Review both actual components and select the intended state. The application does not choose a source of truth.",

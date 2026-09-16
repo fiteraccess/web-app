@@ -7,12 +7,24 @@
 -->
 
 <h1 mat-dialog-title>{{ 'labels.heading.Release Amount' | translate }}</h1>
-<div mat-dialog-content>
-  <p>{{ 'labels.text.Are you sure you want to release this amount' | translate }}</p>
-</div>
-<mat-dialog-actions align="end">
-  <button mat-raised-button mat-dialog-close>{{ 'labels.buttons.Cancel' | translate }}</button>
-  <button mat-raised-button color="warn" [mat-dialog-close]="{ confirm: true }">
-    {{ 'labels.buttons.Confirm' | translate }}
-  </button>
-</mat-dialog-actions>
+<form [formGroup]="releaseForm" (ngSubmit)="confirm()">
+  <div mat-dialog-content class="layout-column">
+    <p>{{ 'labels.text.Are you sure you want to release this amount' | translate }}</p>
+    <mat-form-field class="flex-100">
+      <mat-label>{{ 'labels.inputs.Reason' | translate }}</mat-label>
+      <textarea matInput formControlName="reason" required maxlength="500" rows="3"></textarea>
+      @if (releaseForm.controls.reason.hasError('required')) {
+        <mat-error>
+          {{ 'labels.inputs.Reason' | translate }} {{ 'labels.commons.is' | translate }}
+          <strong>{{ 'labels.commons.required' | translate }}</strong>
+        </mat-error>
+      }
+    </mat-form-field>
+  </div>
+  <mat-dialog-actions align="end">
+    <button type="button" mat-raised-button mat-dialog-close>{{ 'labels.buttons.Cancel' | translate }}</button>
+    <button type="submit" mat-raised-button color="warn" [disabled]="!releaseForm.valid">
+      {{ 'labels.buttons.Confirm' | translate }}
+    </button>
+  </mat-dialog-actions>
+</form>
