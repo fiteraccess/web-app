@@ -981,6 +981,11 @@
       "NotEqual": "Not equal"
     },
     "heading": {
+      "Customer Documents": "Customer Documents",
+      "Restriction Reasons": "Restriction Reasons",
+      "Unblock Deposit": "Unblock Deposit",
+      "Unblock Withdrawal": "Unblock Withdrawal",
+      "Unblock Savings Account": "Unblock Savings Account",
       "Accounting configuration": "Accounting configuration",
       "Fixed switch-fee allocations": "Fixed switch-fee allocations",
       "NIP Switch": "NIP Switch",
@@ -1455,6 +1460,12 @@
       "Edit Balance Cap": "Edit Balance Cap"
     },
     "inputs": {
+      "Narration": "Narration",
+      "Requires a case or court reference": "Requires a case or court reference",
+      "Supporting Document": "Supporting Document",
+      "Supporting Document Type": "Supporting Document Type",
+      "Uploaded By": "Uploaded By",
+      "Uploaded On": "Uploaded On",
       "Switch ID": "Switch ID",
       "Direction": "Direction",
       "Switch Payable": "Switch Payable",
@@ -3142,6 +3153,14 @@
       "Balance Cap": "Balance Cap"
     },
     "text": {
+      "No restriction reasons configured": "No Block Withdrawal reasons are configured. Add them in Manage Codes.",
+      "Customer documents hint": "Filed against the customer, not this account — a restriction is backed by identity or address paperwork, which is the same evidence whichever account it concerns. The block and unblock dialogs file these.",
+      "No customer documents": "No documents are on file for this customer.",
+      "Supporting document hint": "An identity document (NIN, national ID, passport, drivers licence) or a utility bill. JPEG, PNG or PDF, up to 5MB.",
+      "Restriction order document hint": "The court order, regulator directive or other paperwork behind this restriction. JPEG, PNG or PDF, up to 5MB.",
+      "Restriction reasons legal hint": "Block Withdrawal reasons come from Manage Codes. Mark the ones that are legal or regulatory — placing a restriction under those requires a case, court or regulator reference number.",
+      "Lift restriction documentation": "Every lift is recorded with a reason from the unblock-reasons list and a narration. Both are required.",
+      "Reference number legal regulatory hint": "Case, court or regulator reference. Required when the reason is legal or regulatory.",
       "Fixed switch-fee allocations are not required for inbound.": "Fixed switch-fee allocations are not required for inbound.",
       "Manage switch accounting, transfer configuration, and fixed switch fees": "Manage switch accounting, transfer configuration, and fixed switch fees.",
       "Review both actual components and select the intended state. The application does not choose a source of truth.": "Review both actual components and select the intended state. The application does not choose a source of truth.",
