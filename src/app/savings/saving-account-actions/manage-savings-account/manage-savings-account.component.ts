@@ -14,6 +14,9 @@ import { SavingsService } from 'app/savings/savings.service';
 import { SettingsService } from 'app/settings/settings.service';
 import { Currency } from 'app/shared/models/general.model';
 import { SystemService } from 'app/system/system.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { RestrictionsService } from 'app/savings/restrictions/restrictions.service';
+import { RestrictionReason } from 'app/savings/restrictions/restriction-reason.model';
 import { MatCard, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
 import { InputAmountComponent } from '../../../shared/input-amount/input-amount.component';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
@@ -45,6 +48,7 @@ export class ManageSavingsAccountComponent implements OnInit {
   private router = inject(Router);
   private systemService = inject(SystemService);
   private settingsService = inject(SettingsService);
+  private restrictionsService = inject(RestrictionsService);
 
   @Input() currency: Currency;
   /** Minimum date allowed. */
@@ -58,6 +62,22 @@ export class ManageSavingsAccountComponent implements OnInit {
   transactionCommand: TransactionCommandType;
 
   reasonOptions: any = [];
+  /** PND reasons carry the proxy's legal/regulatory flag; the reference number is mandatory for those. */
+  pndReasons: RestrictionReason[] = [];
+  referenceNumberRequired = false;
+  /** The same reasons that demand a reference demand the order behind it. */
+  documentRequired = false;
+  /** Resolved only where a document can be needed; the action route does not carry the account itself. */
+  accountNumber = '';
+  file: File | null = null;
+  uploading = false;
+  errorMessage = '';
+
+  static readonly REASON_MAX_LENGTH = 256;
+  static readonly REFERENCE_NUMBER_MAX_LENGTH = 100;
+  static readonly NARRATION_MAX_LENGTH = 500;
+  /** A court order or regulator directive is neither an identity nor an address document. */
+  static readonly ORDER_DOCUMENT_TYPE = 'OTHERS';
 
   transactionType: TransactionType = {
     holdamount: false,
@@ -97,13 +117,24 @@ export class ManageSavingsAccountComponent implements OnInit {
   }
 
   getCodeValues() {
+    if (this.transactionType.blockwithdrawal) {
+      // PND reasons come from the proxy: same Manage Codes list, plus which of them are legal/regulatory —
+      // that is what decides whether the reference number and the supporting document below are mandatory.
+      this.restrictionsService.getPndReasons().subscribe((reasons: RestrictionReason[]) => {
+        this.pndReasons = reasons;
+        this.reasonOptions = reasons;
+      });
+      this.savingsService
+        .getSavingsAccountData(this.savingAccountId)
+        .subscribe((account: any) => (this.accountNumber = account.accountNo));
+      return;
+    }
+
     let codeName = 'SavingsTransactionFreezeReasons'; // Default Hold Amount
     if (this.transactionType.blockaccount) {
       codeName = 'SavingsAccountBlockReasons';
     } else if (this.transactionType.blockdeposit) {
       codeName = 'CreditTransactionFreezeReasons';
-    } else if (this.transactionType.blockwithdrawal) {
-      codeName = 'DebitTransactionFreezeReasons';
     }
 
     this.systemService.getCodes().subscribe((codes: any) => {
@@ -143,9 +174,79 @@ export class ManageSavingsAccountComponent implements OnInit {
         reasonForBlock: [
           '',
           Validators.required
+        ],
+        narration: [
+          '',
+          Validators.maxLength(ManageSavingsAccountComponent.NARRATION_MAX_LENGTH)
         ]
       });
+      if (this.transactionType.blockwithdrawal) {
+        this.manageSavingsAccountForm.addControl(
+          'referenceNumber',
+          this.formBuilder.control('', Validators.maxLength(ManageSavingsAccountComponent.REFERENCE_NUMBER_MAX_LENGTH))
+        );
+        this.manageSavingsAccountForm.controls.reasonForBlock.valueChanges.subscribe((reasonId: number) =>
+          this.requireReferenceNumberIfLegal(reasonId)
+        );
+      }
     }
+  }
+
+  /**
+   * A legal/regulatory PND must cite its case/court/regulator reference and file the order behind it; any
+   * other PND may do neither.
+   */
+  private requireReferenceNumberIfLegal(reasonId: number) {
+    const reason = this.pndReasons.find((candidate) => candidate.id === Number(reasonId));
+    this.referenceNumberRequired = !!reason?.legalOrRegulatory;
+    this.documentRequired = this.referenceNumberRequired;
+    const control = this.manageSavingsAccountForm.controls.referenceNumber;
+    const lengthValidator = Validators.maxLength(ManageSavingsAccountComponent.REFERENCE_NUMBER_MAX_LENGTH);
+    control.setValidators(
+      this.referenceNumberRequired ? [
+            Validators.required,
+            lengthValidator
+          ] : [lengthValidator]
+    );
+    control.updateValueAndValidity();
+  }
+
+  private placeRestriction(command: string, payload: { [key: string]: any }): void {
+    this.savingsService.executeSavingsAccountCommand(this.savingAccountId, command, payload).subscribe({
+      next: () => this.router.navigate(['../../transactions'], { relativeTo: this.route }),
+      error: (error: HttpErrorResponse) => (this.errorMessage = this.serverMessage(error))
+    });
+  }
+
+  private serverMessage(error: HttpErrorResponse): string {
+    return (
+      error.error?.errors?.[0]?.defaultUserMessage ||
+      error.error?.defaultUserMessage ||
+      error.error?.message ||
+      'The restriction could not be placed. Please try again.'
+    );
+  }
+
+  /** Optional text fields are omitted rather than sent as empty strings, which the proxy would validate. */
+  private withoutBlankOptionals(value: { [key: string]: any }): { [key: string]: any } {
+    const payload: { [key: string]: any } = {};
+    Object.keys(value).forEach((key) => {
+      const field = value[key];
+      if (!(typeof field === 'string' && field.trim() === '')) {
+        payload[key] = field;
+      }
+    });
+    return payload;
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.file = input.files?.length ? input.files[0] : null;
+    this.errorMessage = '';
+  }
+
+  get submitDisabled(): boolean {
+    return this.manageSavingsAccountForm.invalid || this.uploading || (this.documentRequired && !this.file);
   }
 
   submit() {
@@ -174,9 +275,7 @@ export class ManageSavingsAccountComponent implements OnInit {
           this.router.navigate(['../../transactions'], { relativeTo: this.route });
         });
     } else {
-      payload = {
-        ...this.manageSavingsAccountForm.value
-      };
+      payload = this.withoutBlankOptionals(this.manageSavingsAccountForm.value);
       command = 'block';
       if (this.transactionType.blockdeposit) {
         command = 'blockCredit';
@@ -184,10 +283,24 @@ export class ManageSavingsAccountComponent implements OnInit {
         command = 'blockDebit';
       }
 
-      this.savingsService
-        .executeSavingsAccountCommand(this.savingAccountId, command, payload)
-        .subscribe((response: any) => {
-          this.router.navigate(['../../transactions'], { relativeTo: this.route });
+      if (!this.documentRequired || !this.file) {
+        this.placeRestriction(command, payload);
+        return;
+      }
+      // File the order first: the restriction quotes the id this returns, and a failure here changes nothing.
+      this.uploading = true;
+      this.errorMessage = '';
+      this.restrictionsService
+        .uploadDocument(this.accountNumber, this.file, ManageSavingsAccountComponent.ORDER_DOCUMENT_TYPE)
+        .subscribe({
+          next: (uploaded) => {
+            this.uploading = false;
+            this.placeRestriction(command, { ...payload, documentId: uploaded.resourceId });
+          },
+          error: (error: HttpErrorResponse) => {
+            this.uploading = false;
+            this.errorMessage = this.serverMessage(error);
+          }
         });
     }
   }

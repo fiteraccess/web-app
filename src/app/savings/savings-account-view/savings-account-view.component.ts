@@ -21,6 +21,15 @@ import { ToggleWithholdTaxDialogComponent } from './custom-dialogs/toggle-withho
 import { SavingsButtonsConfiguration } from './savings-buttons.config';
 import { SavingsService } from '../savings.service';
 import { ConfirmationDialogComponent } from 'app/shared/confirmation-dialog/confirmation-dialog.component';
+import { UnblockSavingsAccountDialogComponent } from './custom-dialogs/unblock-savings-account-dialog/unblock-savings-account-dialog.component';
+
+/** What the unblock dialog hands back: the lift's reason code, its narration and the document filed for it. */
+interface UnblockDialogResult {
+  confirm?: boolean;
+  reasonCode?: string;
+  narration?: string;
+  documentId?: number;
+}
 import { Currency } from 'app/shared/models/general.model';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -354,25 +363,31 @@ export class SavingsAccountViewComponent implements OnInit {
    * Unblock Savings Account.
    */
   private unblockSavingsAccount(action: string) {
-    const unblockSavingsAccountDialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        heading: this.translateService.instant('labels.heading.Savings Account'),
-        dialogContext:
-          this.translateService.instant('labels.dialogContext.Are you sure you want') +
-          action +
-          this.translateService.instant('this Savings Account')
-      }
-    });
+    // Every lift carries its reason and narration — the proxy records them and refuses a lift without them.
     let command = 'unblock';
+    let heading = 'labels.heading.Unblock Savings Account';
     if (action === 'Unblock Deposit') {
       command = 'unblockCredit';
+      heading = 'labels.heading.Unblock Deposit';
     }
     if (action === 'Unblock Withdrawal') {
       command = 'unblockDebit';
+      heading = 'labels.heading.Unblock Withdrawal';
     }
-    unblockSavingsAccountDialogRef.afterClosed().subscribe((response: { confirm: any }) => {
-      if (response.confirm) {
-        this.savingsService.executeSavingsAccountCommand(this.savingsAccountData.id, command, {}).subscribe(() => {
+    const unblockSavingsAccountDialogRef = this.dialog.open(UnblockSavingsAccountDialogComponent, {
+      data: {
+        heading: this.translateService.instant(heading),
+        accountNumber: this.savingsAccountData.accountNo
+      }
+    });
+    unblockSavingsAccountDialogRef.afterClosed().subscribe((response: UnblockDialogResult | undefined) => {
+      if (response?.confirm) {
+        const payload = {
+          reasonCode: response.reasonCode,
+          narration: response.narration,
+          documentId: response.documentId
+        };
+        this.savingsService.executeSavingsAccountCommand(this.savingsAccountData.id, command, payload).subscribe(() => {
           this.reload();
         });
       }

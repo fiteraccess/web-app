@@ -7,6 +7,7 @@
  */
 
 import { Component, inject } from '@angular/core';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import {
   MatDialogRef,
   MatDialogTitle,
@@ -17,6 +18,7 @@ import {
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 
+/** Releasing a held amount is recorded with the reason the operator gives; the proxy keeps it on the hold. */
 @Component({
   selector: 'mifosx-release-amount-dialog',
   templateUrl: './release-amount-dialog.component.html',
@@ -32,4 +34,21 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 })
 export class ReleaseAmountDialogComponent {
   dialogRef = inject<MatDialogRef<ReleaseAmountDialogComponent>>(MatDialogRef);
+  private formBuilder = inject(UntypedFormBuilder);
+
+  static readonly REASON_MAX_LENGTH = 500;
+
+  releaseForm: UntypedFormGroup = this.formBuilder.group({
+    reason: [
+      '',
+      [
+        Validators.required,
+        Validators.maxLength(ReleaseAmountDialogComponent.REASON_MAX_LENGTH)
+      ]
+    ]
+  });
+
+  confirm() {
+    this.dialogRef.close({ confirm: true, reason: this.releaseForm.value.reason.trim() });
+  }
 }

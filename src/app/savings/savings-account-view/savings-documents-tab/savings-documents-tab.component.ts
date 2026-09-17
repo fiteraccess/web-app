@@ -14,6 +14,9 @@ import { SettingsService } from 'app/settings/settings.service';
 import { environment } from '../../../../environments/environment';
 import { EntityDocumentsTabComponent } from '../../../shared/tabs/entity-documents-tab/entity-documents-tab.component';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { MatTableModule } from '@angular/material/table';
+import { CustomerDocument } from 'app/savings/restrictions/restriction-reason.model';
+import { RestrictionsService } from 'app/savings/restrictions/restrictions.service';
 
 @Component({
   selector: 'mifosx-savings-documents-tab',
@@ -21,13 +24,15 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
   styleUrls: ['./savings-documents-tab.component.scss'],
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
-    EntityDocumentsTabComponent
+    EntityDocumentsTabComponent,
+    MatTableModule
   ]
 })
 export class SavingsDocumentsTabComponent {
   private route = inject(ActivatedRoute);
   private savingsService = inject(SavingsService);
   private settingsService = inject(SettingsService);
+  private restrictionsService = inject(RestrictionsService);
   dialog = inject(MatDialog);
 
   /** Stores the resolved savings documents data */
@@ -35,6 +40,20 @@ export class SavingsDocumentsTabComponent {
   /** Stores the saving Account Id */
   entityId: string;
   entityType = 'savings';
+
+  /**
+   * The customer's own documents, shown here because a restriction's supporting evidence is filed against the
+   * customer — it is identity or address paperwork, reusable across their accounts — while this tab otherwise
+   * lists what is attached to this one account. Read-only: evidence is filed by the block and unblock dialogs,
+   * so an upload button here would put documents somewhere the restriction could not reference.
+   */
+  customerDocuments: CustomerDocument[] = [];
+  readonly customerDocumentColumns = [
+    'name',
+    'documentType',
+    'uploadedBy',
+    'uploadedAt'
+  ];
 
   /**
    * Retrieves the savings data from `resolve`.
@@ -45,6 +64,28 @@ export class SavingsDocumentsTabComponent {
       this.setSavingsDocumentsData(data.savingsDocuments);
     });
     this.entityId = this.route.parent.snapshot.paramMap.get('savingAccountId');
+
+    const accountNumber = this.route.parent.snapshot.data['savingsAccountData']?.accountNo;
+    if (accountNumber) {
+      this.restrictionsService.listDocuments(accountNumber).subscribe({
+        next: (documents) => (this.customerDocuments = documents),
+        // A customer with no documents, or a core that cannot list them, must not blank the account's own.
+        error: () => (this.customerDocuments = [])
+      });
+    }
+  }
+
+  /** Fineract serves the file from the client it is filed against, not from this account. */
+  customerDocumentUrl(document: CustomerDocument): string {
+    return (
+      this.settingsService.serverUrl +
+      '/clients/' +
+      document.parentEntityId +
+      '/documents/' +
+      document.id +
+      '/attachment?tenantIdentifier=' +
+      environment.fineractPlatformTenantId
+    );
   }
 
   setSavingsDocumentsData(data: any) {

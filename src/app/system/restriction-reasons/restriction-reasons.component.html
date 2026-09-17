@@ -1,0 +1,55 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container">
+  <mat-card>
+    <mat-card-content>
+      <h2>{{ 'labels.heading.Restriction Reasons' | translate }}</h2>
+      <p class="screen-hint">{{ 'labels.text.Restriction reasons legal hint' | translate }}</p>
+
+      @if (errorMessage) {
+        <div class="error-message" role="alert">{{ errorMessage | translate }}</div>
+      }
+
+      @if (loading) {
+        <p>{{ 'labels.text.Loading' | translate }}</p>
+      } @else if (!reasons.length) {
+        <p>{{ 'labels.text.No restriction reasons configured' | translate }}</p>
+      } @else {
+        <table mat-table [dataSource]="reasons" class="mat-elevation-z1 reasons-table">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Reason' | translate }}</th>
+            <td mat-cell *matCellDef="let reason">
+              <div class="reason-name">{{ reason.name }}</div>
+              @if (reason.description) {
+                <div class="reason-description">{{ reason.description }}</div>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="legal">
+            <th mat-header-cell *matHeaderCellDef>
+              {{ 'labels.inputs.Requires a case or court reference' | translate }}
+            </th>
+            <td mat-cell *matCellDef="let reason">
+              <mat-slide-toggle
+                [checked]="reason.legalOrRegulatory"
+                [disabled]="!canWrite || isSaving(reason)"
+                (change)="onLegalChange(reason, $event)"
+              >
+              </mat-slide-toggle>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['name', 'legal']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['name', 'legal']"></tr>
+        </table>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

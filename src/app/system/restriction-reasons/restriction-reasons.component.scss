@@ -6,15 +6,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-.customer-documents {
-  margin-top: 24px;
-}
-
-.section-hint {
+.screen-hint {
   max-width: 640px;
-  opacity: 0.7;
+  margin-bottom: 20px;
 }
 
-.customer-documents-table {
+.reasons-table {
   width: 100%;
+}
+
+.reason-name {
+  font-weight: 500;
+}
+
+.reason-description {
+  font-size: 12px;
+  opacity: 0.7;
 }
