@@ -54,6 +54,14 @@
           </mat-form-field>
         }
 
+        @if (documentRequired) {
+          <div class="document-file flex-100">
+            <label>{{ 'labels.inputs.Supporting Document' | translate }}</label>
+            <input type="file" accept="image/jpeg,image/png,application/pdf" (change)="onFileSelected($event)" />
+            <mat-hint>{{ 'labels.text.Restriction order document hint' | translate }}</mat-hint>
+          </div>
+        }
+
         @if (!transactionType.holdamount) {
           <mat-form-field class="flex-100">
             <mat-label>{{ 'labels.inputs.Narration' | translate }}</mat-label>
@@ -95,11 +103,14 @@
         }
       </mat-card-content>
 
+      @if (errorMessage) {
+        <div class="error-message" role="alert">{{ errorMessage }}</div>
+      }
       <mat-card-actions class="layout-row align-center gap-5px responsive-column">
         <button type="button" mat-raised-button [routerLink]="['../../transactions']">
           {{ 'labels.buttons.Cancel' | translate }}
         </button>
-        <button mat-raised-button color="primary" [disabled]="!manageSavingsAccountForm.valid">
+        <button mat-raised-button color="primary" [disabled]="submitDisabled">
           {{ 'labels.buttons.Confirm' | translate }}
         </button>
       </mat-card-actions>

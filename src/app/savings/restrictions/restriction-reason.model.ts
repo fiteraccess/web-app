@@ -30,3 +30,35 @@ export interface RestrictionReasonRuling {
   name: string;
   legal: boolean;
 }
+
+/**
+ * The document types that establish who a customer is or where they live. A lift must be backed by one of
+ * these; `OTHERS` is a filing convenience and proves nothing, so the proxy refuses it.
+ */
+export const LIFT_DOCUMENT_TYPES = [
+  { value: 'NIN_SLIP', label: 'NIN Slip' },
+  { value: 'NATIONAL_ID', label: 'National ID' },
+  { value: 'PASSPORT', label: 'Passport' },
+  { value: 'DRIVERS_LICENSE', label: 'Drivers License' },
+  { value: 'UTILITY_BILL', label: 'Utility Bill' },
+  { value: 'PROOF_OF_ADDRESS_CERTIFICATE', label: 'Proof of Address Certificate' }
+];
+
+/** What an upload returns — `resourceId` is the id a restriction quotes as `documentId`. */
+export interface UploadedDocument {
+  resourceId: number;
+}
+
+/**
+ * A document on file for the account's customer. Fineract's own fields, plus the type, uploader and timestamp
+ * the proxy records beside them — `documentType` is null for anything uploaded before the proxy tracked it.
+ */
+export interface CustomerDocument {
+  id: number;
+  parentEntityId: number;
+  name: string;
+  fileName: string;
+  documentType: string | null;
+  uploadedBy: string | null;
+  uploadedAt: string | null;
+}

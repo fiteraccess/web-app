@@ -22,6 +22,14 @@ import { SavingsButtonsConfiguration } from './savings-buttons.config';
 import { SavingsService } from '../savings.service';
 import { ConfirmationDialogComponent } from 'app/shared/confirmation-dialog/confirmation-dialog.component';
 import { UnblockSavingsAccountDialogComponent } from './custom-dialogs/unblock-savings-account-dialog/unblock-savings-account-dialog.component';
+
+/** What the unblock dialog hands back: the lift's reason code, its narration and the document filed for it. */
+interface UnblockDialogResult {
+  confirm?: boolean;
+  reasonCode?: string;
+  narration?: string;
+  documentId?: number;
+}
 import { Currency } from 'app/shared/models/general.model';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -367,19 +375,22 @@ export class SavingsAccountViewComponent implements OnInit {
       heading = 'labels.heading.Unblock Withdrawal';
     }
     const unblockSavingsAccountDialogRef = this.dialog.open(UnblockSavingsAccountDialogComponent, {
-      data: { heading: this.translateService.instant(heading) }
+      data: {
+        heading: this.translateService.instant(heading),
+        accountNumber: this.savingsAccountData.accountNo
+      }
     });
-    unblockSavingsAccountDialogRef
-      .afterClosed()
-      .subscribe((response: { confirm?: boolean; reasonCode?: string; narration?: string } | undefined) => {
-        if (response?.confirm) {
-          const payload = { reasonCode: response.reasonCode, narration: response.narration };
-          this.savingsService
-            .executeSavingsAccountCommand(this.savingsAccountData.id, command, payload)
-            .subscribe(() => {
-              this.reload();
-            });
-        }
-      });
+    unblockSavingsAccountDialogRef.afterClosed().subscribe((response: UnblockDialogResult | undefined) => {
+      if (response?.confirm) {
+        const payload = {
+          reasonCode: response.reasonCode,
+          narration: response.narration,
+          documentId: response.documentId
+        };
+        this.savingsService.executeSavingsAccountCommand(this.savingsAccountData.id, command, payload).subscribe(() => {
+          this.reload();
+        });
+      }
+    });
   }
 }
