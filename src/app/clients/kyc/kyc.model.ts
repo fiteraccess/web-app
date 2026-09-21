@@ -44,6 +44,27 @@ export interface KycContext {
 }
 
 /**
+ * An enumerated KYC attribute as the API returns it. `code` is the value the API accepts on write and
+ * stores; `value` is what the UI renders. `description` is only present on `sourceOfFunds`.
+ */
+export interface KycEnumOption {
+  id: number;
+  code: string;
+  value: string;
+  description?: string;
+}
+
+/**
+ * The KYC block as it comes back on a client read. Distinct from {@link KycContext}, which is the write
+ * payload — the AB-553 declarations are read-only here and arrive as objects, not strings.
+ */
+export interface KycProfile extends KycContext {
+  pepIndicator?: KycEnumOption;
+  sourceOfFunds?: KycEnumOption;
+  annualIncome?: KycEnumOption;
+}
+
+/**
  * Field length limits enforced by the backend.
  */
 export const KYC_FIELD_MAX_LENGTH = {

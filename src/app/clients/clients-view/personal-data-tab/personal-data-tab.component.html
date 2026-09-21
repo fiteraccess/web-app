@@ -215,6 +215,24 @@
             <span class="value">{{ clientViewData.kyc.countryOfResidence }}</span>
           </div>
         }
+        @if (clientViewData.kyc.pepIndicator) {
+          <div class="data-item">
+            <span class="label">{{ 'labels.inputs.PEP Indicator' | translate }}</span>
+            <span class="value">{{ clientViewData.kyc.pepIndicator.value }}</span>
+          </div>
+        }
+        @if (clientViewData.kyc.sourceOfFunds) {
+          <div class="data-item">
+            <span class="label">{{ 'labels.inputs.Source of Funds' | translate }}</span>
+            <span class="value">{{ clientViewData.kyc.sourceOfFunds.value }}</span>
+          </div>
+        }
+        @if (clientViewData.kyc.annualIncome) {
+          <div class="data-item">
+            <span class="label">{{ 'labels.inputs.Annual Income' | translate }}</span>
+            <span class="value">{{ clientViewData.kyc.annualIncome.value }}</span>
+          </div>
+        }
         @if (clientViewData.kyc.homeAddress) {
           <div class="data-item full-width">
             <span class="label">{{ 'labels.inputs.Home Address' | translate }}</span>

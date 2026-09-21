@@ -79,8 +79,9 @@ const config: Config = {
     ]
   },
 
-  // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@angular|@fortawesome)']
+  // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation.
+  // @material/web ships untranspiled ESM, so it must be transformed rather than skipped
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$|@angular|@fortawesome|@material|lit|@lit)']
 };
 
 export default config;
