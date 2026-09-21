@@ -15,7 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 import { DateFormatPipe } from '../../../pipes/date-format.pipe';
 import { LegalFormId } from 'app/clients/models/legal-form.enum';
-import { KycContext, formatKycTier } from 'app/clients/kyc/kyc.model';
+import { KycProfile, formatKycTier } from 'app/clients/kyc/kyc.model';
 
 /** Interfaces */
 interface ClientViewData {
@@ -43,7 +43,7 @@ interface ClientViewData {
   staffName?: string;
   savingsProductId?: number;
   savingsProductName?: string;
-  kyc?: KycContext;
+  kyc?: KycProfile;
   [key: string]: any; // Allow additional properties from API
 }
 
@@ -98,6 +98,15 @@ export class PersonalDataTabComponent {
   hasKyc(): boolean {
     const kyc = this.clientViewData?.kyc;
     if (!kyc) return false;
-    return !!(kyc.tier || kyc.bvn || kyc.nin || kyc.homeAddress || kyc.countryOfResidence);
+    return !!(
+      kyc.tier ||
+      kyc.bvn ||
+      kyc.nin ||
+      kyc.homeAddress ||
+      kyc.countryOfResidence ||
+      kyc.pepIndicator ||
+      kyc.sourceOfFunds ||
+      kyc.annualIncome
+    );
   }
 }
