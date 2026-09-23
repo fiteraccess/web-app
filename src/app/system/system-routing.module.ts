@@ -57,6 +57,7 @@ import { SystemComponent } from './system.component';
 import { SystemInformationComponent } from './system-information/system-information.component';
 import { AboutUsComponent } from './about-us/about-us.component';
 import { TierPolicyComponent } from './tier-policy/tier-policy.component';
+import { RegulatoryReportsComponent } from './regulatory-reports/regulatory-reports.component';
 import { NipFeePolicyComponent } from './nip-fee-policy/nip-fee-policy.component';
 import { RestrictionReasonsComponent } from './restriction-reasons/restriction-reasons.component';
 import { StatementFeeScheduleComponent } from './statement-fee-schedule/statement-fee-schedule.component';
@@ -636,6 +637,11 @@ const routes: Routes = [
               }
             }
           ]
+        },
+        {
+          path: 'regulatory-reports',
+          data: { title: 'Regulatory Reports', breadcrumb: 'Regulatory Reports' },
+          component: RegulatoryReportsComponent
         },
         {
           path: 'tier-policy',
