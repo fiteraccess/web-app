@@ -257,6 +257,40 @@
             </div>
           </mat-list-item>
 
+          <mat-list-item [routerLink]="['regulatory-reports']" *mifosxHasPermission="'READ_REGULATORYREPORT'">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['regulatory-reports']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="file-excel" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>
+                  {{ 'labels.heading.Regulatory Reports' | translate }}
+                  @if (arrowBooleans[18]) {
+                    <p matLine [routerLink]="['regulatory-reports']" class="menu-explanation">
+                      {{ 'labels.text.Regulatory Reports Description' | translate }}
+                    </p>
+                  }
+                </div>
+              </div>
+              <div class="menu-right-section">
+                @if (!arrowBooleans[18]) {
+                  <fa-icon
+                    (click)="arrowBooleansToggle(18); $event.stopPropagation()"
+                    icon="arrow-down"
+                    size="md"
+                  ></fa-icon>
+                }
+                @if (arrowBooleans[18]) {
+                  <fa-icon
+                    (click)="arrowBooleansToggle(18); $event.stopPropagation()"
+                    icon="arrow-up"
+                    size="md"
+                  ></fa-icon>
+                }
+              </div>
+            </div>
+          </mat-list-item>
+
           <mat-list-item [routerLink]="['tier-policy']" *mifosxHasPermission="'READ_TIERPOLICY'">
             <div class="menu-list-item-content">
               <div class="menu-left-section" [routerLink]="['tier-policy']">

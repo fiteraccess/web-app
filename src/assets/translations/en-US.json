@@ -399,6 +399,7 @@
       "Adjustment": "Adjustment",
       "Advanced Options": "Advanced Options",
       "Advanced Search": "Advanced Search",
+      "Generate and Download": "Generate and Download",
       "Show advanced search": "Show advanced search",
       "Hide advanced search": "Hide advanced search",
       "Allocate Cash": "Allocate Cash",
@@ -982,6 +983,7 @@
     },
     "heading": {
       "Customer Documents": "Customer Documents",
+      "Regulatory Reports": "Regulatory Reports",
       "Restriction Reasons": "Restriction Reasons",
       "Unblock Deposit": "Unblock Deposit",
       "Unblock Withdrawal": "Unblock Withdrawal",
@@ -1460,7 +1462,9 @@
       "Edit Balance Cap": "Edit Balance Cap"
     },
     "inputs": {
+      "Account Holder Tier": "Account Holder Tier",
       "Narration": "Narration",
+      "Report": "Report",
       "Requires a case or court reference": "Requires a case or court reference",
       "Supporting Document": "Supporting Document",
       "Supporting Document Type": "Supporting Document Type",
@@ -3159,6 +3163,7 @@
       "No restriction reasons configured": "No Block Withdrawal reasons are configured. Add them in Manage Codes.",
       "Customer documents hint": "Filed against the customer, not this account — a restriction is backed by identity or address paperwork, which is the same evidence whichever account it concerns. The block and unblock dialogs file these.",
       "No customer documents": "No documents are on file for this customer.",
+      "Regulatory Reports Description": "Generate the CBN regulatory returns on demand and download them as Excel.",
       "Supporting document hint": "An identity document (NIN, national ID, passport, drivers licence) or a utility bill. JPEG, PNG or PDF, up to 5MB.",
       "Restriction order document hint": "The court order, regulator directive or other paperwork behind this restriction. JPEG, PNG or PDF, up to 5MB.",
       "Restriction reasons legal hint": "Block Withdrawal reasons come from Manage Codes. Mark the ones that are legal or regulatory — placing a restriction under those requires a case, court or regulator reference number.",
