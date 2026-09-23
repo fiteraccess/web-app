@@ -16,7 +16,7 @@
         <div class="form-grid">
           <mat-form-field appearance="fill">
             <mat-label>{{ 'labels.inputs.Report' | translate }}</mat-label>
-            <mat-select formControlName="report">
+            <mat-select formControlName="report" (selectionChange)="onParametersChanged()">
               @for (report of reports; track report.key) {
                 <mat-option [value]="report.key">{{ report.name }}</mat-option>
               }
@@ -31,6 +31,7 @@
               [max]="maxDate"
               [matDatepicker]="startDatePicker"
               formControlName="startDate"
+              (dateChange)="onParametersChanged()"
               required
             />
             <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
@@ -45,6 +46,7 @@
               [max]="maxDate"
               [matDatepicker]="endDatePicker"
               formControlName="endDate"
+              (dateChange)="onParametersChanged()"
               required
             />
             <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
@@ -54,7 +56,7 @@
           @if (selectedReport?.supportsTierFilter) {
             <mat-form-field appearance="fill">
               <mat-label>{{ 'labels.inputs.Account Holder Tier' | translate }}</mat-label>
-              <mat-select formControlName="tier">
+              <mat-select formControlName="tier" (selectionChange)="onParametersChanged()">
                 <mat-option value="">{{ 'labels.inputs.All' | translate }}</mat-option>
                 @for (tier of tiers; track tier) {
                   <mat-option [value]="tier">{{ formatTier(tier) }}</mat-option>
@@ -68,7 +70,7 @@
           <p class="report-hint">{{ selectedReport.description }}</p>
         }
 
-        @if (generating) {
+        @if (generating || exporting) {
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         }
 
@@ -82,10 +84,46 @@
 
         <mat-card-actions>
           <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || generating">
-            {{ 'labels.buttons.Generate and Download' | translate }}
+            {{ 'labels.buttons.Generate' | translate }}
           </button>
         </mat-card-actions>
       </form>
     </mat-card-content>
   </mat-card>
+
+  @if (result) {
+    <mat-card class="report-result">
+      <mat-card-content>
+        <div class="result-toolbar">
+          <h3 class="report-heading">{{ result.report.name }}</h3>
+          <button mat-raised-button color="primary" type="button" [disabled]="exporting" (click)="exportExcel()">
+            {{ 'labels.buttons.Export Excel' | translate }}
+          </button>
+        </div>
+
+        @for (line of result.headerLines; track line) {
+          <p class="report-header-line">{{ line }}</p>
+        }
+
+        @if (result.rowCount === 0) {
+          <p class="report-hint">{{ 'labels.text.No Report Rows' | translate }}</p>
+        } @else {
+          <div class="table-scroll">
+            <table mat-table [dataSource]="result.dataSource">
+              @for (column of result.report.columns; track column.key) {
+                <ng-container [matColumnDef]="column.key">
+                  <th mat-header-cell *matHeaderCellDef>{{ column.header }}</th>
+                  <td mat-cell *matCellDef="let row">{{ row[column.key] }}</td>
+                </ng-container>
+              }
+              <tr mat-header-row *matHeaderRowDef="result.columnKeys"></tr>
+              <tr mat-row *matRowDef="let row; columns: result.columnKeys"></tr>
+            </table>
+          </div>
+
+          <mat-paginator [pageSizeOptions]="pageSizeOptions" [pageSize]="25" showFirstLastButtons></mat-paginator>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
 </div>
