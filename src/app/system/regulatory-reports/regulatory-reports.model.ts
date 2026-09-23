@@ -6,8 +6,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { XlsxColumn } from '../../shared/excel/xlsx-export';
-
 /** The four CBN returns of AB-341, keyed by the Synapse route that serves each. */
 export type RegulatoryReportKey =
   | 'kyc-monitoring'
@@ -15,14 +13,20 @@ export type RegulatoryReportKey =
   | 'new-accounts-rendition'
   | 'new-accounts-weekly';
 
+/** One displayed column: the regulator's header text and the response field behind it. */
+export interface ReportColumn {
+  header: string;
+  key: string;
+}
+
 export interface RegulatoryReportDefinition {
   key: RegulatoryReportKey;
   name: string;
   description: string;
   /** Whether the report takes the KYC tier filter (Report A only). */
   supportsTierFilter: boolean;
-  /** Column order is part of the regulatory format, so it is declared here rather than derived. */
-  columns: XlsxColumn[];
+  /** Mirrors the order Synapse renders into the workbook, so the table and the export read alike. */
+  columns: ReportColumn[];
 }
 
 export interface KycMonitoringRow {
@@ -97,8 +101,9 @@ export interface PagedReport<T> {
 }
 
 /**
- * Field names and their order are the regulatory format itself, so they are pinned here rather than
- * inferred from the response — a renamed API field must not silently reshape a filed return.
+ * The filed workbook is rendered by Synapse; these drive the on-screen table only. They are still pinned
+ * rather than inferred from the response so the preview shows the same columns, in the same order, as the
+ * sheet the user is about to download.
  */
 export const REGULATORY_REPORTS: RegulatoryReportDefinition[] = [
   {

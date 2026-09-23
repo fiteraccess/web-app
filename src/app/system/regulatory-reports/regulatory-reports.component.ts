@@ -7,9 +7,11 @@
  */
 
 /** Angular Imports */
-import { Component, inject } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatProgressBar } from '@angular/material/progress-bar';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 
 /** Custom Services */
@@ -25,10 +27,23 @@ import {
   QuarterlyKycReport,
   WeeklyNewAccountsReport
 } from './regulatory-reports.model';
-import { downloadXlsx } from '../../shared/excel/xlsx-export';
+import { downloadAttachment } from '../../shared/excel/download-attachment';
+
+/** A generated return, held so Export Excel can only ever file what is on screen. */
+interface RenderedReport {
+  report: RegulatoryReportDefinition;
+  startDate: string;
+  endDate: string;
+  tier?: string;
+  columnKeys: string[];
+  headerLines: string[];
+  rowCount: number;
+  dataSource: MatTableDataSource<Record<string, any>>;
+}
 
 /**
- * AB-341 Regulatory Reports.
+ * AB-341 Regulatory Reports. Generate renders the return as a table; Export Excel asks Synapse for the filed
+ * workbook, so the sheet is produced by one implementation rather than by whichever client asked for it.
  *
  * Served by Synapse rather than the Fineract report module: KYC tier, BVN, address and the PND/Block
  * restrictions these returns need live in the Synapse database, which a Fineract stretchy report cannot read.
@@ -39,13 +54,17 @@ import { downloadXlsx } from '../../shared/excel/xlsx-export';
   styleUrls: ['./regulatory-reports.component.scss'],
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
-    MatProgressBar
+    MatProgressBar,
+    MatTableModule,
+    MatPaginatorModule
   ]
 })
 export class RegulatoryReportsComponent {
   private formBuilder = inject(UntypedFormBuilder);
   private reportsService = inject(RegulatoryReportsService);
   private dateUtils = inject(Dates);
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   reports = REGULATORY_REPORTS;
   tiers = KYC_TIERS;
@@ -54,9 +73,19 @@ export class RegulatoryReportsComponent {
   minDate = new Date(2000, 0, 1);
   maxDate = new Date();
 
+  pageSizeOptions = [
+    25,
+    50,
+    100
+  ];
+
   generating = false;
+  exporting = false;
   errorMessage: string | null = null;
   statusMessage: string | null = null;
+
+  /** Null until Generate has run, which is what keeps the table and the Export button hidden. */
+  result: RenderedReport | null = null;
 
   form: UntypedFormGroup = this.formBuilder.group({
     report: [
@@ -79,6 +108,12 @@ export class RegulatoryReportsComponent {
     return this.reports.find((report) => report.key === key);
   }
 
+  /** Drops a rendered return once its parameters change, so Export cannot file a sheet nobody reviewed. */
+  onParametersChanged(): void {
+    this.result = null;
+    this.statusMessage = null;
+  }
+
   generate(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -92,87 +127,145 @@ export class RegulatoryReportsComponent {
       return;
     }
 
+    const report = this.selectedReport;
+    const tier = report.supportsTierFilter ? this.form.get('tier').value || undefined : undefined;
+
     this.generating = true;
     this.errorMessage = null;
     this.statusMessage = null;
+    this.result = null;
 
-    const report = this.selectedReport;
     switch (report.key) {
       case 'kyc-monitoring':
-        this.reportsService.getKycMonitoring(startDate, endDate, this.form.get('tier').value || undefined).subscribe({
-          next: (result) => this.write(report, result.items, startDate, endDate),
+        this.reportsService.getKycMonitoring(startDate, endDate, tier).subscribe({
+          next: (response) => this.render(report, response.items, startDate, endDate, [], tier),
           error: (error) => this.fail(error)
         });
         break;
       case 'kyc-monitoring-quarterly':
         this.reportsService.getQuarterlyKycMonitoring(startDate, endDate).subscribe({
-          next: (result) => this.writeQuarterly(report, result, startDate, endDate),
+          next: (response) => this.renderQuarterly(report, response, startDate, endDate),
           error: (error) => this.fail(error)
         });
         break;
       case 'new-accounts-rendition':
         this.reportsService.getNewAccountsRendition(startDate, endDate).subscribe({
-          next: (result) => this.write(report, result.items, startDate, endDate),
+          next: (response) => this.render(report, response.items, startDate, endDate),
           error: (error) => this.fail(error)
         });
         break;
       case 'new-accounts-weekly':
         this.reportsService.getWeeklyNewAccounts(startDate, endDate).subscribe({
-          next: (result) => this.writeWeekly(report, result, startDate, endDate),
+          next: (response) => this.renderWeekly(report, response, startDate, endDate),
           error: (error) => this.fail(error)
         });
         break;
     }
   }
 
-  private writeQuarterly(
-    report: RegulatoryReportDefinition,
-    result: QuarterlyKycReport,
-    startDate: string,
-    endDate: string
-  ): void {
-    const header: string[] = [];
-    // A period starting before the first recorded tier change has incomplete migration counts; say so in the
-    // sheet rather than letting a partial figure be filed as final.
-    if (result.historyStartsOn && result.historyStartsOn > startDate) {
-      header.push(`Migration counts are partial before ${result.historyStartsOn} — tier history starts then.`);
+  /** Downloads the workbook Synapse renders for the return currently on screen. */
+  exportExcel(): void {
+    if (!this.result) {
+      return;
     }
-    this.write(report, result.branches, startDate, endDate, header);
+    const { report, startDate, endDate, tier } = this.result;
+
+    this.exporting = true;
+    this.errorMessage = null;
+    this.statusMessage = null;
+
+    this.reportsService.exportXlsx(report.key, startDate, endDate, tier).subscribe({
+      next: (response) => {
+        downloadAttachment(response, `${report.name} ${startDate} to ${endDate}.xlsx`);
+        this.exporting = false;
+        this.statusMessage = `Exported ${report.name} for ${startDate} to ${endDate}.`;
+      },
+      error: (error) => this.failExport(error)
+    });
   }
 
-  private writeWeekly(
+  private renderQuarterly(
     report: RegulatoryReportDefinition,
-    result: WeeklyNewAccountsReport,
+    response: QuarterlyKycReport,
     startDate: string,
     endDate: string
   ): void {
-    const header = [
-      `Reporting Bank: ${result.reportingBank}`,
-      `Bank Code: ${result.bankCode}`,
-      `Reporting Period: ${result.reportingPeriod}`
-    ];
-    this.write(report, result.rows, startDate, endDate, header);
+    const headerLines: string[] = [];
+    // A period starting before the first recorded tier change has incomplete migration counts; say so on
+    // screen rather than letting a partial figure be read as final.
+    if (response.historyStartsOn && response.historyStartsOn > startDate) {
+      headerLines.push(`Migration counts are partial before ${response.historyStartsOn} - tier history starts then.`);
+    }
+    this.render(report, response.branches, startDate, endDate, headerLines);
   }
 
-  private write(
+  private renderWeekly(
+    report: RegulatoryReportDefinition,
+    response: WeeklyNewAccountsReport,
+    startDate: string,
+    endDate: string
+  ): void {
+    const headerLines = [
+      `Reporting Bank: ${response.reportingBank}`,
+      `Bank Code: ${response.bankCode}`,
+      `Reporting Period: ${response.reportingPeriod}`
+    ];
+    this.render(report, response.rows, startDate, endDate, headerLines);
+  }
+
+  private render(
     report: RegulatoryReportDefinition,
     rows: Record<string, any>[],
     startDate: string,
     endDate: string,
-    headerLines: string[] = []
+    headerLines: string[] = [],
+    tier?: string
   ): void {
-    const fileName = `${report.name} ${startDate} to ${endDate}.xlsx`;
-    downloadXlsx(fileName, report.columns, rows ?? [], headerLines)
-      .then(() => {
-        this.generating = false;
-        this.statusMessage = `Downloaded ${rows?.length ?? 0} row(s) as ${fileName}`;
-      })
-      .catch((error) => this.fail(error));
+    const dataSource = new MatTableDataSource(rows ?? []);
+    this.result = {
+      report,
+      startDate,
+      endDate,
+      tier,
+      columnKeys: report.columns.map((column) => column.key),
+      headerLines,
+      rowCount: rows?.length ?? 0,
+      dataSource
+    };
+    this.generating = false;
+    this.statusMessage = `${this.result.rowCount} row(s) for ${startDate} to ${endDate}.`;
+    // The paginator is rendered by this same change-detection pass, so it does not exist until after it.
+    setTimeout(() => (dataSource.paginator = this.paginator));
   }
 
   private fail(error: any): void {
     this.generating = false;
-    this.errorMessage = error?.error?.defaultUserMessage ?? error?.message ?? 'Report generation failed.';
+    this.errorMessage = this.messageOf(error) ?? 'Report generation failed.';
+  }
+
+  private failExport(error: any): void {
+    this.exporting = false;
+    // The request asked for a Blob, so an error body arrives as one too and has to be read back as text.
+    if (error?.error instanceof Blob) {
+      error.error
+        .text()
+        .then((text: string) => (this.errorMessage = this.parseUserMessage(text) ?? 'Excel export failed.'))
+        .catch(() => (this.errorMessage = 'Excel export failed.'));
+      return;
+    }
+    this.errorMessage = this.messageOf(error) ?? 'Excel export failed.';
+  }
+
+  private parseUserMessage(body: string): string | null {
+    try {
+      return JSON.parse(body)?.defaultUserMessage ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  private messageOf(error: any): string | null {
+    return error?.error?.defaultUserMessage ?? error?.message ?? null;
   }
 
   private formatDate(date: Date): string {

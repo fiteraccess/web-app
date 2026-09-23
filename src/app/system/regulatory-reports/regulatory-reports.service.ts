@@ -8,7 +8,7 @@
 
 /** Angular Imports */
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 
 /** rxjs Imports */
 import { Observable } from 'rxjs';
@@ -19,6 +19,7 @@ import {
   NewAccountsRenditionRow,
   PagedReport,
   QuarterlyKycReport,
+  RegulatoryReportKey,
   WeeklyNewAccountsReport
 } from './regulatory-reports.model';
 
@@ -45,11 +46,9 @@ export class RegulatoryReportsService {
    * @returns {Observable<PagedReport<KycMonitoringRow>>} Report A.
    */
   getKycMonitoring(startDate: string, endDate: string, tier?: string): Observable<PagedReport<KycMonitoringRow>> {
-    let params = this.periodParams(startDate, endDate);
-    if (tier) {
-      params = params.set('tier', tier);
-    }
-    return this.http.get<PagedReport<KycMonitoringRow>>(`${RegulatoryReportsService.BASE}/kyc-monitoring`, { params });
+    return this.http.get<PagedReport<KycMonitoringRow>>(`${RegulatoryReportsService.BASE}/kyc-monitoring`, {
+      params: this.periodParams(startDate, endDate, tier)
+    });
   }
 
   /**
@@ -86,10 +85,41 @@ export class RegulatoryReportsService {
     });
   }
 
-  private periodParams(startDate: string, endDate: string): HttpParams {
-    return new HttpParams()
+  /**
+   * Asks Synapse for the filed workbook. The sheet is rendered server-side so the column headers and order
+   * are the ones the service was signed off against, not whatever this client happens to render.
+   *
+   * @param {RegulatoryReportKey} report Which return to export.
+   * @param {string} startDate First day of the reporting period, inclusive.
+   * @param {string} endDate Last day of the reporting period, inclusive.
+   * @param {string} tier Optional KYC tier filter, Report A only.
+   * @returns {Observable<HttpResponse<Blob>>} The full response, so the caller can read Content-Disposition.
+   */
+  exportXlsx(
+    report: RegulatoryReportKey,
+    startDate: string,
+    endDate: string,
+    tier?: string
+  ): Observable<HttpResponse<Blob>> {
+    let params = new HttpParams().set('startDate', startDate).set('endDate', endDate).set('format', 'xlsx');
+    if (tier) {
+      params = params.set('tier', tier);
+    }
+    return this.http.get(`${RegulatoryReportsService.BASE}/${report}`, {
+      params,
+      responseType: 'blob',
+      observe: 'response'
+    });
+  }
+
+  private periodParams(startDate: string, endDate: string, tier?: string): HttpParams {
+    let params = new HttpParams()
       .set('startDate', startDate)
       .set('endDate', endDate)
       .set('limit', RegulatoryReportsService.PAGE_SIZE);
+    if (tier) {
+      params = params.set('tier', tier);
+    }
+    return params;
   }
 }
