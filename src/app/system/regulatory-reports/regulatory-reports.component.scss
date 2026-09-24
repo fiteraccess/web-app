@@ -74,4 +74,12 @@
     white-space: nowrap;
     padding-right: 24px;
   }
+
+  // Addresses are long free text; capped and clipped so they cannot crowd out every other column.
+  // The export is unaffected -- the workbook always carries the full value.
+  .wide-cell {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }

@@ -99,7 +99,8 @@ export class CreateOfficeComponent implements OnInit, AfterViewInit {
         '',
         Validators.required
       ],
-      externalId: ['']
+      externalId: [''],
+      address: ['']
     });
   }
 

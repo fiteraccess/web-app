@@ -65,6 +65,11 @@
             <mat-label>{{ 'labels.inputs.External ID' | translate }}</mat-label>
             <input matInput formControlName="externalId" />
           </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>{{ 'labels.inputs.Office Address' | translate }}</mat-label>
+            <textarea matInput formControlName="address" rows="2" maxlength="500"></textarea>
+          </mat-form-field>
         </div>
       </mat-card-content>
 

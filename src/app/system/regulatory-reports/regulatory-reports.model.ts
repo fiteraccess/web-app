@@ -17,6 +17,8 @@ export type RegulatoryReportKey =
 export interface ReportColumn {
   header: string;
   key: string;
+  /** Free-text address columns are long enough to crowd out every other column, so they are capped on screen. */
+  wide?: boolean;
 }
 
 export interface RegulatoryReportDefinition {
@@ -147,7 +149,7 @@ export const REGULATORY_REPORTS: RegulatoryReportDefinition[] = [
     supportsTierFilter: false,
     columns: [
       { header: 'Account Name', key: 'accountName' },
-      { header: 'Customer Address', key: 'customerAddress' },
+      { header: 'Customer Address', key: 'customerAddress', wide: true },
       { header: 'Customer Account Number', key: 'customerAccountNumber' },
       { header: 'Phone Number', key: 'phoneNumber' },
       { header: 'E_Mail', key: 'eMail' },
@@ -165,7 +167,7 @@ export const REGULATORY_REPORTS: RegulatoryReportDefinition[] = [
     columns: [
       { header: 'S/No', key: 'serialNumber' },
       { header: 'Branch Sort Code', key: 'branchSortCode' },
-      { header: 'Branch Address', key: 'branchAddress' },
+      { header: 'Branch Address', key: 'branchAddress', wide: true },
       { header: 'Name of Account Holder', key: 'nameOfAccountHolder' },
       { header: 'BVN', key: 'bvn' },
       { header: 'Account Number', key: 'accountNumber' },
