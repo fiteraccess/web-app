@@ -49,5 +49,11 @@
         {{ 'labels.inputs.Unassigned' | translate }}
       </div>
     }
+    <hr class="section-divider" />
+
+    <div class="flex-45 mat-body-strong left">{{ 'labels.inputs.Office Address' | translate }}</div>
+    <div class="flex-50 right">
+      {{ officeData.address ? officeData.address : ('labels.inputs.Unassigned' | translate) }}
+    </div>
   </div>
 </div>

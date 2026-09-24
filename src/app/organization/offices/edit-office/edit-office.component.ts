@@ -79,7 +79,8 @@ export class EditOfficeComponent implements OnInit {
         this.officeData.openingDate && new Date(this.officeData.openingDate),
         Validators.required
       ],
-      externalId: [this.officeData.externalId]
+      externalId: [this.officeData.externalId],
+      address: [this.officeData.address]
     });
     if (this.officeData.allowedParents.length) {
       this.officeForm.addControl('parentId', this.formBuilder.control(this.officeData.parentId, Validators.required));
