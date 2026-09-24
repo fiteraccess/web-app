@@ -27,15 +27,20 @@
   mat-form-field {
     flex: 1 1 240px;
     min-width: 240px;
+    // Without a cap, a field that wraps onto a row of its own stretches the full width.
+    max-width: 360px;
+  }
+
+  // Sized for the longest return name, so no report is ever shown truncated.
+  .report-select {
+    flex: 1 1 400px;
+    min-width: min(400px, 100%);
+    max-width: 100%;
   }
 }
 
 .report-error {
   color: var(--mat-sys-error, #b00020);
-  margin: 8px 0 0;
-}
-
-.report-status {
   margin: 8px 0 0;
 }
 

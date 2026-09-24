@@ -22,7 +22,6 @@ export interface ReportColumn {
 export interface RegulatoryReportDefinition {
   key: RegulatoryReportKey;
   name: string;
-  description: string;
   /** Whether the report takes the KYC tier filter (Report A only). */
   supportsTierFilter: boolean;
   /** Mirrors the order Synapse renders into the workbook, so the table and the export read alike. */
@@ -109,7 +108,6 @@ export const REGULATORY_REPORTS: RegulatoryReportDefinition[] = [
   {
     key: 'kyc-monitoring',
     name: 'Three-Tiered KYC Monitoring Returns',
-    description: 'Account-level listing, filterable by KYC tier and date range.',
     supportsTierFilter: true,
     columns: [
       { header: 'S/N', key: 'serialNumber' },
@@ -126,7 +124,6 @@ export const REGULATORY_REPORTS: RegulatoryReportDefinition[] = [
   {
     key: 'kyc-monitoring-quarterly',
     name: 'Quarterly Three-Tiered KYC Monitoring',
-    description: 'Branch-level aggregation of tier counts, migrations and cumulative balances.',
     supportsTierFilter: false,
     columns: [
       { header: 'Branch Name', key: 'branchName' },
@@ -147,7 +144,6 @@ export const REGULATORY_REPORTS: RegulatoryReportDefinition[] = [
   {
     key: 'new-accounts-rendition',
     name: 'Quarterly Rendition of Newly Opened Accounts',
-    description: 'Accounts opened during the quarter, one row per account.',
     supportsTierFilter: false,
     columns: [
       { header: 'Account Name', key: 'accountName' },
@@ -165,7 +161,6 @@ export const REGULATORY_REPORTS: RegulatoryReportDefinition[] = [
   {
     key: 'new-accounts-weekly',
     name: 'Weekly Returns on Newly Opened Bank Accounts',
-    description: 'Accounts opened during the week, with the submission header block.',
     supportsTierFilter: false,
     columns: [
       { header: 'S/No', key: 'serialNumber' },
