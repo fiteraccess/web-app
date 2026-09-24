@@ -3164,7 +3164,7 @@
       "No restriction reasons configured": "No Block Withdrawal reasons are configured. Add them in Manage Codes.",
       "Customer documents hint": "Filed against the customer, not this account — a restriction is backed by identity or address paperwork, which is the same evidence whichever account it concerns. The block and unblock dialogs file these.",
       "No customer documents": "No documents are on file for this customer.",
-      "Regulatory Reports Description": "Generate a CBN regulatory return on screen, then export it to Excel.",
+      "Regulatory Reports": "Regulatory Reports",
       "No Report Rows": "No rows were returned for this period.",
       "Supporting document hint": "An identity document (NIN, national ID, passport, drivers licence) or a utility bill. JPEG, PNG or PDF, up to 5MB.",
       "Restriction order document hint": "The court order, regulator directive or other paperwork behind this restriction. JPEG, PNG or PDF, up to 5MB.",

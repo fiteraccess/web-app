@@ -10,11 +10,10 @@
   <mat-card>
     <mat-card-content>
       <h3 class="report-heading">{{ 'labels.heading.Regulatory Reports' | translate }}</h3>
-      <p class="report-hint">{{ 'labels.text.Regulatory Reports Description' | translate }}</p>
 
       <form [formGroup]="form" (ngSubmit)="generate()">
         <div class="form-grid">
-          <mat-form-field appearance="fill">
+          <mat-form-field appearance="fill" class="report-select">
             <mat-label>{{ 'labels.inputs.Report' | translate }}</mat-label>
             <mat-select formControlName="report" (selectionChange)="onParametersChanged()">
               @for (report of reports; track report.key) {
@@ -66,20 +65,12 @@
           }
         </div>
 
-        @if (selectedReport) {
-          <p class="report-hint">{{ selectedReport.description }}</p>
-        }
-
         @if (generating || exporting) {
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         }
 
         @if (errorMessage) {
           <p class="report-error">{{ errorMessage }}</p>
-        }
-
-        @if (statusMessage) {
-          <p class="report-status">{{ statusMessage }}</p>
         }
 
         <mat-card-actions>

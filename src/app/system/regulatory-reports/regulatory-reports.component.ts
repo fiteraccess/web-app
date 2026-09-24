@@ -82,7 +82,6 @@ export class RegulatoryReportsComponent {
   generating = false;
   exporting = false;
   errorMessage: string | null = null;
-  statusMessage: string | null = null;
 
   /** Null until Generate has run, which is what keeps the table and the Export button hidden. */
   result: RenderedReport | null = null;
@@ -111,7 +110,6 @@ export class RegulatoryReportsComponent {
   /** Drops a rendered return once its parameters change, so Export cannot file a sheet nobody reviewed. */
   onParametersChanged(): void {
     this.result = null;
-    this.statusMessage = null;
   }
 
   generate(): void {
@@ -132,7 +130,6 @@ export class RegulatoryReportsComponent {
 
     this.generating = true;
     this.errorMessage = null;
-    this.statusMessage = null;
     this.result = null;
 
     switch (report.key) {
@@ -172,13 +169,11 @@ export class RegulatoryReportsComponent {
 
     this.exporting = true;
     this.errorMessage = null;
-    this.statusMessage = null;
 
     this.reportsService.exportXlsx(report.key, startDate, endDate, tier).subscribe({
       next: (response) => {
         downloadAttachment(response, `${report.name} ${startDate} to ${endDate}.xlsx`);
         this.exporting = false;
-        this.statusMessage = `Exported ${report.name} for ${startDate} to ${endDate}.`;
       },
       error: (error) => this.failExport(error)
     });
@@ -233,7 +228,6 @@ export class RegulatoryReportsComponent {
       dataSource
     };
     this.generating = false;
-    this.statusMessage = `${this.result.rowCount} row(s) for ${startDate} to ${endDate}.`;
     // The paginator is rendered by this same change-detection pass, so it does not exist until after it.
     setTimeout(() => (dataSource.paginator = this.paginator));
   }
