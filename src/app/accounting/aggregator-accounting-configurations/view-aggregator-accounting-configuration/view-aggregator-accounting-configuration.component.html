@@ -28,6 +28,14 @@
         <div class="flex-50">{{ glAccountLabel(configuration?.commissionIncomeGlAccountId) }}</div>
         <div class="flex-50 header">{{ 'labels.inputs.Convenience Fee Income' | translate }}</div>
         <div class="flex-50">{{ glAccountLabel(configuration?.convenienceFeeIncomeGlAccountId) }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Bills Bridge' | translate }}</div>
+        <div class="flex-50">
+          {{
+            configuration?.billsBridgeGlAccountId
+              ? glAccountLabel(configuration.billsBridgeGlAccountId)
+              : ('labels.text.Not configured' | translate)
+          }}
+        </div>
         <div class="flex-50 header">{{ 'labels.inputs.Active' | translate }}</div>
         <div class="flex-50">
           {{ (configuration?.active ? 'labels.commons.Yes' : 'labels.commons.No') | translate }}

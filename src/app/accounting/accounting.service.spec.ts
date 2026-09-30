@@ -28,6 +28,8 @@ const COMPOSITE_CONFIGURATION: NipSwitchConfiguration = {
     switchFeeGlAccountId: 102,
     commissionIncomeGlAccountId: 103,
     switchReceivableGlAccountId: null,
+    inflowBridgeGlAccountId: null,
+    outflowBridgeGlAccountId: null,
     active: true
   },
   transferConfiguration: {
@@ -43,6 +45,7 @@ const COMPOSITE_REPLACEMENT: NipSwitchConfigurationReplacement = {
   switchPayableGlAccountId: 101,
   switchFeeGlAccountId: 102,
   commissionIncomeGlAccountId: 103,
+  outflowBridgeGlAccountId: null,
   active: true,
   switchFeeAllocations: [
     { currencyCode: 'NGN', switchFee: 5 },

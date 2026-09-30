@@ -35,6 +35,8 @@ const INCONSISTENT_CONFIGURATION: NipSwitchConfiguration = {
     switchFeeGlAccountId: 102,
     commissionIncomeGlAccountId: 103,
     switchReceivableGlAccountId: null,
+    inflowBridgeGlAccountId: null,
+    outflowBridgeGlAccountId: null,
     active: true
   },
   transferConfiguration: {
@@ -65,6 +67,7 @@ const FAILED_COORDINATION_ERROR: NipSwitchConfigurationStructuredError = {
 const INBOUND_REPLACEMENT: NipSwitchConfigurationReplacement = {
   direction: 'INBOUND',
   switchReceivableGlAccountId: 201,
+  inflowBridgeGlAccountId: null,
   active: true,
   switchFeeAllocations: []
 };

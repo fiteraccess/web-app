@@ -39,6 +39,8 @@ export interface NipSwitchAccountingOutboundActual extends NipSwitchAccountingCo
   switchFeeGlAccountId: number;
   commissionIncomeGlAccountId: number;
   switchReceivableGlAccountId: null;
+  inflowBridgeGlAccountId: null;
+  outflowBridgeGlAccountId: number | null;
 }
 
 export interface NipSwitchAccountingInboundActual extends NipSwitchAccountingConfiguredBase {
@@ -47,6 +49,8 @@ export interface NipSwitchAccountingInboundActual extends NipSwitchAccountingCon
   switchFeeGlAccountId: null;
   commissionIncomeGlAccountId: null;
   switchReceivableGlAccountId: number;
+  inflowBridgeGlAccountId: number | null;
+  outflowBridgeGlAccountId: null;
 }
 
 export interface NipSwitchAccountingBothActual extends NipSwitchAccountingConfiguredBase {
@@ -55,6 +59,8 @@ export interface NipSwitchAccountingBothActual extends NipSwitchAccountingConfig
   switchFeeGlAccountId: number;
   commissionIncomeGlAccountId: number;
   switchReceivableGlAccountId: number;
+  inflowBridgeGlAccountId: number | null;
+  outflowBridgeGlAccountId: number | null;
 }
 
 export type NipSwitchAccountingConfigured =
@@ -178,12 +184,14 @@ export interface NipSwitchOutboundReplacement extends NipSwitchReplacementBase {
   switchPayableGlAccountId: number;
   switchFeeGlAccountId: number;
   commissionIncomeGlAccountId: number;
+  outflowBridgeGlAccountId: number | null;
   switchFeeAllocations: NipSwitchFeeAllocations;
 }
 
 export interface NipSwitchInboundReplacement extends NipSwitchReplacementBase {
   direction: 'INBOUND';
   switchReceivableGlAccountId: number;
+  inflowBridgeGlAccountId: number | null;
   switchFeeAllocations: [];
 }
 
@@ -193,6 +201,8 @@ export interface NipSwitchBothReplacement extends NipSwitchReplacementBase {
   switchFeeGlAccountId: number;
   commissionIncomeGlAccountId: number;
   switchReceivableGlAccountId: number;
+  inflowBridgeGlAccountId: number | null;
+  outflowBridgeGlAccountId: number | null;
   switchFeeAllocations: NipSwitchFeeAllocations;
 }
 

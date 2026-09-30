@@ -89,6 +89,18 @@
               <div class="value">{{ glAccountLabel(configuration.accounting.switchReceivableGlAccountId) }}</div>
             </div>
           }
+          @if (configuration.accounting.inflowBridgeGlAccountId !== null) {
+            <div class="content-row">
+              <div class="label">Inflow bridge</div>
+              <div class="value">{{ glAccountLabel(configuration.accounting.inflowBridgeGlAccountId) }}</div>
+            </div>
+          }
+          @if (configuration.accounting.outflowBridgeGlAccountId !== null) {
+            <div class="content-row">
+              <div class="label">Outflow bridge</div>
+              <div class="value">{{ glAccountLabel(configuration.accounting.outflowBridgeGlAccountId) }}</div>
+            </div>
+          }
         } @else {
           <p>Accounting configuration is missing.</p>
         }

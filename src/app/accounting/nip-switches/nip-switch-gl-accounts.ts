@@ -14,7 +14,9 @@ export type NipSwitchGlAccountField =
   | 'switchPayableGlAccountId'
   | 'switchFeeGlAccountId'
   | 'commissionIncomeGlAccountId'
-  | 'switchReceivableGlAccountId';
+  | 'switchReceivableGlAccountId'
+  | 'inflowBridgeGlAccountId'
+  | 'outflowBridgeGlAccountId';
 
 export function nipSwitchGlAccountOptions(accounts: readonly GLAccount[], field: NipSwitchGlAccountField): GLAccount[] {
   return accounts.filter(

@@ -33,6 +33,19 @@
             [required]="true"
             [inputLabel]="'labels.inputs.Convenience Fee Income' | translate"
           ></mifosx-gl-account-selector>
+          <div class="layout-row align-start">
+            <mifosx-gl-account-selector
+              class="flex-fill"
+              [inputFormControl]="form.controls.billsBridgeGlAccountId"
+              [glAccountList]="accountOptions"
+              inputLabel="Bills Bridge"
+            ></mifosx-gl-account-selector>
+            @if (form.controls.billsBridgeGlAccountId.value !== null) {
+              <button type="button" mat-button (click)="form.controls.billsBridgeGlAccountId.setValue(null)">
+                {{ 'labels.buttons.Clear' | translate }}
+              </button>
+            }
+          </div>
           <mat-checkbox formControlName="active">{{ 'labels.inputs.Active' | translate }}</mat-checkbox>
         </div></mat-card-content
       ><mat-card-actions

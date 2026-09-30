@@ -24,6 +24,8 @@ const COMPLETE: NipSwitchConfiguration = {
     switchFeeGlAccountId: 102,
     commissionIncomeGlAccountId: 103,
     switchReceivableGlAccountId: null,
+    inflowBridgeGlAccountId: null,
+    outflowBridgeGlAccountId: null,
     active: true
   },
   transferConfiguration: {

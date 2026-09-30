@@ -21,6 +21,7 @@ type AggregatorAccountingFormValue = {
   aggregatorPayableGlAccountId?: number | null;
   commissionIncomeGlAccountId?: number | null;
   convenienceFeeIncomeGlAccountId?: number | null;
+  billsBridgeGlAccountId?: number | null;
   active?: boolean;
 };
 
@@ -29,6 +30,7 @@ export type AggregatorAccountingFormControls = {
   aggregatorPayableGlAccountId: FormControl<number | null>;
   commissionIncomeGlAccountId: FormControl<number | null>;
   convenienceFeeIncomeGlAccountId: FormControl<number | null>;
+  billsBridgeGlAccountId: FormControl<number | null>;
   active: FormControl<boolean>;
 };
 
@@ -52,6 +54,7 @@ export function createAggregatorAccountingForm(
     convenienceFeeIncomeGlAccountId: new FormControl(configuration.convenienceFeeIncomeGlAccountId ?? null, {
       validators: [Validators.required]
     }),
+    billsBridgeGlAccountId: new FormControl(configuration.billsBridgeGlAccountId ?? null),
     active: new FormControl(configuration.active ?? true, { nonNullable: true })
   });
 }
@@ -97,6 +100,7 @@ export function buildAggregatorAccountingReplacement(
     aggregatorPayableGlAccountId: requiredGlAccountId(value.aggregatorPayableGlAccountId),
     commissionIncomeGlAccountId: requiredGlAccountId(value.commissionIncomeGlAccountId),
     convenienceFeeIncomeGlAccountId: requiredGlAccountId(value.convenienceFeeIncomeGlAccountId),
+    billsBridgeGlAccountId: value.billsBridgeGlAccountId ?? null,
     active: value.active
   };
 }
