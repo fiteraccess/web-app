@@ -25,3 +25,11 @@ mat-divider {
 .margin-t {
   margin-top: 1em;
 }
+
+.radio-group-spacing {
+  margin: 0.5em 0 1em;
+
+  mat-radio-button {
+    margin-right: 1.5em;
+  }
+}

@@ -190,6 +190,18 @@
       </div>
     }
 
+    <!-- AB-401: product category; Synapse finds the Goal and AutoSave products by it. -->
+    <h3 class="mat-h3 flex-fill">{{ 'labels.heading.Product Category' | translate }}</h3>
+
+    <mat-divider [inset]="true"></mat-divider>
+
+    <div class="flex-fill layout-row">
+      <span class="flex-40">{{ 'labels.heading.Product Category' | translate }}:</span>
+      <span class="flex-60">{{
+        'labels.inputs.productCategory.' + (savingProduct.productCategory ?? 'NONE') | translate
+      }}</span>
+    </div>
+
     <!-- AB-265: EMT Levy summary. Values come from savingProduct.additionalAttributes populated by Synapse's
          SavingsProductProxyHandler on GET /savingsproducts/{id}. Falls back to top-level fields so a
          Fineract-direct client (bypassing Synapse) still renders sensibly. -->
