@@ -17,6 +17,7 @@ import {
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatDivider } from '@angular/material/divider';
+import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { MatStepperPrevious, MatStepperNext } from '@angular/material/stepper';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
@@ -30,6 +31,8 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
     MatTooltip,
     MatCheckbox,
     MatDivider,
+    MatRadioGroup,
+    MatRadioButton,
     MatStepperPrevious,
     FaIconComponent,
     MatStepperNext
@@ -44,6 +47,12 @@ export class SavingProductSettingsStepComponent implements OnInit {
 
   lockinPeriodFrequencyTypeData: any;
   taxGroupData: any;
+  /** AB-401: what the product is used for; Synapse finds the Goal and AutoSave products by it. */
+  productCategoryOptions = [
+    'GOAL',
+    'AUTOSAVE',
+    'DIGITAL'
+  ];
 
   constructor() {
     this.createSavingProductSettingsForm();
@@ -73,8 +82,13 @@ export class SavingProductSettingsStepComponent implements OnInit {
       isDormancyTrackingActive: this.savingProductsTemplate.isDormancyTrackingActive,
       daysToInactive: this.savingProductsTemplate.daysToInactive,
       daysToDormancy: this.savingProductsTemplate.daysToDormancy,
-      daysToEscheat: this.savingProductsTemplate.daysToEscheat
+      daysToEscheat: this.savingProductsTemplate.daysToEscheat,
+      productCategory: this.savingProductsTemplate.productCategory ?? null
     });
+    const categoryOptions = this.savingProductsTemplate.productCategoryOptions;
+    if (categoryOptions?.length) {
+      this.productCategoryOptions = categoryOptions.map((option: any) => option.id);
+    }
 
     // AB-265: hydrate EMT Levy attributes from the Synapse-merged response. Prefer `additionalAttributes`
     // (added by SavingsProductProxyHandler.enrichSingle on GET /savingsproducts/{id}), but fall back to
@@ -126,7 +140,8 @@ export class SavingProductSettingsStepComponent implements OnInit {
       isEmtLevyApplicableForWithdraw: [false],
       overrideGlobalEmtLevySetting: [false],
       emtLevyAmount: [''],
-      emtLevyThreshold: ['']
+      emtLevyThreshold: [''],
+      productCategory: [null]
     });
   }
 

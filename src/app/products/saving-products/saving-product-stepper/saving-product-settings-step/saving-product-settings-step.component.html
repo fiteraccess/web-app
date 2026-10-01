@@ -325,6 +325,25 @@
     }
   }
 
+  <!-- AB-401: optional product category. Synapse finds the Goal and AutoSave products by it. -->
+  <mat-divider [inset]="true"></mat-divider>
+
+  <h3 class="mat-h3 flex-23">{{ 'labels.heading.Product Category' | translate }}</h3>
+
+  <div class="layout-row-wrap align-start-center gap-2percent responsive-column">
+    <mat-radio-group
+      class="layout-row gap-5percent radio-group-spacing"
+      formControlName="productCategory"
+      [attr.aria-label]="'labels.heading.Product Category' | translate"
+    >
+      @for (category of productCategoryOptions; track category) {
+        <mat-radio-button [value]="category">
+          {{ 'labels.inputs.productCategory.' + category | translate }}
+        </mat-radio-button>
+      }
+    </mat-radio-group>
+  </div>
+
   <div class="layout-row align-center gap-2percent margin-t responsive-column">
     <button mat-raised-button matStepperPrevious>
       <fa-icon icon="arrow-left" class="m-r-10"></fa-icon>
