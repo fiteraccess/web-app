@@ -195,6 +195,13 @@
     </div>
   }
 
+  <div class="flex-100 layout-row">
+    <span class="flex-40">{{ 'labels.heading.Product Category' | translate }}:</span>
+    <span class="flex-60">{{
+      'labels.inputs.productCategory.' + (savingProduct.productCategory ?? 'NONE') | translate
+    }}</span>
+  </div>
+
   @if (savingProduct.charges.length) {
     <div class="layout-row-wrap responsive-column flex-100">
       <h3 class="mat-h3 flex-100">{{ 'labels.inputs.Charges' | translate }}</h3>
