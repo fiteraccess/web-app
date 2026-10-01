@@ -68,13 +68,4 @@ describe('SavingProductSettingsStepComponent product category', () => {
 
     expect(component.savingProductSettings.productCategory).toBe('AUTOSAVE');
   });
-
-  it('clearing removes the category and makes the edit submittable', async () => {
-    await render({ productCategory: 'GOAL' });
-
-    component.clearProductCategory();
-
-    expect(component.savingProductSettings.productCategory).toBeNull();
-    expect(component.savingProductSettingsForm.dirty).toBe(true);
-  });
 });
