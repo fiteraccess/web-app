@@ -11,6 +11,8 @@ export interface AggregatorAccountingConfigurationRequest {
   aggregatorPayableGlAccountId: number;
   commissionIncomeGlAccountId: number;
   convenienceFeeIncomeGlAccountId: number;
+  /** Optional; omitting it clears the bridge, so edits must send the current value back. */
+  billsBridgeGlAccountId: number | null;
   active: boolean;
 }
 
@@ -20,6 +22,7 @@ export interface AggregatorAccountingConfiguration {
   aggregatorPayableGlAccountId: number;
   commissionIncomeGlAccountId: number;
   convenienceFeeIncomeGlAccountId: number;
+  billsBridgeGlAccountId: number | null;
   active: boolean;
 }
 

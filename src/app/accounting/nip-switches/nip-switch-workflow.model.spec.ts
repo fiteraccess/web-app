@@ -35,6 +35,8 @@ const COMPLETE: NipSwitchConfiguration = {
     switchFeeGlAccountId: 102,
     commissionIncomeGlAccountId: 103,
     switchReceivableGlAccountId: 104,
+    inflowBridgeGlAccountId: 105,
+    outflowBridgeGlAccountId: 106,
     active: true
   },
   transferConfiguration: {
@@ -91,6 +93,7 @@ const REPLACEMENT: NipSwitchOutboundReplacement = {
   switchPayableGlAccountId: 101,
   switchFeeGlAccountId: 102,
   commissionIncomeGlAccountId: 103,
+  outflowBridgeGlAccountId: null,
   active: true,
   switchFeeAllocations: [{ currencyCode: 'NGN', switchFee: 5 }]
 };
@@ -151,9 +154,21 @@ describe('NIP switch workflow form initialization', () => {
       switchFeeGlAccountId: 102,
       commissionIncomeGlAccountId: 103,
       switchReceivableGlAccountId: 104,
+      inflowBridgeGlAccountId: 105,
+      outflowBridgeGlAccountId: 106,
       active: true,
       switchFeeAllocations: [{ currencyCode: 'NGN', switchFee: 5 }]
     });
+  });
+
+  it('resubmits the saved bridge GLs from an unchanged Edit so the full replacement does not clear them', () => {
+    const form = createNipSwitchForm(nipSwitchWorkflowFormValue('edit', COMPLETE), 'edit');
+
+    const { replacement } = buildNipSwitchConfigurationSubmission(form);
+
+    expect(replacement).toEqual(
+      expect.objectContaining({ inflowBridgeGlAccountId: 105, outflowBridgeGlAccountId: 106 })
+    );
   });
 
   it('preserves transfer-owned values when accounting is missing', () => {

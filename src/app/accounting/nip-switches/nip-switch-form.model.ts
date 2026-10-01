@@ -32,6 +32,8 @@ export interface NipSwitchFormValue {
   switchFeeGlAccountId?: number | null;
   commissionIncomeGlAccountId?: number | null;
   switchReceivableGlAccountId?: number | null;
+  inflowBridgeGlAccountId?: number | null;
+  outflowBridgeGlAccountId?: number | null;
   active?: boolean | null;
   switchFeeAllocations?: NipSwitchFeeAllocation[];
 }
@@ -50,6 +52,8 @@ export type NipSwitchFormControls = {
   switchFeeGlAccountId: FormControl<number | null>;
   commissionIncomeGlAccountId: FormControl<number | null>;
   switchReceivableGlAccountId: FormControl<number | null>;
+  inflowBridgeGlAccountId: FormControl<number | null>;
+  outflowBridgeGlAccountId: FormControl<number | null>;
   active: FormControl<boolean | null>;
   switchFeeAllocations: FormArray<NipSwitchFeeAllocationForm>;
 };
@@ -85,6 +89,8 @@ export function createNipSwitchForm(
     switchFeeGlAccountId: new FormControl(configuration.switchFeeGlAccountId ?? null),
     commissionIncomeGlAccountId: new FormControl(configuration.commissionIncomeGlAccountId ?? null),
     switchReceivableGlAccountId: new FormControl(configuration.switchReceivableGlAccountId ?? null),
+    inflowBridgeGlAccountId: new FormControl(configuration.inflowBridgeGlAccountId ?? null),
+    outflowBridgeGlAccountId: new FormControl(configuration.outflowBridgeGlAccountId ?? null),
     active: new FormControl(configuration.active === undefined ? true : configuration.active, {
       validators: [Validators.required]
     }),
@@ -140,6 +146,8 @@ export function applyNipSwitchDirection(form: NipSwitchForm, direction: NipSwitc
   setMappingControl(form.controls.switchFeeGlAccountId, hasOutbound);
   setMappingControl(form.controls.commissionIncomeGlAccountId, hasOutbound);
   setMappingControl(form.controls.switchReceivableGlAccountId, hasInbound);
+  setOptionalMappingControl(form.controls.inflowBridgeGlAccountId, hasInbound);
+  setOptionalMappingControl(form.controls.outflowBridgeGlAccountId, hasOutbound);
 
   const allocations = form.controls.switchFeeAllocations;
   if (hasOutbound) {
@@ -173,6 +181,7 @@ export function buildNipSwitchConfigurationSubmission(form: NipSwitchForm): NipS
       replacement: {
         direction: value.direction,
         switchReceivableGlAccountId: requiredGlAccountId(value.switchReceivableGlAccountId),
+        inflowBridgeGlAccountId: value.inflowBridgeGlAccountId,
         ...common,
         switchFeeAllocations: []
       }
@@ -188,6 +197,7 @@ export function buildNipSwitchConfigurationSubmission(form: NipSwitchForm): NipS
         switchPayableGlAccountId: requiredGlAccountId(value.switchPayableGlAccountId),
         switchFeeGlAccountId: requiredGlAccountId(value.switchFeeGlAccountId),
         commissionIncomeGlAccountId: requiredGlAccountId(value.commissionIncomeGlAccountId),
+        outflowBridgeGlAccountId: value.outflowBridgeGlAccountId,
         ...common,
         switchFeeAllocations
       }
@@ -202,6 +212,8 @@ export function buildNipSwitchConfigurationSubmission(form: NipSwitchForm): NipS
         switchFeeGlAccountId: requiredGlAccountId(value.switchFeeGlAccountId),
         commissionIncomeGlAccountId: requiredGlAccountId(value.commissionIncomeGlAccountId),
         switchReceivableGlAccountId: requiredGlAccountId(value.switchReceivableGlAccountId),
+        inflowBridgeGlAccountId: value.inflowBridgeGlAccountId,
+        outflowBridgeGlAccountId: value.outflowBridgeGlAccountId,
         ...common,
         switchFeeAllocations
       }
@@ -213,6 +225,17 @@ export function buildNipSwitchConfigurationSubmission(form: NipSwitchForm): NipS
 
 export function normalizeNipSwitchId(switchId: string): string {
   return switchId.trim().toUpperCase();
+}
+
+/** Enables an optional GL for directions that allow it; otherwise clears and disables it like a required one. */
+function setOptionalMappingControl(control: FormControl<number | null>, allowed: boolean): void {
+  if (allowed) {
+    control.enable({ emitEvent: false });
+    control.clearValidators();
+    control.updateValueAndValidity({ emitEvent: false });
+  } else {
+    setMappingControl(control, false);
+  }
 }
 
 function setMappingControl(control: FormControl<number | null>, required: boolean): void {

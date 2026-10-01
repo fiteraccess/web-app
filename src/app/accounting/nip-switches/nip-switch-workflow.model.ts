@@ -56,6 +56,8 @@ export function nipSwitchWorkflowFormValue(
     switchFeeGlAccountId: accounting.configured ? accounting.switchFeeGlAccountId : null,
     commissionIncomeGlAccountId: accounting.configured ? accounting.commissionIncomeGlAccountId : null,
     switchReceivableGlAccountId: accounting.configured ? accounting.switchReceivableGlAccountId : null,
+    inflowBridgeGlAccountId: accounting.configured ? accounting.inflowBridgeGlAccountId : null,
+    outflowBridgeGlAccountId: accounting.configured ? accounting.outflowBridgeGlAccountId : null,
     active: inconsistent
       ? null
       : accounting.configured

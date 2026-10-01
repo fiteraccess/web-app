@@ -38,6 +38,7 @@ describe('NIP switch desired-state form', () => {
         switchPayableGlAccountId: 101,
         switchFeeGlAccountId: 102,
         commissionIncomeGlAccountId: 103,
+        outflowBridgeGlAccountId: 106,
         active: false,
         switchFeeAllocations: [{ currencyCode: 'NGN', switchFee: 0 }]
       }
@@ -47,6 +48,7 @@ describe('NIP switch desired-state form', () => {
       {
         direction: 'INBOUND',
         switchReceivableGlAccountId: 104,
+        inflowBridgeGlAccountId: 105,
         active: false,
         switchFeeAllocations: []
       }
@@ -59,6 +61,8 @@ describe('NIP switch desired-state form', () => {
         switchFeeGlAccountId: 102,
         commissionIncomeGlAccountId: 103,
         switchReceivableGlAccountId: 104,
+        inflowBridgeGlAccountId: 105,
+        outflowBridgeGlAccountId: 106,
         active: false,
         switchFeeAllocations: [{ currencyCode: 'NGN', switchFee: 0 }]
       }
@@ -71,6 +75,8 @@ describe('NIP switch desired-state form', () => {
       switchFeeGlAccountId: 102,
       commissionIncomeGlAccountId: 103,
       switchReceivableGlAccountId: 104,
+      inflowBridgeGlAccountId: 105,
+      outflowBridgeGlAccountId: 106,
       active: false,
       switchFeeAllocations: [{ currencyCode: ' ngn ', switchFee: 0 }]
     });
@@ -140,6 +146,7 @@ describe('NIP switch desired-state form', () => {
       switchPayableGlAccountId: 101,
       switchFeeGlAccountId: 102,
       commissionIncomeGlAccountId: 103,
+      outflowBridgeGlAccountId: null,
       active: true,
       switchFeeAllocations: [{ currencyCode: 'USD', switchFee: 0.25 }]
     });

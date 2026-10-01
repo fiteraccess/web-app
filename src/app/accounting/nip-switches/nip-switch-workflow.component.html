@@ -199,6 +199,32 @@
               </mat-form-field>
             }
 
+            @if (form.controls.inflowBridgeGlAccountId.enabled) {
+              <mat-form-field class="flex-48">
+                <mat-label>{{ 'labels.inputs.Inflow Bridge' | translate }}</mat-label>
+                <mat-select formControlName="inflowBridgeGlAccountId">
+                  <mat-option [value]="null">{{ 'labels.text.None' | translate }}</mat-option>
+                  @for (account of accountOptions('inflowBridgeGlAccountId'); track account.id) {
+                    <mat-option [value]="account.id">{{ account.glCode }} - {{ account.name }}</mat-option>
+                  }
+                </mat-select>
+                <mat-hint>Optional. Debited by the inbound end-of-cycle settlement.</mat-hint>
+              </mat-form-field>
+            }
+
+            @if (form.controls.outflowBridgeGlAccountId.enabled) {
+              <mat-form-field class="flex-48">
+                <mat-label>{{ 'labels.inputs.Outflow Bridge' | translate }}</mat-label>
+                <mat-select formControlName="outflowBridgeGlAccountId">
+                  <mat-option [value]="null">{{ 'labels.text.None' | translate }}</mat-option>
+                  @for (account of accountOptions('outflowBridgeGlAccountId'); track account.id) {
+                    <mat-option [value]="account.id">{{ account.glCode }} - {{ account.name }}</mat-option>
+                  }
+                </mat-select>
+                <mat-hint>Optional. Credited by the outbound end-of-cycle settlement.</mat-hint>
+              </mat-form-field>
+            }
+
             @if (
               !form.controls.switchPayableGlAccountId.enabled && !form.controls.switchReceivableGlAccountId.enabled
             ) {
