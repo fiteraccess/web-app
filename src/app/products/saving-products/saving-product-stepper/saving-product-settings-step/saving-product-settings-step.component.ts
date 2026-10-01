@@ -145,13 +145,6 @@ export class SavingProductSettingsStepComponent implements OnInit {
     });
   }
 
-  /** A radio group cannot be unselected by clicking; null tells Fineract to remove the category. */
-  clearProductCategory() {
-    const control = this.savingProductSettingsForm.get('productCategory');
-    control.setValue(null);
-    control.markAsDirty();
-  }
-
   setConditionalControls() {
     this.savingProductSettingsForm.get('enableLockinPeriod').valueChanges.subscribe((enableLockinPeriod: any) => {
       if (enableLockinPeriod) {
