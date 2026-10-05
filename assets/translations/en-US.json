@@ -1119,6 +1119,7 @@
       "Edit Note": "Edit Note",
       "Email External Service": "Email External Service",
       "EMT Levy": "EMT Levy",
+      "Product Category": "Product Category",
       "Employees": "Employees",
       "Enable": "Enable",
       "Enable Withhold Tax": "Enable Withhold Tax",
@@ -1927,6 +1928,12 @@
       "Enable Dormancy Tracking": "Enable Dormancy Tracking",
       "Enable Down Payment": "Enable Down Payment",
       "Enable EMT Levy for Deposit": "Enable EMT Levy for Deposit",
+      "productCategory": {
+        "GOAL": "Goal",
+        "AUTOSAVE": "AutoSave",
+        "DIGITAL": "Digital",
+        "NONE": "None"
+      },
       "Enable EMT Levy for Withdraw": "Enable EMT Levy for Withdraw",
       "Enable Lock-in Period": "Enable Lock-in Period",
       "Enable Multiple Disbursals": "Enable Multiple Disbursals",
