@@ -75,6 +75,7 @@ export class UnblockSavingsAccountDialogComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     this.file = input.files?.length ? input.files[0] : null;
     this.errorMessage = '';
+    this.unblockForm.controls['documentType'].markAsTouched();
   }
 
   /** A chosen file cannot be filed without saying what it is. */

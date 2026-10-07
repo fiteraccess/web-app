@@ -31,10 +31,10 @@
         }
       </mat-select>
       @if (documentTypeMissing) {
-        <mat-hint class="document-type-missing">
+        <mat-error>
           {{ 'labels.inputs.Supporting Document Type' | translate }} {{ 'labels.commons.is' | translate }}
           <strong>{{ 'labels.commons.required' | translate }}</strong>
-        </mat-hint>
+        </mat-error>
       }
     </mat-form-field>
     <div class="document-file">
