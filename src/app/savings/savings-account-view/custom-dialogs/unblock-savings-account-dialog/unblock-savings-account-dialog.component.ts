@@ -23,11 +23,11 @@ import { RestrictionsService } from 'app/savings/restrictions/restrictions.servi
 import { LiftReason, LIFT_DOCUMENT_TYPES } from 'app/savings/restrictions/restriction-reason.model';
 
 /**
- * Lifting a restriction — Unblock, Unblock Deposit or Unblock Withdrawal — is documented with a reason chosen
+ * Lifting a restriction — Unblock, Unblock Deposit or Unblock Withdrawal — may be documented with a reason chosen
  * from Fineract's unblock-reasons list, a free-text narration, and a supporting document that establishes who
- * the customer is or where they live. The proxy refuses a lift without all three.
+ * the customer is or where they live. All three are optional; only what the operator supplies is sent.
  *
- * <p>The document is filed against the account before the lift is requested, and the lift quotes the id that
+ * <p>A chosen document is filed against the account before the lift is requested, and the lift quotes the id that
  * upload returns. The two are deliberately separate calls — the file lives in the core, the restriction does
  * not — so this dialog uploads first and only then closes with a result.
  */
@@ -59,21 +59,12 @@ export class UnblockSavingsAccountDialogComponent implements OnInit {
   errorMessage = '';
 
   unblockForm: UntypedFormGroup = this.formBuilder.group({
-    reasonCode: [
-      '',
-      Validators.required
-    ],
+    reasonCode: [''],
     narration: [
       '',
-      [
-        Validators.required,
-        Validators.maxLength(UnblockSavingsAccountDialogComponent.NARRATION_MAX_LENGTH)
-      ]
+      Validators.maxLength(UnblockSavingsAccountDialogComponent.NARRATION_MAX_LENGTH)
     ],
-    documentType: [
-      '',
-      Validators.required
-    ]
+    documentType: ['']
   });
 
   ngOnInit() {
@@ -84,10 +75,16 @@ export class UnblockSavingsAccountDialogComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     this.file = input.files?.length ? input.files[0] : null;
     this.errorMessage = '';
+    this.unblockForm.controls['documentType'].markAsTouched();
+  }
+
+  /** A chosen file cannot be filed without saying what it is. */
+  get documentTypeMissing(): boolean {
+    return !!this.file && !this.unblockForm.value.documentType;
   }
 
   get canConfirm(): boolean {
-    return this.unblockForm.valid && !!this.file && !this.uploading;
+    return this.unblockForm.valid && !this.documentTypeMissing && !this.uploading;
   }
 
   confirm() {
@@ -95,18 +92,23 @@ export class UnblockSavingsAccountDialogComponent implements OnInit {
       return;
     }
     const { reasonCode, narration, documentType } = this.unblockForm.value;
+    // String(null) would send the text "null", which the proxy rejects as an unknown reason code.
+    const supplied = {
+      confirm: true,
+      reasonCode: reasonCode ? String(reasonCode) : undefined,
+      narration: narration?.trim() || undefined
+    };
+    if (!this.file) {
+      this.dialogRef.close(supplied);
+      return;
+    }
     this.uploading = true;
     this.errorMessage = '';
 
-    this.restrictionsService.uploadDocument(this.data.accountNumber, this.file as File, documentType).subscribe({
+    this.restrictionsService.uploadDocument(this.data.accountNumber, this.file, documentType).subscribe({
       next: (uploaded) => {
         this.uploading = false;
-        this.dialogRef.close({
-          confirm: true,
-          reasonCode: String(reasonCode),
-          narration: narration.trim(),
-          documentId: uploaded.resourceId
-        });
+        this.dialogRef.close({ ...supplied, documentId: uploaded.resourceId });
       },
       error: (error: HttpErrorResponse) => {
         // The lift is not attempted: nothing has changed on the account, so the operator can simply retry.

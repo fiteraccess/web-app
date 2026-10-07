@@ -363,7 +363,7 @@ export class SavingsAccountViewComponent implements OnInit {
    * Unblock Savings Account.
    */
   private unblockSavingsAccount(action: string) {
-    // Every lift carries its reason and narration — the proxy records them and refuses a lift without them.
+    // A lift's reason, narration and document are optional; undefined fields drop out of the JSON body.
     let command = 'unblock';
     let heading = 'labels.heading.Unblock Savings Account';
     if (action === 'Unblock Deposit') {
