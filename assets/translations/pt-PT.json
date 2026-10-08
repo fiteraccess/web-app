@@ -681,6 +681,8 @@
       "GROUP": "GRUPO",
       "LOAN": "EMPRÉSTIMO",
       "LOAN_CLOSE_OF_BUSINESS": "LOAN_CLOSE_OF_BUSINESS",
+      "EOD_CLOSE_OF_BUSINESS": "EOD Close Of Business",
+      "eod": "EOD",
       "SAVINGS": "POUPANÇA",
       "SHARES": "AÇÕES",
       "% Amount": "Quantia",
