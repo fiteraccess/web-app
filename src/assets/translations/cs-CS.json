@@ -681,6 +681,8 @@
       "GROUP": "SKUPINA",
       "LOAN": "PŮJČKA",
       "LOAN_CLOSE_OF_BUSINESS": "LOAN_CLOSE_OF_BUSINESS",
+      "EOD_CLOSE_OF_BUSINESS": "EOD Close Of Business",
+      "eod": "EOD",
       "SAVINGS": "ÚSPORY",
       "SHARES": "PODÍLE",
       "% Amount": "% Amount",

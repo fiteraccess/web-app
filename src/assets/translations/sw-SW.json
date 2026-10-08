@@ -681,6 +681,8 @@
       "GROUP": "KIKUNDI",
       "LOAN": "MKOPO",
       "LOAN_CLOSE_OF_BUSINESS": "LOAN_CLOSE_OF_BIASHARA",
+      "EOD_CLOSE_OF_BUSINESS": "EOD Close Of Business",
+      "eod": "EOD",
       "SAVINGS": "AKIBA",
       "SHARES": "HISA",
       "% Amount": "Kiasi",

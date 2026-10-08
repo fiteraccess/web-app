@@ -28,6 +28,7 @@ import { FormDialogComponent } from 'app/shared/form-dialog/form-dialog.componen
 import { FormfieldBase } from 'app/shared/form-dialog/formfield/model/formfield-base';
 import { SelectBase } from 'app/shared/form-dialog/formfield/model/select-base';
 import { SystemService } from 'app/system/system.service';
+import { AlertService } from 'app/core/alert/alert.service';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -68,6 +69,7 @@ export class WorkflowJobsComponent implements OnInit {
   private systemService = inject(SystemService);
   dialog = inject(MatDialog);
   private translateService = inject(TranslateService);
+  private alertService = inject(AlertService);
 
   stepOrderHasChanged = false;
 
@@ -196,21 +198,24 @@ export class WorkflowJobsComponent implements OnInit {
   }
 
   saveChanges() {
-    // Set the new Order
-    let stepOrder = 1;
-    this.jobStepsData.forEach((jobStep: JobStep) => {
-      jobStep.order = stepOrder++;
-    });
-
     const payload = {
-      businessSteps: this.jobStepsData
+      businessSteps: this.jobStepsData.map((jobStep: JobStep, index: number) => ({
+        stepName: jobStep.stepName,
+        order: index + 1
+      }))
     };
 
-    this.systemService
-      .putWorkflowJobSteps(this.jobStepName, payload)
-      .toPromise()
-      .then((data) => {
+    // A refused order (e.g. the EOD plan's checks) is shown by the error interceptor; the edits stay for correction.
+    this.systemService.putWorkflowJobSteps(this.jobStepName, payload).subscribe({
+      next: () => {
         this.stepOrderHasChanged = false;
-      });
+        this.alertService.alert({
+          type: 'Workflow Job',
+          message: this.translateService.instant('labels.heading.Saved Successfully')
+        });
+        this.getWorkflowJobSteps(this.jobStepName.toString());
+      },
+      error: () => {}
+    });
   }
 }
