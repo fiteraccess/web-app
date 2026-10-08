@@ -717,6 +717,8 @@
       "GROUP": "GROUP",
       "LOAN": "LOAN",
       "LOAN_CLOSE_OF_BUSINESS": "LOAN_CLOSE_OF_BUSINESS",
+      "EOD_CLOSE_OF_BUSINESS": "EOD Close Of Business",
+      "eod": "EOD",
       "SAVINGS": "SAVINGS",
       "SHARES": "SHARES",
       "% Amount": "% Amount",

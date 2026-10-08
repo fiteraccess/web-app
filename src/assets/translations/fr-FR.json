@@ -681,6 +681,8 @@
       "GROUP": "GROUPE",
       "LOAN": "PRÊT",
       "LOAN_CLOSE_OF_BUSINESS": "LOAN_CLOSE_OF_BUSINESS",
+      "EOD_CLOSE_OF_BUSINESS": "EOD Close Of Business",
+      "eod": "EOD",
       "SAVINGS": "DES ÉCONOMIES",
       "SHARES": "ACTIONS",
       "% Amount": "Montant",

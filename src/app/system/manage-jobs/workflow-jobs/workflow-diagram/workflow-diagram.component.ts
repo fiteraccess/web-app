@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { DagreNodesOnlyLayout, Edge, Layout, Node, GraphModule } from '@swimlane/ngx-graph';
 import * as shape from 'd3-shape';
 import { Subject } from 'rxjs';
@@ -27,7 +27,7 @@ export class JobStep {
     GraphModule
   ]
 })
-export class WorkflowDiagramComponent implements OnInit {
+export class WorkflowDiagramComponent implements OnChanges {
   @Input() jobStepsData: JobStep[] = [];
 
   diagramSize: [number, number] = [
@@ -52,36 +52,32 @@ export class WorkflowDiagramComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit(): void {
-    let nodeCounter = 0;
-    for (const jobStep of this.jobStepsData) {
-      const currentNode = `node_${jobStep.order}`;
-      const node: Node = {
-        id: currentNode,
-        label: jobStep.stepName,
-        data: {
-          name: jobStep.stepName,
-          order: jobStep.order
-        }
-      };
-      this.nodes.push(node);
-
-      if (nodeCounter > 0) {
-        const edge: Edge = {
-          id: `link_${jobStep.id}`,
-          source: `node_${jobStep.order - 1}`,
-          target: currentNode,
-          label: '',
-          data: {
-            linkText: 'Precedes of'
-          }
-        };
-
-        this.links.push(edge);
-      }
-
-      nodeCounter++;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['jobStepsData']) {
+      this.buildGraph();
     }
+  }
+
+  /** Chains the steps in run order; orders may have gaps (e.g. 1..5 then 9), so each links to the previous step. */
+  private buildGraph(): void {
+    const steps = [...(this.jobStepsData ?? [])].sort((a, b) => a.order - b.order);
+    this.nodes = steps.map((jobStep, index) => ({
+      id: `node_${index}`,
+      label: jobStep.stepName,
+      data: {
+        name: jobStep.stepName,
+        order: jobStep.order
+      }
+    }));
+    this.links = steps.slice(1).map((jobStep, index) => ({
+      id: `link_${index}`,
+      source: `node_${index}`,
+      target: `node_${index + 1}`,
+      label: '',
+      data: {
+        linkText: 'Precedes of'
+      }
+    }));
     // trigger center
     this.center$.next(undefined);
   }

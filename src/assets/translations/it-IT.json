@@ -680,6 +680,8 @@
       "GROUP": "GRUPPO",
       "LOAN": "PRESTITO",
       "LOAN_CLOSE_OF_BUSINESS": "PRESTITO_CLOSE_OF_BUSINESS",
+      "EOD_CLOSE_OF_BUSINESS": "EOD Close Of Business",
+      "eod": "EOD",
       "SAVINGS": "RISPARMIO",
       "SHARES": "CONDIVISIONI",
       "% Amount": "Quantità",
