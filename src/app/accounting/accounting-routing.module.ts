@@ -28,6 +28,12 @@ import { NipSwitchesComponent } from './nip-switches/nip-switches.component';
 import { NipSwitchDetailComponent } from './nip-switches/nip-switch-detail.component';
 import { NipSwitchWorkflowComponent } from './nip-switches/nip-switch-workflow.component';
 import { AggregatorAccountingConfigurationsComponent } from './aggregator-accounting-configurations/aggregator-accounting-configurations.component';
+import { EodGlMappingsComponent } from './eod-gl-mappings/eod-gl-mappings.component';
+import { ViewEodGlMappingComponent } from './eod-gl-mappings/view-eod-gl-mapping/view-eod-gl-mapping.component';
+import { EodGlMappingFormComponent } from './eod-gl-mappings/eod-gl-mapping-form/eod-gl-mapping-form.component';
+import { EodGlMappingsResolver } from './eod-gl-mappings/eod-gl-mappings.resolver';
+import { EodGlMappingResolver } from './eod-gl-mappings/eod-gl-mapping.resolver';
+import { EodGlMappingOptionsResolver } from './eod-gl-mappings/eod-gl-mapping-options.resolver';
 import { CreateAggregatorAccountingConfigurationComponent } from './aggregator-accounting-configurations/create-aggregator-accounting-configuration/create-aggregator-accounting-configuration.component';
 import { ViewAggregatorAccountingConfigurationComponent } from './aggregator-accounting-configurations/view-aggregator-accounting-configuration/view-aggregator-accounting-configuration.component';
 import { EditAggregatorAccountingConfigurationComponent } from './aggregator-accounting-configurations/edit-aggregator-accounting-configuration/edit-aggregator-accounting-configuration.component';
@@ -246,6 +252,40 @@ export const ACCOUNTING_ROUTES: Routes = [
                 nipSwitchGlAccounts: NipSwitchGlAccountsResolver,
                 currencies: CurrenciesResolver
               }
+            }
+          ]
+        },
+        {
+          path: 'eod-gl-mappings',
+          data: { title: 'EOD GL Mirror Mapping', breadcrumb: 'EOD GL Mirror Mapping' },
+          children: [
+            {
+              path: '',
+              component: EodGlMappingsComponent,
+              resolve: { eodGlMappings: EodGlMappingsResolver }
+            },
+            {
+              path: 'create',
+              component: EodGlMappingFormComponent,
+              data: { title: 'Create EOD GL Mapping', breadcrumb: 'Create' },
+              resolve: { eodGlMappingOptions: EodGlMappingOptionsResolver }
+            },
+            {
+              path: 'view/:job/:logicalName',
+              data: { title: 'View EOD GL Mapping', routeParamBreadcrumb: 'logicalName' },
+              children: [
+                {
+                  path: '',
+                  component: ViewEodGlMappingComponent,
+                  resolve: { eodGlMapping: EodGlMappingResolver, eodGlMappingOptions: EodGlMappingOptionsResolver }
+                },
+                {
+                  path: 'edit',
+                  component: EodGlMappingFormComponent,
+                  data: { title: 'Edit EOD GL Mapping', breadcrumb: 'Edit', routeParamBreadcrumb: false },
+                  resolve: { eodGlMapping: EodGlMappingResolver, eodGlMappingOptions: EodGlMappingOptionsResolver }
+                }
+              ]
             }
           ]
         },
@@ -543,6 +583,9 @@ export const ACCOUNTING_ROUTES: Routes = [
     NipSwitchGlAccountsResolver,
     AggregatorAccountingConfigurationsResolver,
     AggregatorAccountingConfigurationResolver,
+    EodGlMappingsResolver,
+    EodGlMappingResolver,
+    EodGlMappingOptionsResolver,
     ChartOfAccountsResolver,
     ChartOfAccountsTemplateResolver,
     GlAccountAndChartOfAccountsTemplateResolver,

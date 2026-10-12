@@ -178,6 +178,32 @@
             </mat-list-item>
           }
 
+          <mat-list-item *mifosxHasPermission="'READ_EODGLMAPPING'">
+            <div class="menu-list-item-content">
+              <div class="menu-left-section" [routerLink]="['eod-gl-mappings']">
+                <mat-icon matListIcon>
+                  <fa-icon icon="exchange" size="sm"></fa-icon>
+                </mat-icon>
+                <div matLine>
+                  {{ 'labels.heading.EOD GL Mirror Mapping' | translate }}
+                  @if (arrowBooleans[12]) {
+                    <p matLine [routerLink]="['eod-gl-mappings']" class="menu-explanation">
+                      {{ 'labels.text.Map the GLs the end-of-day mirror clears into each bridge' | translate }}
+                    </p>
+                  }
+                </div>
+              </div>
+              <div class="menu-right-section">
+                @if (!arrowBooleans[12]) {
+                  <fa-icon (click)="arrowBooleansToggle(12)" icon="arrow-down" size="md"></fa-icon>
+                }
+                @if (arrowBooleans[12]) {
+                  <fa-icon (click)="arrowBooleansToggle(12)" icon="arrow-up" size="md"></fa-icon>
+                }
+              </div>
+            </div>
+          </mat-list-item>
+
           <mat-list-item *mifosxHasPermission="'READ_AGGREGATOR_ACCOUNTING_CONFIGURATION'">
             <div class="menu-list-item-content">
               <div class="menu-left-section" [routerLink]="['aggregator-accounting-configurations']">

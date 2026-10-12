@@ -1,0 +1,25 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+// The table keeps the width of its container, so the paginator and the Add button line up with it. Short columns
+// never wrap; long references and Flexcube codes wrap at their ':' and '_' separators (see breakable()).
+table {
+  width: 100%;
+}
+
+.mat-mdc-cell,
+.mat-mdc-header-cell {
+  padding-right: 12px;
+}
+
+.mat-column-job,
+.mat-column-bridge,
+.mat-column-mirroredThrough,
+.mat-column-active {
+  white-space: nowrap;
+}

@@ -1,0 +1,92 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="layout-row align-end gap-2px container m-b-20" *mifosxHasPermission="'UPDATE_EODGLMAPPING'">
+  <button mat-raised-button color="primary" [routerLink]="['edit']">{{ 'labels.buttons.Edit' | translate }}</button>
+  <button mat-raised-button (click)="toggleActive()">
+    {{ (mapping.active ? 'labels.buttons.Deactivate' : 'labels.buttons.Activate') | translate }}
+  </button>
+  <button mat-raised-button color="warn" (click)="delete()">{{ 'labels.buttons.Delete' | translate }}</button>
+</div>
+
+<div class="container">
+  @if (actionError) {
+    <div class="alert alert-danger m-b-20">{{ actionError }}</div>
+  }
+  <mat-card
+    ><mat-card-content
+      ><div class="layout-row-wrap">
+        <div class="flex-50 header">{{ 'labels.inputs.Job' | translate }}</div>
+        <div class="flex-50">{{ mapping.job }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Logical Name' | translate }}</div>
+        <div class="flex-50">{{ mapping.logicalName }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Amount Source' | translate }}</div>
+        <div class="flex-50">{{ mapping.amountSource }}{{ mapping.sourceKey ? ' · ' + mapping.sourceKey : '' }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Fineract Source' | translate }}</div>
+        <div class="flex-50">{{ mapping.finSourceRef ?? '—' }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Bridge' | translate }}</div>
+        <div class="flex-50">{{ mapping.finBridgeRef ?? '—' }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Normal Side' | translate }}</div>
+        <div class="flex-50">{{ mapping.normalSide }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Flexcube Source' | translate }}</div>
+        <div class="flex-50">
+          {{
+            mapping.flexSource
+              ? mapping.flexSource.gl + ' @ ' + mapping.flexSource.branch
+              : ('labels.text.Not configured' | translate)
+          }}
+        </div>
+        <div class="flex-50 header">{{ 'labels.inputs.Flexcube Bridge' | translate }}</div>
+        <div class="flex-50">
+          {{
+            mapping.flexBridge
+              ? mapping.flexBridge.gl + ' @ ' + mapping.flexBridge.branch
+              : ('labels.text.Not configured' | translate)
+          }}
+        </div>
+        <div class="flex-50 header">{{ 'labels.inputs.Mirrored Through' | translate }}</div>
+        <div class="flex-50">{{ mapping.mirroredThrough ?? '—' }}</div>
+        <div class="flex-50 header">{{ 'labels.inputs.Active' | translate }}</div>
+        <div class="flex-50">{{ (mapping.active ? 'labels.commons.Yes' : 'labels.commons.No') | translate }}</div>
+      </div></mat-card-content
+    ></mat-card
+  >
+
+  @if (mirrored) {
+    <mat-card class="m-t-20"
+      ><mat-card-header
+        ><mat-card-title>{{ 'labels.heading.Resolves to' | translate }}</mat-card-title></mat-card-header
+      ><mat-card-content>
+        @if (previewError) {
+          <div class="alert alert-danger">{{ previewError }}</div>
+        } @else if (preview) {
+          <div class="layout-row-wrap">
+            @if (preview.category) {
+              @for (gl of preview.sourceByProduct; track gl.productId) {
+                <div class="flex-50 header">
+                  {{ 'labels.inputs.Source for product' | translate }} {{ gl.productId }}
+                </div>
+                <div class="flex-50">{{ glLabel(gl) }} · {{ gl.type }}</div>
+              }
+            } @else {
+              <div class="flex-50 header">{{ 'labels.inputs.Fineract Source' | translate }}</div>
+              <div class="flex-50">{{ glLabel(preview.source) }} · {{ preview.source?.type }}</div>
+            }
+            <div class="flex-50 header">{{ 'labels.inputs.Bridge' | translate }}</div>
+            <div class="flex-50">{{ glLabel(preview.bridge) }} · {{ preview.bridge?.type }}</div>
+          </div>
+        } @else {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        }</mat-card-content
+    ></mat-card>
+  }
+
+  <div class="m-t-20">
+    <button type="button" mat-raised-button [routerLink]="['../../..']">{{ 'labels.buttons.Back' | translate }}</button>
+  </div>
+</div>

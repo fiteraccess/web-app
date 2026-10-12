@@ -27,6 +27,13 @@ import {
   AggregatorAccountingConfiguration,
   AggregatorAccountingConfigurationRequest
 } from './aggregator-accounting-configurations/aggregator-accounting-configuration.model';
+import {
+  EodGlMapping,
+  EodGlMappingPreview,
+  EodGlMappingRequest,
+  EodJob,
+  mappingPath
+} from './eod-gl-mappings/eod-gl-mapping.model';
 import { GLAccount } from 'app/shared/models/general.model';
 
 /**
@@ -270,6 +277,54 @@ export class AccountingService {
    */
   private aggregatorAccountingConfigurationUrl(aggregatorCode: string): string {
     return `/aggregator-accounting-configurations/${encodeURIComponent(aggregatorCode)}`;
+  }
+
+  /**
+   * @returns {Observable<EodGlMapping[]>} The EOD GL mirror mapping rows, from Synapse.
+   */
+  getEodGlMappings(): Observable<EodGlMapping[]> {
+    return this.http.get<EodGlMapping[]>('/access/api/v1/admin/eod/gl-mappings');
+  }
+
+  /**
+   * @param {EodJob} job Mirror job.
+   * @param {string} logicalName Row name within the job.
+   * @returns {Observable<EodGlMapping>} One mapping row.
+   */
+  getEodGlMapping(job: EodJob, logicalName: string): Observable<EodGlMapping> {
+    return this.http.get<EodGlMapping>(mappingPath(job, logicalName));
+  }
+
+  /**
+   * Creates or replaces a row; Synapse resolves its Fineract references and answers 400 naming what is missing.
+   * @param {EodJob} job Mirror job.
+   * @param {string} logicalName Row name within the job.
+   * @param {EodGlMappingRequest} mapping The row.
+   * @returns {Observable<EodGlMapping>} The saved row.
+   */
+  putEodGlMapping(job: EodJob, logicalName: string, mapping: EodGlMappingRequest): Observable<EodGlMapping> {
+    return this.http.put<EodGlMapping>(mappingPath(job, logicalName), mapping);
+  }
+
+  /**
+   * What a row's Fineract references resolve to, without saving it.
+   * @param {EodJob} job Mirror job.
+   * @param {string} logicalName Row name within the job.
+   * @param {EodGlMappingRequest} mapping The row.
+   * @returns {Observable<EodGlMappingPreview>} The resolved GLs.
+   */
+  previewEodGlMapping(job: EodJob, logicalName: string, mapping: EodGlMappingRequest): Observable<EodGlMappingPreview> {
+    return this.http.post<EodGlMappingPreview>(`${mappingPath(job, logicalName)}/preview`, mapping);
+  }
+
+  /**
+   * Deletes a row; a row with mirror history is refused with 409 (deactivate it instead).
+   * @param {EodJob} job Mirror job.
+   * @param {string} logicalName Row name within the job.
+   * @returns {Observable<void>} Completes on deletion.
+   */
+  deleteEodGlMapping(job: EodJob, logicalName: string): Observable<void> {
+    return this.http.delete<void>(mappingPath(job, logicalName));
   }
 
   /**
