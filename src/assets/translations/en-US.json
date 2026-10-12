@@ -354,6 +354,10 @@
       "Cash": "Cash",
       "NONE": "None",
       "financialActivity": {
+        "eodDepositBridge": "EOD Deposit Bridge",
+        "eodIncomeBridge": "EOD Income Bridge",
+        "eodTaxBridge": "EOD Tax Bridge",
+        "eodInterestBridge": "EOD Interest Bridge",
         "assetTransfer": "Asset Transfer",
         "cashAtMainVault": "Cash At Main Vault",
         "cashAtTeller": "Cash At Teller",
@@ -370,6 +374,7 @@
       "Home": "Home"
     },
     "buttons": {
+      "Check mapping": "Check mapping",
       "Add NIP Switch": "Add NIP Switch",
       "Accept Transfer": "Accept Transfer",
       "Actions": "Actions",
@@ -985,6 +990,8 @@
       "NotEqual": "Not equal"
     },
     "heading": {
+      "EOD GL Mirror Mapping": "EOD GL Mirror Mapping",
+      "Resolves to": "Resolves to",
       "Customer Documents": "Customer Documents",
       "Regulatory Reports": "Regulatory Reports",
       "Restriction Reasons": "Restriction Reasons",
@@ -1466,6 +1473,26 @@
       "Edit Balance Cap": "Edit Balance Cap"
     },
     "inputs": {
+      "Logical Name": "Logical Name",
+      "Amount Source": "Amount Source",
+      "Source Key": "Source Key",
+      "Fineract Source": "Fineract Source",
+      "Bridge": "Bridge",
+      "Flexcube": "Flexcube",
+      "Mirrored Through": "Mirrored Through",
+      "Normal Side": "Normal Side",
+      "Flexcube Source": "Flexcube Source",
+      "Flexcube Bridge": "Flexcube Bridge",
+      "Flexcube Source GL": "Flexcube Source GL",
+      "Flexcube Bridge GL": "Flexcube Bridge GL",
+      "Product category GL": "Product category GL",
+      "NIP switch commission": "NIP switch commission",
+      "Aggregator commission": "Aggregator commission",
+      "Product Category": "Product Category",
+      "Product accounting GL": "Product accounting GL",
+      "NIP Switch": "NIP Switch",
+      "Source for product": "Source for product",
+      "Post the Flexcube side": "Post the Flexcube side",
       "Account Holder Tier": "Account Holder Tier",
       "Narration": "Narration",
       "Report": "Report",
@@ -3174,6 +3201,16 @@
       "Balance Cap": "Balance Cap"
     },
     "text": {
+      "EOD GL Mirror Mapping": "EOD GL Mirror Mapping",
+      "Create EOD GL Mapping": "Create EOD GL Mapping",
+      "View EOD GL Mapping": "View EOD GL Mapping",
+      "Edit EOD GL Mapping": "Edit EOD GL Mapping",
+      "Map the GLs the end-of-day mirror clears into each bridge": "Map the GLs the end-of-day mirror clears into each bridge",
+      "Upper case letters, digits and underscores": "Upper case letters, digits and underscores",
+      "This amount source needs a source key": "This amount source needs a source key",
+      "Deposit movement reads a product category GL": "Deposit movement reads a product category GL",
+      "Give both Flexcube GLs with their branches": "Give both Flexcube GLs with their branches",
+      "The Flexcube source and bridge must differ": "The Flexcube source and bridge must differ",
       "No restriction reasons configured": "No Block Withdrawal reasons are configured. Add them in Manage Codes.",
       "Customer documents hint": "Filed against the customer, not this account — a restriction is backed by identity or address paperwork, which is the same evidence whichever account it concerns. The block and unblock dialogs file these.",
       "No customer documents": "No documents are on file for this customer.",

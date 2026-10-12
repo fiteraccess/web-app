@@ -66,7 +66,7 @@ export class AccountingComponent implements AfterViewInit {
   /* Template for popover on Create Journal Entries */
   @ViewChild('templateCreateJournalEntries') templateCreateJournalEntries: TemplateRef<any>;
   // Initialize an array of 12 boolean values, all set to false
-  arrowBooleans: boolean[] = new Array(12).fill(false);
+  arrowBooleans: boolean[] = new Array(13).fill(false);
 
   /**
    * Popover function
