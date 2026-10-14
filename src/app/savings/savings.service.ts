@@ -12,6 +12,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 
 /** rxjs Imports */
 import { Observable } from 'rxjs';
+import { GoalSavingsSummary } from './models/goal-savings-summary.model';
 
 /**
  * Savings Service.
@@ -21,6 +22,12 @@ import { Observable } from 'rxjs';
 })
 export class SavingsService {
   private http = inject(HttpClient);
+
+  getGoalSavingsSummary(accountNumber: string): Observable<GoalSavingsSummary> {
+    return this.http.get<GoalSavingsSummary>(
+      `/access/api/v1/accounts/${encodeURIComponent(accountNumber)}/accrued-interest`
+    );
+  }
 
   /**
    * @param {string} savingAccountId is saving account's Id.

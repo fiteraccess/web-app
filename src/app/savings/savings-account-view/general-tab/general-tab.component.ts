@@ -6,7 +6,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SavingsService } from '../../savings.service';
+import { GoalSavingsSummary } from '../../models/goal-savings-summary.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Currency } from 'app/shared/models/general.model';
 import { CurrencyPipe } from '@angular/common';
@@ -32,6 +35,11 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 export class GeneralTabComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private savingsService = inject(SavingsService);
+  private destroyRef = inject(DestroyRef);
+  goalSummary: GoalSavingsSummary | null = null;
+  goalSummaryError = false;
+  isGoal = false;
 
   isLoading = true;
   isActive = false;
@@ -45,6 +53,18 @@ export class GeneralTabComponent {
       this.savingsAccountData = data.savingsAccountData;
       this.currency = this.savingsAccountData.currency;
       this.isLoading = false;
+      this.isGoal = this.savingsAccountData.productCategory === 'GOAL';
+      if (this.isGoal) {
+        this.goalSummary = null;
+        this.goalSummaryError = false;
+        this.savingsService
+          .getGoalSavingsSummary(this.savingsAccountData.accountNo)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (summary) => (this.goalSummary = summary),
+            error: () => (this.goalSummaryError = true)
+          });
+      }
       const status = this.savingsAccountData.status.value;
       this.isActive = status === 'Active';
     });
