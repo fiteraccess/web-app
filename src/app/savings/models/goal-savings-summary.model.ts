@@ -1,0 +1,18 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+export interface GoalSavingsSummary {
+  accountNumber: string;
+  accruedAmount: number;
+  currency: string;
+  heldInterest: number;
+  withdrawalsUsed: number;
+  withdrawalLimit: number;
+  totalPenalties: number;
+  accrualStopped: boolean;
+}

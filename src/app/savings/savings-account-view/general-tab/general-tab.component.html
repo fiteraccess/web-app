@@ -97,7 +97,7 @@
                   </td>
                 </tr>
               }
-              @if (savingsAccountData.summary.totalInterestEarned >= 0) {
+              @if (!isGoal && savingsAccountData.summary.totalInterestEarned >= 0) {
                 <tr>
                   <td>{{ 'labels.inputs.Total Interest Earned' | translate }}</td>
                   <td class="r-amount">
@@ -116,6 +116,37 @@
     @if (isActive) {
       <div class="flex-49">
         <h4 class="table-headers">{{ 'labels.heading.Account Summary' | translate }}</h4>
+        @if (isGoal) {
+          @if (goalSummary; as goal) {
+            <table class="table-striped">
+              <tbody>
+                <tr>
+                  <td>{{ 'labels.inputs.Accrued Interest Payable' | translate }}</td>
+                  <td class="r-amount">
+                    {{ goal.accruedAmount | currency: currency.code : 'symbol-narrow' : '1.2-2' }}
+                  </td>
+                </tr>
+                <tr>
+                  <td>{{ 'labels.inputs.Total Goal Penalties' | translate }}</td>
+                  <td class="r-amount">
+                    {{ goal.totalPenalties | currency: currency.code : 'symbol-narrow' : '1.2-2' }}
+                  </td>
+                </tr>
+                <tr>
+                  <td>{{ 'labels.inputs.Goal Withdrawals Used' | translate }}</td>
+                  <td class="r-amount">{{ goal.withdrawalsUsed }} / {{ goal.withdrawalLimit }}</td>
+                </tr>
+              </tbody>
+            </table>
+          } @else {
+            <p>
+              {{
+                (goalSummaryError ? 'labels.text.Goal summary unavailable' : 'labels.text.Loading goal summary')
+                  | translate
+              }}
+            </p>
+          }
+        }
         <table>
           <tbody>
             @if (savingsAccountData.summary.totalWithdrawals) {
@@ -146,7 +177,7 @@
                 </td>
               </tr>
             }
-            @if (savingsAccountData.summary.totalInterestEarned >= 0) {
+            @if (!isGoal && savingsAccountData.summary.totalInterestEarned >= 0) {
               <tr>
                 <td>{{ 'labels.inputs.Interest Earned' | translate }}</td>
                 <td class="r-amount">
@@ -156,7 +187,7 @@
                 </td>
               </tr>
             }
-            @if (savingsAccountData.summary.totalInterestPosted) {
+            @if (!isGoal && savingsAccountData.summary.totalInterestPosted) {
               <tr>
                 <td>{{ 'labels.inputs.Interest Posted' | translate }}</td>
                 <td class="r-amount">
@@ -166,7 +197,7 @@
                 </td>
               </tr>
             }
-            @if (savingsAccountData.summary.interestNotPosted >= 0) {
+            @if (!isGoal && savingsAccountData.summary.interestNotPosted >= 0) {
               <tr>
                 <td>{{ 'labels.inputs.Interest Earned Not Posted' | translate }}</td>
                 <td class="r-amount">
@@ -176,7 +207,7 @@
                 </td>
               </tr>
             }
-            @if (savingsAccountData.summary.totalOverdraftInterestDerived) {
+            @if (!isGoal && savingsAccountData.summary.totalOverdraftInterestDerived) {
               <tr>
                 <td>{{ 'labels.inputs.Interest On Overdraft' | translate }}</td>
                 <td class="r-amount">
@@ -187,7 +218,7 @@
                 </td>
               </tr>
             }
-            @if (savingsAccountData.summary.interestNotPosted < 0) {
+            @if (!isGoal && savingsAccountData.summary.interestNotPosted < 0) {
               <tr>
                 <td>{{ 'labels.inputs.Overdraft Interest Not Posted' | translate }}</td>
                 <td class="r-amount">
@@ -265,7 +296,7 @@
                 </td>
               </tr>
             }
-            @if (savingsAccountData.allowOverdraft) {
+            @if (!isGoal && savingsAccountData.allowOverdraft) {
               <tr>
                 <td>{{ 'labels.inputs.Overdraft Limit' | translate }}</td>
                 <td class="r-amount">
@@ -273,7 +304,7 @@
                 </td>
               </tr>
             }
-            @if (savingsAccountData.allowOverdraft) {
+            @if (!isGoal && savingsAccountData.allowOverdraft) {
               <tr>
                 <td>{{ 'labels.inputs.Minimum Overdraft Required for Interest Calculation' | translate }}</td>
                 <td>

@@ -133,10 +133,11 @@ export class TransactionsTabComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.hideAccrualsParam = new UntypedFormControl(false);
+    this.hideAccrualsParam = new UntypedFormControl(true);
     this.hideReversedParam = new UntypedFormControl(false);
     this.hideReversalContrasParam = new UntypedFormControl(false);
     this.setTransactions();
+    this.hideAccruals();
   }
 
   setTransactions(): void {
@@ -155,7 +156,9 @@ export class TransactionsTabComponent implements OnInit {
       transactionType.withdrawal === true ||
       transactionType.feeDeduction === true ||
       transactionType.overdraftInterest === true ||
-      transactionType.withholdTax === true
+      transactionType.withholdTax === true ||
+      transactionType.code === 'savingsAccountTransactionType.goalPenalty' ||
+      transactionType.code === 'savingsAccountTransactionType.goalForfeiture'
     );
   }
 
@@ -239,7 +242,7 @@ export class TransactionsTabComponent implements OnInit {
       transactions = this.transactionsData.filter((t: SavingsAccountTransaction) => {
         return (
           !(hideReversed && t.reversed) &&
-          !(hideAccrual && t.transactionType.accrual) &&
+          !(hideAccrual && this.isAccrual(t.transactionType)) &&
           !(hideReversalContras && t.isReversal)
         );
       });
