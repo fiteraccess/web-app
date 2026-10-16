@@ -326,7 +326,7 @@
     },
     "aboutUs": {
       "Introduction": "The Mifos Initiative is a 501(c)(3) non-profit organization and a global community of developers, financial institutions, and social entrepreneurs. We believe that access to financial services is a fundamental human right, yet billions of people remain excluded from the formal financial system.",
-      "Platform Description": "We bridge this gap by providing the <a href=\"https://mifos.org\" target=\"_blank\" rel=\"noopener noreferrer\">Mifos X Platform</a>\u2014the world's leading open-source core banking system. By making enterprise-grade banking technology free and accessible, we lower the barrier to entry for Microfinance Institutions (MFIs), Fintechs, and NGOs, allowing them to scale their impact and serve the \"last mile\" efficiently.",
+      "Platform Description": "We bridge this gap by providing the <a href=\"https://mifos.org\" target=\"_blank\" rel=\"noopener noreferrer\">Mifos X Platform</a>—the world's leading open-source core banking system. By making enterprise-grade banking technology free and accessible, we lower the barrier to entry for Microfinance Institutions (MFIs), Fintechs, and NGOs, allowing them to scale their impact and serve the \"last mile\" efficiently.",
       "Mission": "To accelerate financial inclusion by catalyzing an ecosystem of open-source technology, community, and knowledge sharing.",
       "Vision": "A world where every individual and small business has access to the financial tools they need to thrive, regardless of their location or income level.",
       "Why Open Source": "We chose the Open Source model because we believe financial infrastructure should be:",
@@ -2941,7 +2941,6 @@
       "Select entity": "Select entity",
       "Confirmed At": "Confirmed At",
       "Full Name": "Full Name",
-      "Loading vendors...": "Loading vendors...",
       "Minimum 3 characters": "Minimum 3 characters",
       "National ID": "National ID",
       "Nationality": "Nationality",
@@ -2970,7 +2969,6 @@
       "Occupation": "Occupation",
       "Economic Activity": "Economic Activity",
       "Entity Member": "Entity Member",
-      "Country": "Country",
       "# Remittance": "# Remittance",
       "Avg Amount/Transaction": "Avg Amount/Transaction",
       "# Senders": "# Senders",
@@ -2986,7 +2984,6 @@
       "VAT Base": "VAT Base",
       "VAT": "VAT",
       "Commission": "Commission",
-      "Fee Amount": "Fee Amount",
       "VAT Rate (%)": "VAT Rate (%)",
       "Total Charged": "Total Charged",
       "Biller Code": "Biller Code",
@@ -2996,10 +2993,11 @@
       "Component Code": "Component Code",
       "Depends On": "Depends On",
       "Rate Type": "Rate Type",
-      "Rate": "Rate",
       "Rate (%)": "Rate (%)",
       "TigerBeetle Transfer Code": "TigerBeetle Transfer Code",
-      "Enabled": "Enabled"
+      "Accrued Interest Payable": "Accrued Interest Payable",
+      "Total Goal Penalties": "Total penalties and forfeitures",
+      "Goal Withdrawals Used": "Partial withdrawals used"
     },
     "links": {
       "Community": "Community",
@@ -4044,7 +4042,6 @@
       "None": "None",
       "Amount": "Amount",
       "Percent": "Percent",
-      "Flat": "Flat",
       "Enter as a fraction, for example 0.01 for 1%": "Enter as a fraction, for example 0.01 for 1%",
       "Changing Biller Code or Product Code creates a new configuration under the new code — the original configuration is not renamed or removed": "Changing Biller Code or Product Code creates a new configuration under the new code — the original configuration is not renamed or removed",
       "Default (all products)": "Default (all products)",
@@ -4063,7 +4060,9 @@
       "Manage Routes": "Manage Routes",
       "Saved at {{time}}": "Saved at {{time}}",
       "No transaction limits configured": "No transaction limits configured",
-      "No balance caps configured": "No balance caps configured"
+      "No balance caps configured": "No balance caps configured",
+      "Goal summary unavailable": "Goal summary is unavailable. Try again shortly.",
+      "Loading goal summary": "Loading goal summary…"
     },
     "auditTrail": {
       "actions": {
