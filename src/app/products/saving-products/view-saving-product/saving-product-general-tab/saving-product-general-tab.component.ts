@@ -27,6 +27,11 @@ import { ViewSavingsAccountingDetailsComponent } from '../../../../shared/accoun
 import { FormatNumberPipe } from '../../../../pipes/format-number.pipe';
 import { YesnoPipe } from '../../../../pipes/yesno.pipe';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import {
+  WITHDRAWAL_LIMIT_PRODUCT_CATEGORY,
+  WithdrawalRule,
+  pendingWithdrawalRules
+} from '../../saving-product-withdrawal-limit';
 
 @Component({
   selector: 'mifosx-saving-product-general-tab',
@@ -56,6 +61,9 @@ export class SavingProductGeneralTabComponent {
   private accounting = inject(Accounting);
 
   savingProduct: any;
+  readonly withdrawalLimitCategory = WITHDRAWAL_LIMIT_PRODUCT_CATEGORY;
+  /** AB-566: a saved change applies from next month; until then it is shown as scheduled. */
+  pendingWithdrawalRules: WithdrawalRule[] = [];
 
   chargesDisplayedColumns: string[] = [
     'name',
@@ -75,6 +83,7 @@ export class SavingProductGeneralTabComponent {
   constructor() {
     this.route.data.subscribe((data: { savingProduct: any }) => {
       this.savingProduct = data.savingProduct;
+      this.pendingWithdrawalRules = pendingWithdrawalRules(data.savingProduct?.withdrawalRules);
     });
   }
 
