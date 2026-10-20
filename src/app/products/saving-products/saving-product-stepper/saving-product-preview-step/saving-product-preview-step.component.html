@@ -202,6 +202,29 @@
     }}</span>
   </div>
 
+  @if (savingProduct.productCategory === withdrawalLimitCategory) {
+    <div class="flex-100 layout-row">
+      <span class="flex-40">{{ 'labels.inputs.Count monthly withdrawals' | translate }}:</span>
+      <span class="flex-60">{{ savingProduct.withdrawalCounterEnabled | yesNo }}</span>
+    </div>
+    @if (savingProduct.withdrawalCounterEnabled) {
+      <div class="flex-100 layout-row">
+        <span class="flex-40">{{ 'labels.inputs.Monthly withdrawal threshold' | translate }}:</span>
+        <span class="flex-60">{{ savingProduct.monthlyWithdrawalThreshold }}</span>
+      </div>
+    }
+    <div class="flex-100 layout-row">
+      <span class="flex-40">{{ 'labels.inputs.Qualifying withdrawal types' | translate }}:</span>
+      <span class="flex-60">
+        @for (type of savingProduct.qualifyingWithdrawalTypes; track type) {
+          {{ ('labels.inputs.withdrawalType.' + type | translate) + ($last ? '' : ', ') }}
+        } @empty {
+          {{ 'labels.text.None' | translate }}
+        }
+      </span>
+    </div>
+  }
+
   @if (savingProduct.charges.length) {
     <div class="layout-row-wrap responsive-column flex-100">
       <h3 class="mat-h3 flex-100">{{ 'labels.inputs.Charges' | translate }}</h3>

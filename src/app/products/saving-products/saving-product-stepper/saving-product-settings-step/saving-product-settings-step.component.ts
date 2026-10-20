@@ -8,6 +8,7 @@
 
 import { Component, OnInit, Input, inject } from '@angular/core';
 import {
+  AbstractControl,
   UntypedFormGroup,
   UntypedFormBuilder,
   UntypedFormControl,
@@ -18,9 +19,16 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatDivider } from '@angular/material/divider';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatStepperPrevious, MatStepperNext } from '@angular/material/stepper';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import {
+  DEFAULT_MONTHLY_WITHDRAWAL_THRESHOLD,
+  QUALIFYING_WITHDRAWAL_TYPES,
+  WITHDRAWAL_LIMIT_PRODUCT_CATEGORY,
+  pendingWithdrawalRules
+} from '../../saving-product-withdrawal-limit';
 
 @Component({
   selector: 'mifosx-saving-product-settings-step',
@@ -33,6 +41,7 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
     MatDivider,
     MatRadioGroup,
     MatRadioButton,
+    MatSlideToggle,
     MatStepperPrevious,
     FaIconComponent,
     MatStepperNext
@@ -53,10 +62,14 @@ export class SavingProductSettingsStepComponent implements OnInit {
     'AUTOSAVE',
     'DIGITAL'
   ];
+  /** AB-566: the monthly withdrawal limit only applies to Regular Savings (DIGITAL) products. */
+  readonly withdrawalLimitCategory = WITHDRAWAL_LIMIT_PRODUCT_CATEGORY;
+  qualifyingWithdrawalTypeOptions: string[] = [...QUALIFYING_WITHDRAWAL_TYPES];
 
   constructor() {
     this.createSavingProductSettingsForm();
     this.setConditionalControls();
+    this.syncWithdrawalLimitControls();
   }
 
   ngOnInit() {
@@ -89,6 +102,19 @@ export class SavingProductSettingsStepComponent implements OnInit {
     if (categoryOptions?.length) {
       this.productCategoryOptions = categoryOptions.map((option: any) => option.id);
     }
+
+    const withdrawalTypeOptions = this.savingProductsTemplate.qualifyingWithdrawalTypeOptions;
+    if (withdrawalTypeOptions?.length) {
+      this.qualifyingWithdrawalTypeOptions = [...withdrawalTypeOptions];
+    }
+    // A save takes effect next month, so edit the already scheduled rule rather than overwrite it with this month's.
+    const scheduledRule = pendingWithdrawalRules(this.savingProductsTemplate.withdrawalRules).pop();
+    const withdrawalLimit = scheduledRule ?? this.savingProductsTemplate;
+    this.savingProductSettingsForm.patchValue({
+      withdrawalCounterEnabled: withdrawalLimit.withdrawalCounterEnabled ?? true,
+      monthlyWithdrawalThreshold: withdrawalLimit.monthlyWithdrawalThreshold ?? DEFAULT_MONTHLY_WITHDRAWAL_THRESHOLD,
+      qualifyingWithdrawalTypes: withdrawalLimit.qualifyingWithdrawalTypes ?? [...this.qualifyingWithdrawalTypeOptions]
+    });
 
     // AB-265: hydrate EMT Levy attributes from the Synapse-merged response. Prefer `additionalAttributes`
     // (added by SavingsProductProxyHandler.enrichSingle on GET /savingsproducts/{id}), but fall back to
@@ -141,8 +167,29 @@ export class SavingProductSettingsStepComponent implements OnInit {
       overrideGlobalEmtLevySetting: [false],
       emtLevyAmount: [''],
       emtLevyThreshold: [''],
-      productCategory: [null]
+      productCategory: [null],
+      withdrawalCounterEnabled: [true],
+      monthlyWithdrawalThreshold: [
+        DEFAULT_MONTHLY_WITHDRAWAL_THRESHOLD,
+        [
+          Validators.required,
+          Validators.min(0),
+          Validators.pattern('^\\d+$')
+        ]
+      ],
+      qualifyingWithdrawalTypes: [[...QUALIFYING_WITHDRAWAL_TYPES]]
     });
+  }
+
+  /** Disabled controls neither validate nor block Next, so the limit only constrains DIGITAL products. */
+  private syncWithdrawalLimitControls() {
+    const form = this.savingProductSettingsForm;
+    const applies = form.get('productCategory').value === WITHDRAWAL_LIMIT_PRODUCT_CATEGORY;
+    const setEnabled = (control: AbstractControl, enabled: boolean) =>
+      enabled ? control.enable({ emitEvent: false }) : control.disable({ emitEvent: false });
+    setEnabled(form.get('withdrawalCounterEnabled'), applies);
+    setEnabled(form.get('qualifyingWithdrawalTypes'), applies);
+    setEnabled(form.get('monthlyWithdrawalThreshold'), applies && !!form.get('withdrawalCounterEnabled').value);
   }
 
   setConditionalControls() {
@@ -268,11 +315,31 @@ export class SavingProductSettingsStepComponent implements OnInit {
     this.savingProductSettingsForm
       .get('isEmtLevyApplicableForWithdraw')
       .valueChanges.subscribe(() => clearIfNoApplicability());
+
+    this.savingProductSettingsForm
+      .get('productCategory')
+      .valueChanges.subscribe(() => this.syncWithdrawalLimitControls());
+    this.savingProductSettingsForm
+      .get('withdrawalCounterEnabled')
+      .valueChanges.subscribe(() => this.syncWithdrawalLimitControls());
   }
 
   get savingProductSettings() {
     const formValue = { ...this.savingProductSettingsForm.value };
     delete formValue.enableLockinPeriod;
+    delete formValue.withdrawalCounterEnabled;
+    delete formValue.monthlyWithdrawalThreshold;
+    delete formValue.qualifyingWithdrawalTypes;
+    if (formValue.productCategory === WITHDRAWAL_LIMIT_PRODUCT_CATEGORY) {
+      // raw value: the threshold is kept while the counter is off, so re-enabling restores it
+      const { withdrawalCounterEnabled, monthlyWithdrawalThreshold, qualifyingWithdrawalTypes } =
+        this.savingProductSettingsForm.getRawValue();
+      formValue.withdrawalCounterEnabled = withdrawalCounterEnabled;
+      formValue.qualifyingWithdrawalTypes = qualifyingWithdrawalTypes;
+      if (Number.isInteger(monthlyWithdrawalThreshold) && monthlyWithdrawalThreshold >= 0) {
+        formValue.monthlyWithdrawalThreshold = monthlyWithdrawalThreshold;
+      }
+    }
     return formValue;
   }
 }

@@ -29,6 +29,7 @@ import { FindPipe } from '../../../../pipes/find.pipe';
 import { FormatNumberPipe } from '../../../../pipes/format-number.pipe';
 import { YesnoPipe } from '../../../../pipes/yesno.pipe';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { WITHDRAWAL_LIMIT_PRODUCT_CATEGORY } from '../../saving-product-withdrawal-limit';
 
 @Component({
   selector: 'mifosx-saving-product-preview-step',
@@ -81,6 +82,7 @@ export class SavingProductPreviewStepComponent implements OnInit, OnChanges {
 
   accountingMappings: any = {};
   accountingRule: OptionData;
+  readonly withdrawalLimitCategory = WITHDRAWAL_LIMIT_PRODUCT_CATEGORY;
 
   ngOnInit() {
     this.setCurrentValues();
