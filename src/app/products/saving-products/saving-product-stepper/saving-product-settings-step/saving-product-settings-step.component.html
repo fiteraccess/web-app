@@ -347,9 +347,6 @@
   <!-- AB-566: Regular Savings interest is forfeited in a month whose qualifying withdrawals exceed the threshold. -->
   @if (savingProductSettingsForm.value.productCategory === withdrawalLimitCategory) {
     <h4 class="mat-h4">{{ 'labels.heading.Monthly Withdrawal Limit' | translate }}</h4>
-    <p class="section-hint">
-      {{ 'labels.text.Withdrawal limit changes take effect from the start of next month' | translate }}
-    </p>
 
     <div class="layout-row-wrap align-start-center gap-2percent responsive-column">
       <mat-slide-toggle class="flex-31 margin-v" formControlName="withdrawalCounterEnabled">
@@ -373,15 +370,25 @@
           {{ 'labels.commons.must be a whole number of zero or more' | translate }}
         </mat-error>
       </mat-form-field>
+    </div>
 
-      <mat-form-field class="flex-31">
-        <mat-label>{{ 'labels.inputs.Qualifying withdrawal types' | translate }}</mat-label>
-        <mat-select formControlName="qualifyingWithdrawalTypes" multiple>
-          @for (type of qualifyingWithdrawalTypeOptions; track type) {
-            <mat-option [value]="type">{{ 'labels.inputs.withdrawalType.' + type | translate }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    <div
+      class="withdrawal-types"
+      role="group"
+      [attr.aria-label]="'labels.inputs.Qualifying withdrawal types' | translate"
+    >
+      <span class="withdrawal-types-label">{{ 'labels.inputs.Qualifying withdrawal types' | translate }}</span>
+      <div class="withdrawal-types-options">
+        @for (type of qualifyingWithdrawalTypeOptions; track type) {
+          <mat-checkbox
+            [checked]="isWithdrawalTypeSelected(type)"
+            [disabled]="savingProductSettingsForm.get('qualifyingWithdrawalTypes').disabled"
+            (change)="toggleWithdrawalType(type, $event.checked)"
+          >
+            {{ 'labels.inputs.withdrawalType.' + type | translate }}
+          </mat-checkbox>
+        }
+      </div>
     </div>
   }
 

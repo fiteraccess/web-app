@@ -24,6 +24,7 @@ import { MatStepperPrevious, MatStepperNext } from '@angular/material/stepper';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 import {
+  ALL_QUALIFYING_WITHDRAWAL_TYPES,
   DEFAULT_MONTHLY_WITHDRAWAL_THRESHOLD,
   QUALIFYING_WITHDRAWAL_TYPES,
   WITHDRAWAL_LIMIT_PRODUCT_CATEGORY,
@@ -64,7 +65,7 @@ export class SavingProductSettingsStepComponent implements OnInit {
   ];
   /** AB-566: the monthly withdrawal limit only applies to Regular Savings (DIGITAL) products. */
   readonly withdrawalLimitCategory = WITHDRAWAL_LIMIT_PRODUCT_CATEGORY;
-  qualifyingWithdrawalTypeOptions: string[] = [...QUALIFYING_WITHDRAWAL_TYPES];
+  qualifyingWithdrawalTypeOptions: string[] = [...ALL_QUALIFYING_WITHDRAWAL_TYPES];
 
   constructor() {
     this.createSavingProductSettingsForm();
@@ -113,7 +114,7 @@ export class SavingProductSettingsStepComponent implements OnInit {
     this.savingProductSettingsForm.patchValue({
       withdrawalCounterEnabled: withdrawalLimit.withdrawalCounterEnabled ?? true,
       monthlyWithdrawalThreshold: withdrawalLimit.monthlyWithdrawalThreshold ?? DEFAULT_MONTHLY_WITHDRAWAL_THRESHOLD,
-      qualifyingWithdrawalTypes: withdrawalLimit.qualifyingWithdrawalTypes ?? [...this.qualifyingWithdrawalTypeOptions]
+      qualifyingWithdrawalTypes: withdrawalLimit.qualifyingWithdrawalTypes ?? [...QUALIFYING_WITHDRAWAL_TYPES]
     });
 
     // AB-265: hydrate EMT Levy attributes from the Synapse-merged response. Prefer `additionalAttributes`
@@ -179,6 +180,23 @@ export class SavingProductSettingsStepComponent implements OnInit {
       ],
       qualifyingWithdrawalTypes: [[...QUALIFYING_WITHDRAWAL_TYPES]]
     });
+  }
+
+  isWithdrawalTypeSelected(type: string): boolean {
+    return (this.savingProductSettingsForm.get('qualifyingWithdrawalTypes').value ?? []).includes(type);
+  }
+
+  /** Keeps the selection in option order so an unchanged set never looks like an edit. */
+  toggleWithdrawalType(type: string, checked: boolean) {
+    const control = this.savingProductSettingsForm.get('qualifyingWithdrawalTypes');
+    const selected = new Set<string>(control.value ?? []);
+    if (checked) {
+      selected.add(type);
+    } else {
+      selected.delete(type);
+    }
+    control.setValue(this.qualifyingWithdrawalTypeOptions.filter((option) => selected.has(option)));
+    control.markAsDirty();
   }
 
   /** Disabled controls neither validate nor block Next, so the limit only constrains DIGITAL products. */
