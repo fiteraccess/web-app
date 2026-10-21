@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-/** AB-566: withdrawals that count towards the Regular Savings monthly limit (interest forfeiture). */
+/** AB-566: withdrawals that count towards the Regular Savings monthly limit (interest forfeiture) by default. */
 export const QUALIFYING_WITHDRAWAL_TYPES: readonly string[] = [
   'INTERBANK_TRANSFER',
   'INTRABANK_TRANSFER',
@@ -14,6 +14,14 @@ export const QUALIFYING_WITHDRAWAL_TYPES: readonly string[] = [
   'BILL_PAYMENT',
   'AIRTIME',
   'DATA'
+];
+
+/** Every selectable type: the defaults plus the ones a product must opt in to. */
+export const ALL_QUALIFYING_WITHDRAWAL_TYPES: readonly string[] = [
+  ...QUALIFYING_WITHDRAWAL_TYPES,
+  'CASH_WITHDRAWAL',
+  'CARD_PURCHASE',
+  'ATM_WITHDRAWAL'
 ];
 
 export const DEFAULT_MONTHLY_WITHDRAWAL_THRESHOLD = 4;

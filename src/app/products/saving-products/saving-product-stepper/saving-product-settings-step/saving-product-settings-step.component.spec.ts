@@ -78,6 +78,15 @@ describe('SavingProductSettingsStepComponent product category', () => {
       'AIRTIME',
       'DATA'
     ];
+    const optInTypes = [
+      'CASH_WITHDRAWAL',
+      'CARD_PURCHASE',
+      'ATM_WITHDRAWAL'
+    ];
+
+    function typeCheckboxes(): HTMLElement[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('.withdrawal-types-options mat-checkbox'));
+    }
 
     function select(category: string | null) {
       component.savingProductSettingsForm.get('productCategory').setValue(category);
@@ -99,10 +108,18 @@ describe('SavingProductSettingsStepComponent product category', () => {
       select('DIGITAL');
       expect(limitGroup()).not.toBeNull();
       expect(fixture.nativeElement.querySelector('[formcontrolname="withdrawalCounterEnabled"]')).not.toBeNull();
-      expect(fixture.nativeElement.querySelector('[formcontrolname="qualifyingWithdrawalTypes"]')).not.toBeNull();
+      expect(typeCheckboxes().length).toBe(allTypes.length + optInTypes.length);
     });
 
-    it('defaults a new product to counting all six types against a threshold of four', async () => {
+    it('shows no effective-date hint', async () => {
+      await render({});
+      select('DIGITAL');
+
+      expect(fixture.nativeElement.querySelector('.section-hint')).toBeNull();
+      expect(fixture.nativeElement.textContent).not.toContain('take effect from the start of next month');
+    });
+
+    it('defaults a new product to counting the six ticket types against a threshold of four', async () => {
       await render({});
       select('DIGITAL');
 
@@ -113,7 +130,38 @@ describe('SavingProductSettingsStepComponent product category', () => {
           qualifyingWithdrawalTypes: allTypes
         })
       );
-      expect(component.qualifyingWithdrawalTypeOptions).toEqual(allTypes);
+      expect(component.qualifyingWithdrawalTypeOptions).toEqual([
+        ...allTypes,
+        ...optInTypes
+      ]);
+    });
+
+    it('ticks the six ticket types and leaves cash, card and ATM unticked', async () => {
+      await render({});
+      select('DIGITAL');
+
+      allTypes.forEach((type) => expect(component.isWithdrawalTypeSelected(type)).toBe(true));
+      optInTypes.forEach((type) => expect(component.isWithdrawalTypeSelected(type)).toBe(false));
+      const checked = typeCheckboxes().filter((box) => box.querySelector('input:checked'));
+      expect(checked.length).toBe(allTypes.length);
+    });
+
+    it('adds and removes a type in option order when its checkbox is toggled', async () => {
+      await render({});
+      select('DIGITAL');
+
+      component.toggleWithdrawalType('CASH_WITHDRAWAL', true);
+      component.toggleWithdrawalType('AIRTIME', false);
+
+      expect(component.savingProductSettings.qualifyingWithdrawalTypes).toEqual([
+        'INTERBANK_TRANSFER',
+        'INTRABANK_TRANSFER',
+        'OWN_ACCOUNT_TRANSFER',
+        'BILL_PAYMENT',
+        'DATA',
+        'CASH_WITHDRAWAL'
+      ]);
+      expect(component.savingProductSettingsForm.get('qualifyingWithdrawalTypes').dirty).toBe(true);
     });
 
     it('offers the template type options when present', async () => {

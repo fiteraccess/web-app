@@ -1974,7 +1974,10 @@
         "OWN_ACCOUNT_TRANSFER": "Own account transfer",
         "BILL_PAYMENT": "Bill payment",
         "AIRTIME": "Airtime",
-        "DATA": "Data"
+        "DATA": "Data",
+        "CASH_WITHDRAWAL": "Cash withdrawal",
+        "CARD_PURCHASE": "Card / POS purchase",
+        "ATM_WITHDRAWAL": "ATM withdrawal"
       },
       "Enable EMT Levy for Withdraw": "Enable EMT Levy for Withdraw",
       "Enable Lock-in Period": "Enable Lock-in Period",
@@ -3224,7 +3227,6 @@
       "The Flexcube source and bridge must differ": "The Flexcube source and bridge must differ",
       "No restriction reasons configured": "No Block Withdrawal reasons are configured. Add them in Manage Codes.",
       "Customer documents hint": "Filed against the customer, not this account — a restriction is backed by identity or address paperwork, which is the same evidence whichever account it concerns. The block and unblock dialogs file these.",
-      "Withdrawal limit changes take effect from the start of next month": "Changes take effect from the start of next month; the current month keeps its existing limit.",
       "No customer documents": "No documents are on file for this customer.",
       "Regulatory Reports": "Regulatory Reports",
       "No Report Rows": "No rows were returned for this period.",

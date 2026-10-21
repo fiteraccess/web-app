@@ -7,7 +7,25 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
-import { WithdrawalRule, isoDate, pendingWithdrawalRules } from './saving-product-withdrawal-limit';
+import {
+  ALL_QUALIFYING_WITHDRAWAL_TYPES,
+  QUALIFYING_WITHDRAWAL_TYPES,
+  WithdrawalRule,
+  isoDate,
+  pendingWithdrawalRules
+} from './saving-product-withdrawal-limit';
+
+describe('qualifying withdrawal types', () => {
+  it('offers the six defaults first, then the opt-in cash, card and ATM types', () => {
+    expect(ALL_QUALIFYING_WITHDRAWAL_TYPES).toEqual([
+      ...QUALIFYING_WITHDRAWAL_TYPES,
+      'CASH_WITHDRAWAL',
+      'CARD_PURCHASE',
+      'ATM_WITHDRAWAL'
+    ]);
+    expect(QUALIFYING_WITHDRAWAL_TYPES).not.toContain('CASH_WITHDRAWAL');
+  });
+});
 
 describe('pendingWithdrawalRules', () => {
   const rule = (effectiveFrom: string): WithdrawalRule => ({
