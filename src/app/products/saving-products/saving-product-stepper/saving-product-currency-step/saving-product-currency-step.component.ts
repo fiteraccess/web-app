@@ -52,12 +52,14 @@ export class SavingProductCurrencyStepComponent implements OnInit {
     const currency = this.savingProductsTemplate.currency || {};
     const decimalPlaces = this.savingProductsTemplate.digitsAfterDecimal ?? currency.decimalPlaces ?? '';
     const inMultiplesOf = this.savingProductsTemplate.inMultiplesOf ?? currency.inMultiplesOf ?? '';
+    // Fineract stores "no multiples" as 0, so only a positive value means multiples are set
+    const hasMultiples = Number(inMultiplesOf) > 0;
 
     this.savingProductCurrencyForm.patchValue({
       currencyCode: currency.code || this.currencyData[0].code,
       digitsAfterDecimal: decimalPlaces,
-      setMultiples: inMultiplesOf !== '' && inMultiplesOf !== null && inMultiplesOf !== undefined,
-      inMultiplesOf: inMultiplesOf
+      setMultiples: hasMultiples,
+      inMultiplesOf: hasMultiples ? inMultiplesOf : ''
     });
 
     this.setupConditionalValidation();

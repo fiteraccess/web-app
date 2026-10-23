@@ -153,13 +153,11 @@ export class SavingProductAccountingStepComponent implements OnInit {
         incomeFromFeeAccountId: this.savingProductsTemplate.accountingMappings.incomeFromFeeAccount.id,
         incomeFromPenaltyAccountId: this.savingProductsTemplate.accountingMappings.incomeFromPenaltyAccount.id,
         incomeFromInterestId: this.savingProductsTemplate.accountingMappings.incomeFromInterest.id,
-        advancedAccountingRules:
-          this.savingProductsTemplate.paymentChannelToFundSourceMappings ||
-          this.savingProductsTemplate.feeToIncomeAccountMappings ||
-          this.savingProductsTemplate.penaltyToIncomeAccountMappings ||
-          this.savingProductsTemplate.accrualCharges
-            ? true
-            : false
+        advancedAccountingRules: !!(
+          this.savingProductsTemplate.paymentChannelToFundSourceMappings?.length ||
+          this.savingProductsTemplate.feeToIncomeAccountMappings?.length ||
+          this.savingProductsTemplate.penaltyToIncomeAccountMappings?.length
+        )
       });
 
       if (this.isAccrualAccounting()) {
@@ -315,9 +313,13 @@ export class SavingProductAccountingStepComponent implements OnInit {
               this.savingProductAccountingForm.addControl('feeToIncomeAccountMappings', this.formBuilder.array([]));
               this.savingProductAccountingForm.addControl('penaltyToIncomeAccountMappings', this.formBuilder.array([]));
             } else {
-              this.savingProductAccountingForm.removeControl('paymentChannelToFundSourceMappings');
-              this.savingProductAccountingForm.removeControl('feeToIncomeAccountMappings');
-              this.savingProductAccountingForm.removeControl('penaltyToIncomeAccountMappings');
+              // Send empty arrays so the backend deletes any previously saved mappings
+              this.savingProductAccountingForm.setControl(
+                'paymentChannelToFundSourceMappings',
+                this.formBuilder.array([])
+              );
+              this.savingProductAccountingForm.setControl('feeToIncomeAccountMappings', this.formBuilder.array([]));
+              this.savingProductAccountingForm.setControl('penaltyToIncomeAccountMappings', this.formBuilder.array([]));
             }
           });
       } else {
@@ -360,6 +362,10 @@ export class SavingProductAccountingStepComponent implements OnInit {
 
   existCharges(): boolean {
     return this.chargeData.length > 0;
+  }
+
+  existPenalties(): boolean {
+    return this.penaltyData.length > 0;
   }
 
   add(formType: string, formArray: UntypedFormArray) {
@@ -421,7 +427,7 @@ export class SavingProductAccountingStepComponent implements OnInit {
       new SelectBase({
         controlName: 'paymentTypeId',
         label: this.translateService.instant('labels.inputs.Payment Type'),
-        value: values ? values.paymentTypeId : this.paymentTypeData[0].id,
+        value: values ? values.paymentTypeId : this.paymentTypeData[0]?.id,
         options: { label: 'name', value: 'id', data: this.paymentTypeData },
         required: true,
         order: 1
@@ -429,7 +435,7 @@ export class SavingProductAccountingStepComponent implements OnInit {
       new SelectBase({
         controlName: 'fundSourceAccountId',
         label: this.translateService.instant('labels.inputs.Fund Source'),
-        value: values ? values.fundSourceAccountId : this.combinedAccountData[0].id,
+        value: values ? values.fundSourceAccountId : this.combinedAccountData[0]?.id,
         options: { label: 'name', value: 'id', data: this.combinedAccountData },
         required: true,
         order: 2
@@ -443,7 +449,7 @@ export class SavingProductAccountingStepComponent implements OnInit {
       new SelectBase({
         controlName: 'chargeId',
         label: this.translateService.instant('labels.inputs.Fees'),
-        value: values ? values.chargeId : this.chargeData[0].id,
+        value: values ? values.chargeId : this.chargeData[0]?.id,
         options: { label: 'name', value: 'id', data: this.chargeData },
         required: true,
         order: 1
@@ -451,7 +457,7 @@ export class SavingProductAccountingStepComponent implements OnInit {
       new SelectBase({
         controlName: 'incomeAccountId',
         label: this.translateService.instant('labels.inputs.Income Account'),
-        value: values ? values.incomeAccountId : this.incomeAccountData[0].id,
+        value: values ? values.incomeAccountId : this.incomeAccountData[0]?.id,
         options: { label: 'name', value: 'id', data: this.incomeAccountData },
         required: true,
         order: 2
@@ -465,7 +471,7 @@ export class SavingProductAccountingStepComponent implements OnInit {
       new SelectBase({
         controlName: 'chargeId',
         label: this.translateService.instant('labels.inputs.Penalty'),
-        value: values ? values.chargeId : this.penaltyData[0].id,
+        value: values ? values.chargeId : this.penaltyData[0]?.id,
         options: { label: 'name', value: 'id', data: this.penaltyData },
         required: true,
         order: 1
@@ -473,7 +479,7 @@ export class SavingProductAccountingStepComponent implements OnInit {
       new SelectBase({
         controlName: 'incomeAccountId',
         label: this.translateService.instant('labels.inputs.Income Account'),
-        value: values ? values.incomeAccountId : this.incomeAccountData[0].id,
+        value: values ? values.incomeAccountId : this.incomeAccountData[0]?.id,
         options: { label: 'name', value: 'id', data: this.incomeAccountData },
         required: true,
         order: 2
