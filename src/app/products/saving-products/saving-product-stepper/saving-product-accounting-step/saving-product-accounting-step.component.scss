@@ -43,3 +43,13 @@ mat-divider {
     flex-direction: column;
   }
 }
+
+// Percentage row gaps resolve against the container's final height, which pushes
+// the advanced accounting rules past the step buttons. Keep the gap horizontal only.
+.column-gap-2percent {
+  column-gap: 2%;
+}
+
+.column-gap-1percent {
+  column-gap: 1%;
+}
