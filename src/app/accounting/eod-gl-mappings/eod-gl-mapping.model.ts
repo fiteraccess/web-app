@@ -28,6 +28,7 @@ export type AmountSource =
   | 'REFERENCE_TYPE'
   | 'TX_TYPE'
   | 'NIP_COMMISSION'
+  | 'SWITCH_FEE'
   | 'BILLS_COMMISSION'
   | 'AIRTIME_COMMISSION'
   | 'STATEMENT_FEE'
@@ -39,6 +40,7 @@ export const AMOUNT_SOURCES: AmountSource[] = [
   'REFERENCE_TYPE',
   'TX_TYPE',
   'NIP_COMMISSION',
+  'SWITCH_FEE',
   'BILLS_COMMISSION',
   'AIRTIME_COMMISSION',
   'STATEMENT_FEE',
@@ -57,6 +59,7 @@ export const SOURCE_KEY_OPTIONS: Partial<Record<AmountSource, string[] | null>> 
     'OVERDRAFT_INTEREST'
   ],
   NIP_COMMISSION: null,
+  SWITCH_FEE: null,
   BILLS_COMMISSION: null,
   AIRTIME_COMMISSION: null
 };
@@ -109,6 +112,13 @@ export interface EodGlMappingPreview {
 }
 
 export type SourceKind = 'PRODUCT' | 'ACTIVITY' | 'SWITCH' | 'AGGREGATOR';
+
+/** The GLs a NIP switch's accounting configuration offers the mirror: its commission income and its switch fee. */
+export type SwitchGl = 'commissionIncome' | 'switchFee';
+export const SWITCH_GLS: SwitchGl[] = [
+  'commissionIncome',
+  'switchFee'
+];
 export const PRODUCT_CATEGORIES = [
   'DIGITAL',
   'AUTOSAVE',

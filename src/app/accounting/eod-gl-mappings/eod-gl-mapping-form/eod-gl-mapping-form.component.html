@@ -28,7 +28,7 @@
           @if (!settlement) {
             <mat-form-field
               ><mat-label>{{ 'labels.inputs.Amount Source' | translate }}</mat-label
-              ><mat-select formControlName="amountSource">
+              ><mat-select formControlName="amountSource" (selectionChange)="amountSourceChanged($event.value)">
                 @for (source of amountSources; track source) {
                   <mat-option [value]="source">{{ source }}</mat-option>
                 }
@@ -99,6 +99,14 @@
                   ><mat-select formControlName="switchId">
                     @for (switchId of options.switchIds; track switchId) {
                       <mat-option [value]="switchId">{{ switchId }}</mat-option>
+                    }
+                  </mat-select></mat-form-field
+                >
+                <mat-form-field
+                  ><mat-label>{{ 'labels.inputs.Switch GL' | translate }}</mat-label
+                  ><mat-select formControlName="switchGl">
+                    @for (gl of switchGls; track gl) {
+                      <mat-option [value]="gl">{{ gl }}</mat-option>
                     }
                   </mat-select></mat-form-field
                 >

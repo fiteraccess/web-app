@@ -23,6 +23,8 @@ import {
 } from '../eod-gl-mapping-form.model';
 import {
   AMOUNT_SOURCES,
+  AmountSource,
+  SWITCH_GLS,
   DEFAULT_BRIDGE_ACTIVITY,
   EOD_JOBS,
   EodGlMapping,
@@ -56,6 +58,7 @@ export class EodGlMappingFormComponent {
 
   readonly jobs = EOD_JOBS;
   readonly amountSources = AMOUNT_SOURCES;
+  readonly switchGls = SWITCH_GLS;
   readonly categories = PRODUCT_CATEGORIES;
   readonly accountKeys = PRODUCT_ACCOUNT_KEYS;
 
@@ -91,9 +94,18 @@ export class EodGlMappingFormComponent {
   /** The keys the chosen amount source accepts; loaded lists for switch and aggregator commissions. */
   get sourceKeyOptions(): string[] {
     const source = this.form.controls.amountSource.value;
-    if (source === 'NIP_COMMISSION') return this.options.switchIds;
+    if (source === 'NIP_COMMISSION' || source === 'SWITCH_FEE') return this.options.switchIds;
     if (source === 'BILLS_COMMISSION' || source === 'AIRTIME_COMMISSION') return this.options.aggregatorCodes;
     return SOURCE_KEY_OPTIONS[source] ?? [];
+  }
+
+  /** A switch fee row reads the switch's fee GL; a row moving off it goes back to the commission income GL. */
+  amountSourceChanged(source: AmountSource): void {
+    if (source === 'SWITCH_FEE') {
+      this.form.patchValue({ sourceKind: 'SWITCH', switchGl: 'switchFee' });
+    } else if (this.form.controls.switchGl.value === 'switchFee') {
+      this.form.patchValue({ switchGl: 'commissionIncome' });
+    }
   }
 
   /** A new row's bridge follows its job, as long as the operator has not picked another one. */

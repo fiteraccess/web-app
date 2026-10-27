@@ -36,9 +36,30 @@ describe('EOD GL mapping form', () => {
       'PRODUCT:DIGITAL:savingsControlAccount',
       'ACTIVITY:203',
       'SWITCH:NIBSS:commissionIncome',
+      'SWITCH:NIBSS:switchFee',
       'AGGREGATOR:CORALPAY:commissionIncome'
     ])('round-trips %s through the pickers', (ref) => {
       expect(toSourceRef(fromSourceRef(ref))).toBe(ref);
+    });
+
+    it("reads a switch fee row from the switch's fee GL", () => {
+      const form = createEodGlMappingForm('INCOME');
+      form.patchValue({
+        logicalName: 'NIBSS_SWITCH_FEE',
+        amountSource: 'SWITCH_FEE',
+        sourceKey: 'NIBSS',
+        sourceKind: 'SWITCH',
+        switchId: 'NIBSS',
+        switchGl: 'switchFee'
+      });
+
+      expect(form.valid).toBe(true);
+      expect(buildEodGlMappingRequest(form)).toMatchObject({
+        amountSource: 'SWITCH_FEE',
+        sourceKey: 'NIBSS',
+        finSourceRef: 'SWITCH:NIBSS:switchFee',
+        finBridgeRef: 'ACTIVITY:206'
+      });
     });
 
     it('stays null while a picker is incomplete', () => {
