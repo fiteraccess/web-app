@@ -16,7 +16,8 @@ import {
   EodJob,
   Side,
   SOURCE_KEY_OPTIONS,
-  SourceKind
+  SourceKind,
+  SwitchGl
 } from './eod-gl-mapping.model';
 
 export type EodGlMappingFormControls = {
@@ -29,6 +30,7 @@ export type EodGlMappingFormControls = {
   productAccountKey: FormControl<string | null>;
   sourceActivityId: FormControl<number | null>;
   switchId: FormControl<string | null>;
+  switchGl: FormControl<SwitchGl>;
   aggregatorCode: FormControl<string | null>;
   bridgeActivityId: FormControl<number | null>;
   normalSide: FormControl<Side>;
@@ -44,7 +46,13 @@ export type EodGlMappingForm = FormGroup<EodGlMappingFormControls>;
 
 type SourceValues = Pick<
   EodGlMappingForm['value'],
-  'sourceKind' | 'productCategory' | 'productAccountKey' | 'sourceActivityId' | 'switchId' | 'aggregatorCode'
+  | 'sourceKind'
+  | 'productCategory'
+  | 'productAccountKey'
+  | 'sourceActivityId'
+  | 'switchId'
+  | 'switchGl'
+  | 'aggregatorCode'
 >;
 
 /** The Fineract reference string a source picker stands for, or null while it is incomplete. */
@@ -55,7 +63,7 @@ export function toSourceRef(v: SourceValues): string | null {
     case 'ACTIVITY':
       return v.sourceActivityId ? `ACTIVITY:${v.sourceActivityId}` : null;
     case 'SWITCH':
-      return v.switchId ? `SWITCH:${v.switchId}:commissionIncome` : null;
+      return v.switchId ? `SWITCH:${v.switchId}:${v.switchGl ?? 'commissionIncome'}` : null;
     case 'AGGREGATOR':
       return v.aggregatorCode ? `AGGREGATOR:${v.aggregatorCode}:commissionIncome` : null;
     default:
@@ -71,6 +79,7 @@ export function fromSourceRef(ref: string | null): SourceValues {
     productAccountKey: null,
     sourceActivityId: null,
     switchId: null,
+    switchGl: 'commissionIncome',
     aggregatorCode: null
   };
   const parts = (ref ?? '').split(':');
@@ -80,7 +89,12 @@ export function fromSourceRef(ref: string | null): SourceValues {
     case 'ACTIVITY':
       return { ...empty, sourceKind: 'ACTIVITY', sourceActivityId: Number(parts[1]) || null };
     case 'SWITCH':
-      return { ...empty, sourceKind: 'SWITCH', switchId: parts[1] ?? null };
+      return {
+        ...empty,
+        sourceKind: 'SWITCH',
+        switchId: parts[1] ?? null,
+        switchGl: parts[2] === 'switchFee' ? 'switchFee' : 'commissionIncome'
+      };
     case 'AGGREGATOR':
       return { ...empty, sourceKind: 'AGGREGATOR', aggregatorCode: parts[1] ?? null };
     default:
@@ -144,6 +158,7 @@ export function createEodGlMappingForm(job: EodJob = 'DEPOSIT'): EodGlMappingFor
       productAccountKey: new FormControl<string | null>(null),
       sourceActivityId: new FormControl<number | null>(null),
       switchId: new FormControl<string | null>(null),
+      switchGl: new FormControl<SwitchGl>('commissionIncome', { nonNullable: true }),
       aggregatorCode: new FormControl<string | null>(null),
       bridgeActivityId: new FormControl<number | null>(DEFAULT_BRIDGE_ACTIVITY[job] ?? null),
       normalSide: new FormControl<Side>('CREDIT', { nonNullable: true }),
