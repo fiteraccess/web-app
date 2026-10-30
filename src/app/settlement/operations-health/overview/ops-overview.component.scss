@@ -1,0 +1,66 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+@use '../ops-health-marks' as ops;
+
+@include ops.highlight;
+
+:host {
+  display: block;
+  padding-top: 16px;
+}
+
+.ops-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+
+  li {
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+}
+
+// One line per step: order, name, mark and the stored counts; narrow screens wrap the counts under the name.
+.ops-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 10px 8px;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--ops-highlight);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: -2px;
+  }
+}
+
+.ops-row-order {
+  flex: 0 0 16px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.ops-row-name {
+  flex: 0 0 140px;
+  font-weight: 500;
+}
+
+.ops-row-mark {
+  display: inline-flex;
+  flex: 0 0 18px;
+}
+
+.ops-row-facts {
+  flex: 1 1 240px;
+}

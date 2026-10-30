@@ -1,0 +1,78 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+@use '../ops-health-marks' as ops;
+
+@include ops.data-table;
+
+:host {
+  display: block;
+}
+
+.ops-section-heading {
+  margin: 24px 0 8px;
+}
+
+.ops-hint {
+  margin: 0 0 8px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.mat-column-mark {
+  width: 24px;
+}
+
+.ops-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.ops-cell-button {
+  cursor: pointer;
+  text-decoration: underline dotted;
+
+  &:hover {
+    background: var(--ops-highlight);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+  }
+}
+
+.ops-cell-amount {
+  color: var(--mat-sys-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.ops-details {
+  display: grid;
+  grid-template-columns: minmax(160px, max-content) auto;
+  gap: 4px 16px;
+  margin: 0;
+  font-size: 0.875rem;
+
+  dt {
+    font-weight: 500;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+// Last, so a highlighted grid cell's wash wins over its transparent background.
+@include ops.highlight;

@@ -1,0 +1,92 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<h3 class="ops-section-heading">{{ 'labels.heading.Matching' | translate }}</h3>
+<dl class="ops-details" data-row-key="recon" [class.ops-row-highlight]="highlighted()">
+  <dt>{{ 'labels.text.Last sweep (Lagos)' | translate }}</dt>
+  <dd class="ops-value" data-field="lastSweepAt">
+    {{ recon().lastSweepAt ? (recon().lastSweepAt | date: 'd MMM HH:mm:ss' : lagos) : '—' }}
+    <mifosx-ops-mark [mark]="recon().mark"></mifosx-ops-mark>
+  </dd>
+  <dt>{{ 'labels.text.Last checked (Lagos)' | translate }}</dt>
+  <dd>{{ recon().lastCheckedAt ? (recon().lastCheckedAt | date: 'd MMM HH:mm:ss' : lagos) : '—' }}</dd>
+  <dt>{{ 'labels.text.Interval' | translate }}</dt>
+  <dd>{{ 'labels.text.n seconds' | translate: { count: recon().intervalSeconds } }}</dd>
+</dl>
+
+<h3 class="ops-section-heading">{{ 'labels.heading.Unmatched items' | translate }}</h3>
+
+<ng-container *mifosxHasPermission="'READ_SETTLEMENTRECON'">
+  <button
+    mat-stroked-button
+    type="button"
+    class="ops-check-breaks"
+    [disabled]="store.breaks()?.loading"
+    (click)="checkBreaks()"
+  >
+    {{ 'labels.buttons.Check breaks now' | translate }}
+  </button>
+
+  @if (store.breaks(); as state) {
+    @if (state.loading) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+    @if (state.error; as error) {
+      <p class="report-error" role="alert">{{ 'labels.text.' + error.key | translate }}</p>
+    }
+    @if (state.breaks; as breaks) {
+      <p class="ops-breaks-total">
+        {{ 'labels.text.n items unmatched' | translate: { count: breaks.total } }}
+        · {{ 'labels.text.Checked at (Lagos)' | translate: { time: (breaks.asOf + 'Z' | date: 'HH:mm' : lagos) } }}
+        @if (breaks.truncated) {
+          · {{ 'labels.text.Showing the first n' | translate: { count: breaks.items.length } }}
+        }
+      </p>
+      @if (lines().length > 0) {
+        <div class="table-scroll">
+          <table mat-table [dataSource]="lines()">
+            <ng-container matColumnDef="mark">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let line"><mifosx-ops-mark [mark]="line.mark"></mifosx-ops-mark></td>
+            </ng-container>
+            <ng-container matColumnDef="glCode">
+              <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.GL' | translate }}</th>
+              <td mat-cell *matCellDef="let line">{{ line.glCode }}</td>
+            </ng-container>
+            <ng-container matColumnDef="integrity">
+              <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Integrity' | translate }}</th>
+              <td mat-cell *matCellDef="let line">{{ line.integrity ?? '—' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="difference">
+              <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Difference' | translate }}</th>
+              <td mat-cell *matCellDef="let line" class="ops-amount">{{ naira(line.difference) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="items">
+              <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Items' | translate }}</th>
+              <td mat-cell *matCellDef="let line">{{ line.items }}</td>
+            </ng-container>
+            <ng-container matColumnDef="critical">
+              <th mat-header-cell *matHeaderCellDef>CRITICAL</th>
+              <td mat-cell *matCellDef="let line">{{ line.critical }}</td>
+            </ng-container>
+            <ng-container matColumnDef="high">
+              <th mat-header-cell *matHeaderCellDef>HIGH</th>
+              <td mat-cell *matCellDef="let line">{{ line.high }}</td>
+            </ng-container>
+            <ng-container matColumnDef="warn">
+              <th mat-header-cell *matHeaderCellDef>WARN</th>
+              <td mat-cell *matCellDef="let line">{{ line.warn }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let line; columns: columns" [attr.data-gl]="line.glCode"></tr>
+          </table>
+        </div>
+      }
+    }
+  }
+</ng-container>

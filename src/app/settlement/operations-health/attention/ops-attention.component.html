@@ -1,0 +1,93 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+@let items = health().attention;
+@if (items.length > 0) {
+  <h3 class="ops-section-heading">{{ 'labels.heading.Needs a look' | translate }}</h3>
+  <div class="table-scroll">
+    <table mat-table [dataSource]="items" [trackBy]="byItem">
+      <ng-container matColumnDef="mark">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let item"><mifosx-ops-mark [mark]="item.mark"></mifosx-ops-mark></td>
+      </ng-container>
+      <ng-container matColumnDef="step">
+        <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Step' | translate }}</th>
+        <td mat-cell *matCellDef="let item">{{ 'labels.text.' + tabOf(item.step).label | translate }}</td>
+      </ng-container>
+      <ng-container matColumnDef="reference">
+        <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Reference' | translate }}</th>
+        <td mat-cell *matCellDef="let item">
+          <a
+            class="ops-attention-link"
+            [routerLink]="['..', tabOf(item.step).path]"
+            queryParamsHandling="preserve"
+            (click)="reveal(item)"
+            >{{ item.reference }}</a
+          >
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Status / code' | translate }}</th>
+        <td mat-cell *matCellDef="let item">
+          <span class="ops-value">
+            {{ item.status ?? '—' }}
+            @if (item.code) {
+              <span class="ops-muted">/</span> {{ item.code }}
+            }
+            @if (item.unrecognised) {
+              <span class="ops-tag">{{ 'labels.text.unrecognised' | translate }}</span>
+            }
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="message">
+        <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Message' | translate }}</th>
+        <td mat-cell *matCellDef="let item" class="ops-text">
+          <mifosx-ops-text [text]="item.message"></mifosx-ops-text>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="at">
+        <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.When (Lagos)' | translate }}</th>
+        <td mat-cell *matCellDef="let item">{{ item.at ? (item.at | date: 'd MMM HH:mm' : lagos) : '—' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="refersTo">
+        <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Refers to' | translate }}</th>
+        <td mat-cell *matCellDef="let item">
+          @for (refersTo of item.refersTo; track refersTo.batchId) {
+            @if (refersTo.businessDate) {
+              <a
+                class="ops-refers-to"
+                [routerLink]="['..', 'settlement']"
+                [queryParams]="{ businessDate: refersTo.businessDate }"
+                [attr.data-refers-to]="refersTo.batchId"
+                (click)="revealBatch(refersTo)"
+                >{{ refersTo.batchId }} ({{ refersTo.businessDate }}, {{ refersTo.status ?? '—' }})</a
+              >
+            } @else {
+              <span class="ops-refers-to" [attr.data-refers-to]="refersTo.batchId"
+                >{{ refersTo.batchId }} (—, {{ refersTo.status ?? '—' }})</span
+              >
+            }
+          } @empty {
+            <span class="ops-muted">—</span>
+          }
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let item; columns: columns"
+        [attr.data-attention]="item.reference"
+        [attr.data-mark]="item.mark"
+      ></tr>
+    </table>
+  </div>
+  @if (health().attentionTruncated) {
+    <p class="ops-hint">{{ 'labels.text.Only the first n rows are shown' | translate: { count: items.length } }}</p>
+  }
+}

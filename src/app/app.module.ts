@@ -37,6 +37,7 @@ import { GroupsModule } from './groups/groups.module';
 import { CentersModule } from './centers/centers.module';
 import { AccountingModule } from './accounting/accounting.module';
 import { SystemModule } from './system/system.module';
+import { SettlementModule } from './settlement/settlement.module';
 import { ProductsModule } from './products/products.module';
 import { OrganizationModule } from './organization/organization.module';
 import { TemplatesModule } from './templates/templates.module';
@@ -119,6 +120,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     CentersModule,
     AccountingModule,
     SystemModule,
+    SettlementModule,
     ProductsModule,
     OrganizationModule,
     TemplatesModule,

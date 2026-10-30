@@ -180,6 +180,14 @@
   <button mat-menu-item [routerLink]="['/reports', 'Accounting']" tabindex="0" *mifosxHasPermission="'READ_REPORT'">
     {{ 'labels.menus.Accounting' | translate }}
   </button>
+  <button
+    mat-menu-item
+    [routerLink]="['/settlement', 'operations-health']"
+    tabindex="0"
+    *mifosxHasPermission="'READ_OPSHEALTH'"
+  >
+    {{ 'labels.menus.Operations Health' | translate }}
+  </button>
 </mat-menu>
 
 <mat-menu #adminMenu="matMenu" [overlapTrigger]="false">

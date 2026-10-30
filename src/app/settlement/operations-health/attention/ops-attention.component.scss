@@ -1,0 +1,47 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+@use '../ops-health-marks' as ops;
+
+@include ops.data-table;
+
+:host {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.ops-section-heading {
+  margin: 0 0 8px;
+}
+
+.ops-hint {
+  margin: 8px 0 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.mat-column-mark {
+  width: 24px;
+}
+
+.ops-attention-link,
+.ops-refers-to {
+  color: inherit;
+  text-decoration: underline dotted;
+}
+
+.ops-refers-to {
+  display: block;
+}
+
+.ops-tag {
+  padding: 0 6px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 4px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.75rem;
+}

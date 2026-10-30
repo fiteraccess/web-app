@@ -27,12 +27,12 @@
   <mat-sidenav-content class="sidenav">
     <!-- Toolbar -->
     <mifosx-toolbar [sidenav]="sidenav" (collapse)="toggleCollapse($event)"></mifosx-toolbar>
-    <!-- Progress Bar -->
-    @if (progressBarMode !== 'none') {
-      <div>
+    <!-- Progress Bar: its holder stays put, so a request starting or ending never moves the scrolled page. -->
+    <div>
+      @if (progressBarMode !== 'none') {
         <div class="loading"></div>
-      </div>
-    }
+      }
+    </div>
 
     <!-- Breadcrumb -->
     <mifosx-breadcrumb></mifosx-breadcrumb>

@@ -1,0 +1,72 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+.container {
+  padding: 16px;
+}
+
+.ops-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ops-heading {
+  margin: 0;
+}
+
+.ops-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+// The field's hint row is empty here; without this the button and the text sit above the field's centre.
+.ops-date {
+  min-width: 200px;
+  margin-bottom: -1.25em;
+}
+
+.ops-progress {
+  height: 4px;
+}
+
+.ops-checked {
+  opacity: 0.72;
+}
+
+.ops-error {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.report-error {
+  color: var(--mat-sys-error);
+  margin: 0;
+}
+
+.ops-stale {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.ops-tabs {
+  margin-top: 16px;
+}
+
+.ops-tab-mark {
+  margin-left: 6px;
+}

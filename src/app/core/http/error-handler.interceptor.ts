@@ -8,7 +8,14 @@
 
 /** Angular Imports */
 import { Injectable, inject } from '@angular/core';
-import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpContextToken,
+  HttpEvent,
+  HttpInterceptor,
+  HttpHandler,
+  HttpRequest,
+  HttpErrorResponse
+} from '@angular/common/http';
 
 /** rxjs Imports */
 import { EMPTY, Observable } from 'rxjs';
@@ -24,6 +31,12 @@ import { TranslateService } from '@ngx-translate/core'; // Added import for Tran
 
 /** Initialize Logger */
 const log = new Logger('ErrorHandlerInterceptor');
+
+/**
+ * Statuses the caller shows to the user itself, so the default alert stays quiet for them; the error is still thrown.
+ * Set per request: `{ context: new HttpContext().set(HANDLED_ERROR_STATUSES, [403, 404]) }`.
+ */
+export const HANDLED_ERROR_STATUSES = new HttpContextToken<readonly number[]>(() => []);
 
 /**
  * Http Request interceptor to add a default error handler to requests.
@@ -45,6 +58,9 @@ export class ErrorHandlerInterceptor implements HttpInterceptor {
    */
   private handleError(response: HttpErrorResponse, request: HttpRequest<any>): Observable<HttpEvent<any>> {
     const status = response.status;
+    if (request.context.get(HANDLED_ERROR_STATUSES).includes(status)) {
+      throw response;
+    }
     let errorMessage = response.error.developerMessage || response.message;
     if (response.error.errors) {
       if (response.error.errors[0]) {

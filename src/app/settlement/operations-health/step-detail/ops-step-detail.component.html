@@ -1,0 +1,622 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+@let detail = health().detail;
+@switch (step()) {
+  @case ('PAY_WINDOW') {
+    <h3 class="ops-section-heading">{{ 'labels.heading.Batches received' | translate }}</h3>
+    @if (detail.payWindow.batches.length === 0) {
+      <p class="ops-hint">{{ 'labels.text.No rows for this date' | translate }}</p>
+    } @else {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="detail.payWindow.batches" [trackBy]="byBatch">
+          <ng-container matColumnDef="mark">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row"><mifosx-ops-mark [mark]="row.mark"></mifosx-ops-mark></td>
+          </ng-container>
+          <ng-container matColumnDef="batchId">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Batch id' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.batchId }}</td>
+          </ng-container>
+          <ng-container matColumnDef="rail">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Rail' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.rail }}</td>
+          </ng-container>
+          <ng-container matColumnDef="switchProvider">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Switch' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.switchProvider }}</td>
+          </ng-container>
+          <ng-container matColumnDef="window">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Window' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.window ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="loadedDate">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Loaded date' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.loadedDate }}</td>
+          </ng-container>
+          <ng-container matColumnDef="totalCount">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Rows' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.totalCount ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="totalAmount">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Amount' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-amount">{{ naira(row.totalAmount) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Code' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.code }}</td>
+          </ng-container>
+          <ng-container matColumnDef="receivedAt">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Received (Lagos)' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.receivedAt ? (row.receivedAt | date: 'd MMM HH:mm' : lagos) : '—' }}
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="batchColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: batchColumns"
+            [attr.data-mark]="row.mark"
+            [attr.data-row-key]="row.batchId"
+            [class.ops-row-highlight]="highlighted() === row.batchId"
+            [attr.data-batch]="row.batchId"
+          ></tr>
+        </table>
+      </div>
+    }
+    <h3 class="ops-section-heading">{{ 'labels.heading.Refusals' | translate }}</h3>
+    @if (detail.payWindow.refusals.length === 0) {
+      <p class="ops-hint">{{ 'labels.text.No rows for this date' | translate }}</p>
+    } @else {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="detail.payWindow.refusals" [trackBy]="byRef">
+          <ng-container matColumnDef="mark">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row"><mifosx-ops-mark [mark]="row.mark"></mifosx-ops-mark></td>
+          </ng-container>
+          <ng-container matColumnDef="batchId">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Batch id' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.batchId ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="rail">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Rail' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.rail }}</td>
+          </ng-container>
+          <ng-container matColumnDef="switchProvider">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Switch' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.switchProvider }}</td>
+          </ng-container>
+          <ng-container matColumnDef="window">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Window' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.window ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Code' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.code }}</td>
+          </ng-container>
+          <ng-container matColumnDef="reason">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Reason' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-text">
+              <mifosx-ops-text [text]="row.reason"></mifosx-ops-text>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="receivedAt">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Received (Lagos)' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.receivedAt ? (row.receivedAt | date: 'd MMM HH:mm' : lagos) : '—' }}
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="refusalColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: refusalColumns"
+            [attr.data-mark]="row.mark"
+            [attr.data-row-key]="row.ref"
+            [class.ops-row-highlight]="highlighted() === row.ref"
+            [attr.data-batch]="row.batchId"
+          ></tr>
+        </table>
+      </div>
+    }
+    @if (detail.payWindow.truncated) {
+      <p class="ops-hint">{{ 'labels.text.Only the first n rows are shown' | translate: { count: 50 } }}</p>
+    }
+  }
+
+  @case ('SETTLEMENT') {
+    <h3 class="ops-section-heading">{{ 'labels.heading.Settlement batches' | translate }}</h3>
+    @if (detail.settlement.batches.length === 0) {
+      <p class="ops-hint">{{ 'labels.text.No rows for this date' | translate }}</p>
+    } @else {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="detail.settlement.batches" [trackBy]="byBatch">
+          <ng-container matColumnDef="mark">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row"><mifosx-ops-mark [mark]="row.mark"></mifosx-ops-mark></td>
+          </ng-container>
+          <ng-container matColumnDef="batchId">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Batch id' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.batchId }}</td>
+          </ng-container>
+          <ng-container matColumnDef="rail">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Rail' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.rail }}</td>
+          </ng-container>
+          <ng-container matColumnDef="switchProvider">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Switch' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.switchProvider }}</td>
+          </ng-container>
+          <ng-container matColumnDef="window">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Window' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.window ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Status' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+          </ng-container>
+          <ng-container matColumnDef="attempts">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Attempts' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.attempts ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="lastError">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Last error' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-text">
+              <mifosx-ops-text [text]="row.lastError"></mifosx-ops-text>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="declaredCount">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Declared rows' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.declaredCount ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="declaredAmount">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Declared amount' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-amount">{{ naira(row.declaredAmount) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="postedCount">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Posted rows' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.postedCount ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="postedAmount">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Posted amount' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-amount">{{ naira(row.postedAmount) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="exceptions">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Exceptions' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.exceptions }}</td>
+          </ng-container>
+          <ng-container matColumnDef="settleCompleteStatus">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Settle complete' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.settleCompleteStatus ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="settleCompleteAttempts">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Settle complete tries' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.settleCompleteAttempts ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="settleCompleteAt">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Settle complete at (Lagos)' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.settleCompleteAt ? (row.settleCompleteAt | date: 'd MMM HH:mm' : lagos) : '—' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Code' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.code ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="message">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Message' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-text">
+              <mifosx-ops-text [text]="row.message"></mifosx-ops-text>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Created (Lagos)' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.createdAt ? (row.createdAt | date: 'd MMM HH:mm' : lagos) : '—' }}
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="settlementColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: settlementColumns"
+            [attr.data-mark]="row.mark"
+            [attr.data-row-key]="row.batchId"
+            [class.ops-row-highlight]="highlighted() === row.batchId"
+            [attr.data-batch]="row.batchId"
+          ></tr>
+        </table>
+      </div>
+    }
+    @if (detail.settlement.truncated) {
+      <p class="ops-hint">
+        {{ 'labels.text.Only the first n rows are shown' | translate: { count: detail.settlement.batches.length } }}
+      </p>
+    }
+  }
+
+  @case ('END_OF_CYCLE') {
+    @let eoc = detail.endOfCycle;
+    <h3 class="ops-section-heading">{{ 'labels.heading.Cycles' | translate }}</h3>
+    @if (eoc.grid.length === 0) {
+      <p class="ops-hint">{{ 'labels.text.No rows for this date' | translate }}</p>
+    } @else {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="eoc.grid" [trackBy]="byCycleRow" class="ops-cycle-grid">
+          <ng-container matColumnDef="rail">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Rail' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.rail }}</td>
+          </ng-container>
+          <ng-container matColumnDef="switchProvider">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Switch' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.switchProvider }}</td>
+          </ng-container>
+          @for (cycle of eoc.cycles; track cycle) {
+            <ng-container [matColumnDef]="'cycle-' + cycle">
+              <th mat-header-cell *matHeaderCellDef>{{ cycle }}</th>
+              <td mat-cell *matCellDef="let row">
+                @let cell = cellOf(row, cycle);
+                @let key = cycleKey(row, cycle);
+                @if (cell?.status) {
+                  @if (isListed(cell.call)) {
+                    <button
+                      type="button"
+                      class="ops-cell ops-cell-button"
+                      [attr.data-row-key]="key"
+                      [class.ops-row-highlight]="highlighted() === key"
+                      [attr.data-cycle]="cycle"
+                      [attr.data-mark]="cell.mark"
+                      (click)="showCall(cell.call)"
+                    >
+                      <mifosx-ops-mark [mark]="cell.mark"></mifosx-ops-mark>
+                      <span>{{ cell.status }}</span>
+                      @if (cell.amount !== null) {
+                        <span class="ops-cell-amount">{{ naira(cell.amount) }}</span>
+                      }
+                    </button>
+                  } @else {
+                    <span
+                      class="ops-cell"
+                      [attr.data-row-key]="key"
+                      [class.ops-row-highlight]="highlighted() === key"
+                      [attr.data-cycle]="cycle"
+                      [attr.data-mark]="cell.mark"
+                    >
+                      <mifosx-ops-mark [mark]="cell.mark"></mifosx-ops-mark>
+                      <span>{{ cell.status }}</span>
+                      @if (cell.amount !== null) {
+                        <span class="ops-cell-amount">{{ naira(cell.amount) }}</span>
+                      }
+                    </span>
+                  }
+                } @else {
+                  <span class="ops-muted">—</span>
+                }
+              </td>
+            </ng-container>
+          }
+          <tr mat-header-row *matHeaderRowDef="cycleColumns(eoc.cycles)"></tr>
+          <tr mat-row *matRowDef="let row; columns: cycleColumns(eoc.cycles)"></tr>
+        </table>
+      </div>
+    }
+    <h3 class="ops-section-heading">{{ 'labels.heading.End of cycle runs' | translate }}</h3>
+    @if (eoc.runs.length === 0) {
+      <p class="ops-hint">{{ 'labels.text.No rows for this date' | translate }}</p>
+    } @else {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="eoc.runs" [trackBy]="byEoc">
+          <ng-container matColumnDef="mark">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row"><mifosx-ops-mark [mark]="row.mark"></mifosx-ops-mark></td>
+          </ng-container>
+          <ng-container matColumnDef="eocId">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.EOC id' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.eocId }}</td>
+          </ng-container>
+          <ng-container matColumnDef="rail">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Rail' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.rail }}</td>
+          </ng-container>
+          <ng-container matColumnDef="switchProvider">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Switch' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.switchProvider }}</td>
+          </ng-container>
+          <ng-container matColumnDef="cycleAt">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Cycle (Lagos)' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.cycleAt | date: 'HH:mm' : lagos }}</td>
+          </ng-container>
+          <ng-container matColumnDef="cycleDate">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Cycle date' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.cycleDate }}</td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Status' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+          </ng-container>
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Amount' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-amount">{{ naira(row.amount) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="notifyAttempts">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Notify tries' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.notifyAttempts ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="notifiedAt">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Notified (Lagos)' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.notifiedAt ? (row.notifiedAt | date: 'd MMM HH:mm' : lagos) : '—' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Code' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.code ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="message">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Message' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-text">
+              <mifosx-ops-text [text]="row.message"></mifosx-ops-text>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="lastError">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Last error' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-text">
+              <mifosx-ops-text [text]="row.lastError"></mifosx-ops-text>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="runColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: runColumns"
+            [attr.data-mark]="row.mark"
+            [attr.data-row-key]="row.runId"
+            [class.ops-row-highlight]="highlighted() === row.runId"
+            [attr.data-eoc]="row.eocId"
+          ></tr>
+        </table>
+      </div>
+    }
+    @if (eoc.truncated) {
+      <p class="ops-hint">
+        {{ 'labels.text.Only the first n rows are shown' | translate: { count: eoc.runs.length } }}
+      </p>
+    }
+  }
+
+  @case ('BUSINESS_DATE') {
+    @let bd = detail.businessDate;
+    <h3 class="ops-section-heading">{{ 'labels.heading.Business date' | translate }}</h3>
+    <dl class="ops-details" data-row-key="business-date" [class.ops-row-highlight]="highlighted() === 'business-date'">
+      <dt>{{ 'labels.text.Fineract date' | translate }}</dt>
+      <dd>{{ bd.fineractDate ?? '—' }}</dd>
+      <dt>{{ 'labels.text.Today' | translate }}</dt>
+      <dd>{{ bd.today }}</dd>
+      <dt>{{ 'labels.text.Days behind' | translate }}</dt>
+      <dd>
+        <span class="ops-value" data-field="daysBehind"
+          >{{ bd.daysBehind ?? '—' }} <mifosx-ops-mark [mark]="bd.mark"></mifosx-ops-mark
+        ></span>
+      </dd>
+    </dl>
+  }
+
+  @case ('END_OF_DAY') {
+    @let eod = detail.endOfDay;
+    <h3 class="ops-section-heading">{{ 'labels.heading.End of day run' | translate }}</h3>
+    <dl
+      class="ops-details ops-run"
+      [attr.data-mark]="eod.run.mark"
+      data-row-key="eod-run"
+      [class.ops-row-highlight]="highlighted() === 'eod-run'"
+    >
+      <dt>{{ 'labels.text.Status' | translate }}</dt>
+      <dd>
+        <span class="ops-value" data-field="runStatus"
+          >{{ eod.run.status }} <mifosx-ops-mark [mark]="eod.run.mark"></mifosx-ops-mark
+        ></span>
+      </dd>
+      <dt>{{ 'labels.text.Started (Lagos)' | translate }}</dt>
+      <dd>{{ eod.run.startedAt ? (eod.run.startedAt | date: 'd MMM HH:mm' : lagos) : '—' }}</dd>
+      <dt>{{ 'labels.text.Finished (Lagos)' | translate }}</dt>
+      <dd>{{ eod.run.completedAt ? (eod.run.completedAt | date: 'd MMM HH:mm' : lagos) : '—' }}</dd>
+      <dt>{{ 'labels.text.Attempts' | translate }}</dt>
+      <dd>{{ eod.run.attempts ?? '—' }}</dd>
+      <dt>{{ 'labels.text.Last error' | translate }}</dt>
+      <dd><mifosx-ops-text [text]="eod.run.lastError"></mifosx-ops-text></dd>
+    </dl>
+    <h3 class="ops-section-heading">{{ 'labels.heading.End of day steps' | translate }}</h3>
+    @if (eod.steps.length === 0) {
+      <p class="ops-hint">{{ 'labels.text.No rows for this date' | translate }}</p>
+    } @else {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="eod.steps" [trackBy]="byName">
+          <ng-container matColumnDef="mark">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row"><mifosx-ops-mark [mark]="row.mark"></mifosx-ops-mark></td>
+          </ng-container>
+          <ng-container matColumnDef="order">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Order' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.order }}</td>
+          </ng-container>
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Step' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Status' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+          </ng-container>
+          <ng-container matColumnDef="at">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.At (Lagos)' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.at ? (row.at | date: 'd MMM HH:mm' : lagos) : '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="error">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Error' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-text">
+              <mifosx-ops-text [text]="row.error"></mifosx-ops-text>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="eodStepColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: eodStepColumns"
+            [attr.data-mark]="row.mark"
+            [attr.data-row-key]="row.name"
+            [class.ops-row-highlight]="highlighted() === row.name"
+            [attr.data-eod-step]="row.name"
+          ></tr>
+        </table>
+      </div>
+    }
+    <h3 class="ops-section-heading">{{ 'labels.heading.Delivery to Fineract' | translate }}</h3>
+    <dl class="ops-details" data-row-key="replay" [class.ops-row-highlight]="highlighted() === 'replay'">
+      <dt>{{ 'labels.text.Drained' | translate }}</dt>
+      <dd>
+        <span class="ops-value" data-field="drained"
+          >{{ (eod.replay.drained ? 'labels.commons.Yes' : 'labels.commons.No') | translate }}
+          <mifosx-ops-mark [mark]="eod.replay.mark"></mifosx-ops-mark
+        ></span>
+      </dd>
+      <dt>{{ 'labels.text.In flight' | translate }}</dt>
+      <dd>{{ eod.replay.inFlight }}</dd>
+      <dt>{{ 'labels.text.Pending transactions' | translate }}</dt>
+      <dd>{{ eod.replay.pendingTx }}</dd>
+      <dt>{{ 'labels.text.Posted to TigerBeetle only' | translate }}</dt>
+      <dd>{{ eod.replay.postedToTbOnly }}</dd>
+      <dt>{{ 'labels.text.Inbox pending' | translate }}</dt>
+      <dd>{{ eod.replay.inboxPending }}</dd>
+      <dt>{{ 'labels.text.Inbox retrying' | translate }}</dt>
+      <dd>{{ eod.replay.inboxRetrying }}</dd>
+      <dt>{{ 'labels.text.Failed (new)' | translate }}</dt>
+      <dd>{{ eod.replay.failedNewCount }}</dd>
+      <dt>{{ 'labels.text.Failed (legacy)' | translate }}</dt>
+      <dd>{{ eod.replay.failedLegacyCount }}</dd>
+    </dl>
+    <h3 class="ops-section-heading">{{ 'labels.heading.Flexcube postings' | translate }}</h3>
+    @if (eod.mirrorLegs.length === 0) {
+      <p class="ops-hint">{{ 'labels.text.No rows for this date' | translate }}</p>
+    } @else {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="eod.mirrorLegs" [trackBy]="byReference">
+          <ng-container matColumnDef="reference">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Reference' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.reference }}</td>
+          </ng-container>
+          <ng-container matColumnDef="mark">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row"><mifosx-ops-mark [mark]="row.mark"></mifosx-ops-mark></td>
+          </ng-container>
+          <ng-container matColumnDef="glCode">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.GL' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.glCode ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="branch">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Branch' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.branch ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Amount' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-amount">{{ naira(row.amount) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="flexStatus">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Flexcube status' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.flexStatus }}</td>
+          </ng-container>
+          <ng-container matColumnDef="outboxStatus">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Outbox status' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.outboxStatus ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="attempts">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Attempts' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.attempts ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Code' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.code ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="message">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Message' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-text">
+              <mifosx-ops-text [text]="row.message"></mifosx-ops-text>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="mirrorColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: mirrorColumns"
+            [attr.data-mark]="row.mark"
+            [attr.data-row-key]="row.reference"
+            [class.ops-row-highlight]="highlighted() === row.reference"
+            [attr.data-gl]="row.glCode"
+          ></tr>
+        </table>
+      </div>
+    }
+    <h3 class="ops-section-heading">{{ 'labels.heading.Bridge balance checks' | translate }}</h3>
+    @if (eod.checks.length === 0) {
+      <p class="ops-hint">{{ 'labels.text.No rows for this date' | translate }}</p>
+    } @else {
+      <div class="table-scroll">
+        <table mat-table [dataSource]="eod.checks" [trackBy]="byCheck">
+          <ng-container matColumnDef="mark">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row"><mifosx-ops-mark [mark]="row.mark"></mifosx-ops-mark></td>
+          </ng-container>
+          <ng-container matColumnDef="glCode">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.GL' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.glCode }}</td>
+          </ng-container>
+          <ng-container matColumnDef="branch">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Branch' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.branch ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="side">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Side' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.side ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="expected">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Expected' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-amount">{{ naira(row.expected) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="fineractBalance">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Fineract balance' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-amount">{{ naira(row.fineractBalance) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="flexcubeBalance">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Flexcube balance' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-amount">{{ naira(row.flexcubeBalance) }}</td>
+          </ng-container>
+          <ng-container matColumnDef="result">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Result' | translate }}</th>
+            <td mat-cell *matCellDef="let row">{{ row.result }}</td>
+          </ng-container>
+          <ng-container matColumnDef="note">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Note' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-text">
+              <mifosx-ops-text [text]="row.note"></mifosx-ops-text>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="checkColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: checkColumns"
+            [attr.data-mark]="row.mark"
+            [attr.data-row-key]="checkKey(row)"
+            [class.ops-row-highlight]="highlighted() === checkKey(row)"
+            [attr.data-gl]="row.glCode"
+          ></tr>
+        </table>
+      </div>
+    }
+    @if (eod.truncated) {
+      <p class="ops-hint">{{ 'labels.text.Only the first n rows are shown' | translate: { count: 50 } }}</p>
+    }
+  }
+
+  @case ('RECON') {
+    <mifosx-ops-recon-breaks [recon]="detail.recon" [highlighted]="highlighted() === 'recon'"></mifosx-ops-recon-breaks>
+  }
+}

@@ -1,0 +1,113 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+@use 'sass:color';
+@use 'sass:map';
+@use 'assets/styles/colours' as *;
+@use 'theme/material-palette' as palette;
+
+$primary-light: map.get(palette.$primary-palette, 500);
+$primary-dark: map.get(palette.$dark-primary-palette, 500);
+
+// Colour only for a RED or AMBER mark (Mark in ops-health.model.ts); everything else stays in the theme's text colours.
+@mixin marks {
+  .mark-red {
+    --ops-mark: #{$msg-danger};
+  }
+
+  .mark-amber {
+    --ops-mark: #{$msg-warning};
+  }
+
+  .mark-none {
+    --ops-mark: var(--mat-sys-on-surface-variant);
+  }
+}
+
+// Dense, horizontally scrollable data table.
+@mixin data-table {
+  .table-scroll {
+    overflow-x: auto;
+
+    table {
+      width: 100%;
+    }
+
+    .mat-mdc-header-row,
+    .mat-mdc-row {
+      height: 36px;
+    }
+
+    .mat-mdc-cell,
+    .mat-mdc-header-cell {
+      padding: 0 16px 0 0;
+      font-size: 0.8125rem;
+      white-space: nowrap;
+    }
+
+    .mat-mdc-cell:first-child,
+    .mat-mdc-header-cell:first-child {
+      padding-left: 8px;
+    }
+
+    // Stored messages and errors can be long; they wrap rather than stretch the table.
+    .mat-mdc-cell.ops-text {
+      min-width: 200px;
+      max-width: 420px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .ops-amount {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .ops-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .ops-muted {
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+// Bordered, rounded block used by sections that sit inside a card.
+@mixin panel {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+}
+
+// The row (or grid cell) a Needs a look line pointed at: a faint wash and edge in the theme's primary. The app's
+// M2 theme defines no --mat-sys-* tokens, so the colours come from the palettes of the light and dark themes.
+@mixin highlight {
+  :host {
+    --ops-highlight: #{color.change($primary-light, $alpha: 0.08)};
+    --ops-highlight-edge: #{color.change($primary-light, $alpha: 0.48)};
+  }
+
+  :host-context(.dark-theme) {
+    --ops-highlight: #{color.change($primary-dark, $alpha: 0.24)};
+    --ops-highlight-edge: #{color.change($primary-dark, $alpha: 0.8)};
+  }
+
+  .ops-row-highlight {
+    background: var(--ops-highlight);
+    outline: 2px solid var(--ops-highlight-edge);
+    outline-offset: -2px;
+    transition: background-color 0.3s;
+  }
+
+  // The dark theme stripes even table rows with an !important background; outrank it for the highlight only.
+  :host-context(.dark-theme) .ops-row-highlight {
+    background-color: var(--ops-highlight) !important;
+  }
+}
