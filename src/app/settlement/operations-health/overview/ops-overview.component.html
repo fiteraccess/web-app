@@ -1,0 +1,29 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+@if (store.health(); as health) {
+  <mifosx-ops-attention [health]="health"></mifosx-ops-attention>
+  <ol class="ops-list">
+    @for (step of health.steps; track step.id; let index = $index) {
+      <li>
+        <a
+          class="ops-row"
+          [routerLink]="['..', tabOf(step.id).path]"
+          queryParamsHandling="preserve"
+          [attr.data-step]="step.id"
+          [attr.data-mark]="step.mark"
+        >
+          <span class="ops-row-order">{{ index + 1 }}</span>
+          <span class="ops-row-name">{{ 'labels.text.' + tabOf(step.id).label | translate }}</span>
+          <span class="ops-row-mark"><mifosx-ops-mark [mark]="step.mark"></mifosx-ops-mark></span>
+          <mifosx-ops-step-summary class="ops-row-facts" [health]="health" [step]="step"></mifosx-ops-step-summary>
+        </a>
+      </li>
+    }
+  </ol>
+}

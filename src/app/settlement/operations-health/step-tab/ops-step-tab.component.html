@@ -1,0 +1,36 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+@if (store.health(); as health) {
+  @if (step(); as step) {
+    <div class="ops-step-heading">
+      <h3 class="ops-step-name">{{ 'labels.text.' + tab.label | translate }}</h3>
+      <mifosx-ops-mark [mark]="step.mark"></mifosx-ops-mark>
+      <mifosx-ops-step-summary [health]="health" [step]="step"></mifosx-ops-step-summary>
+    </div>
+  }
+
+  <mifosx-ops-step-detail [health]="health" [step]="stepId"></mifosx-ops-step-detail>
+
+  @if (hasCalls) {
+    <mifosx-ops-calls-panel [health]="health" [step]="stepId"></mifosx-ops-calls-panel>
+  }
+
+  <div class="ops-step-nav">
+    @if (previous) {
+      <a mat-stroked-button [routerLink]="['..', previous.path]" queryParamsHandling="preserve">
+        ← {{ 'labels.buttons.Previous' | translate }}: {{ 'labels.text.' + previous.label | translate }}
+      </a>
+    }
+    @if (next) {
+      <a mat-stroked-button [routerLink]="['..', next.path]" queryParamsHandling="preserve">
+        {{ 'labels.buttons.Next' | translate }}: {{ 'labels.text.' + next.label | translate }} →
+      </a>
+    }
+  </div>
+}

@@ -1,0 +1,79 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+@let current = state();
+@if (!current || current.loading) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+} @else if (current.error; as error) {
+  <div class="ops-payload-error" role="alert">
+    <p class="report-error">{{ 'labels.text.' + error.key | translate }}</p>
+    @if (error.status !== 403 && error.status !== 404) {
+      <button mat-stroked-button type="button" (click)="retry()">{{ 'labels.buttons.Retry' | translate }}</button>
+    }
+  </div>
+} @else if (current.payload; as payload) {
+  <div class="ops-bodies">
+    <section class="ops-body">
+      <h4 class="ops-body-heading">
+        {{
+          (inbound() ? 'labels.heading.Request Access sent us' : 'labels.heading.Request sent to Access') | translate
+        }}
+      </h4>
+      @if (payload.request; as body) {
+        @if (body.rebuilt) {
+          <p class="ops-caption">{{ 'labels.text.Rebuilt from stored fields' | translate }}</p>
+        }
+        <pre class="ops-body-text">{{ request().text }}</pre>
+        @if (request().hiddenLines > 0) {
+          <p class="ops-caption">{{ 'labels.text.n more lines' | translate: { count: request().hiddenLines } }}</p>
+        }
+        @if (request().cut) {
+          <button mat-button type="button" [disabled]="downloading !== null" (click)="download('request')">
+            {{ 'labels.buttons.Download full request' | translate }}
+          </button>
+        }
+      } @else {
+        <p class="ops-caption">{{ payload.missingNote ?? ('labels.text.Not called yet' | translate) }}</p>
+      }
+    </section>
+
+    <section class="ops-body">
+      <h4 class="ops-body-heading">
+        {{ (inbound() ? 'labels.heading.Our reply' : "labels.heading.Access's reply") | translate }}
+        @if (payload.reply?.httpStatus; as httpStatus) {
+          <span class="ops-caption">· HTTP {{ httpStatus }}</span>
+        }
+        @if (isRefusal(payload.reply?.answerCode)) {
+          <span class="ops-reply-refused">
+            <mifosx-ops-mark mark="RED"></mifosx-ops-mark>
+            {{ 'labels.text.Refused' | translate }}
+          </span>
+        }
+      </h4>
+      @if (payload.reply; as body) {
+        @if (body.rebuilt) {
+          <p class="ops-caption">{{ 'labels.text.Rebuilt from stored fields' | translate }}</p>
+        }
+        <pre class="ops-body-text">{{ reply().text }}</pre>
+        @if (reply().hiddenLines > 0) {
+          <p class="ops-caption">{{ 'labels.text.n more lines' | translate: { count: reply().hiddenLines } }}</p>
+        }
+        @if (reply().cut) {
+          <button mat-button type="button" [disabled]="downloading !== null" (click)="download('reply')">
+            {{ 'labels.buttons.Download full reply' | translate }}
+          </button>
+        }
+      } @else {
+        <p class="ops-caption">{{ payload.missingNote ?? ('labels.text.Not called yet' | translate) }}</p>
+      }
+    </section>
+  </div>
+  @if (downloadFailed) {
+    <p class="report-error">{{ 'labels.text.The full body could not be downloaded' | translate }}</p>
+  }
+}

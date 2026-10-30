@@ -1,0 +1,97 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container">
+  <mat-card>
+    <mat-card-content>
+      <div class="ops-header">
+        <h3 class="ops-heading">{{ 'labels.heading.Operations Health' | translate }}</h3>
+
+        <div class="ops-header-actions">
+          <mat-form-field appearance="fill" class="ops-date">
+            <mat-label>{{ 'labels.inputs.Business date' | translate }}</mat-label>
+            <input
+              matInput
+              [min]="minDate"
+              [max]="maxDate"
+              [matDatepicker]="businessDatePicker"
+              [formControl]="dateControl"
+              (dateChange)="onDatePicked($event.value)"
+            />
+            <mat-datepicker-toggle matSuffix [for]="businessDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #businessDatePicker></mat-datepicker>
+          </mat-form-field>
+
+          @if (store.health(); as health) {
+            <span class="ops-checked">
+              {{ 'labels.text.Checked at (Lagos)' | translate: { time: (health.asOf | date: 'HH:mm' : lagos) } }}
+            </span>
+          }
+
+          <button mat-stroked-button type="button" [disabled]="store.loading()" (click)="refresh()">
+            {{ 'labels.buttons.Refresh' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <!-- The bar's slot is always there, so a refresh never moves the page. -->
+      <div class="ops-progress">
+        @if (store.loading()) {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        }
+      </div>
+
+      @if (store.error(); as error) {
+        <div class="ops-error" role="alert">
+          <p class="report-error">{{ error.message ?? ('labels.text.' + error.key | translate) }}</p>
+          @if (error.status !== 403 && error.status !== 404) {
+            <button mat-stroked-button type="button" [disabled]="store.loading()" (click)="refresh()">
+              {{ 'labels.buttons.Retry' | translate }}
+            </button>
+          }
+        </div>
+      }
+
+      @if (store.health()?.stale) {
+        <p class="ops-stale" role="status">
+          {{
+            'labels.text.These figures may be out of date'
+              | translate: { time: (store.health().asOf | date: 'HH:mm' : lagos) }
+          }}
+        </p>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  @if (store.health(); as health) {
+    <mat-card class="ops-tabs">
+      <mat-card-content>
+        <nav mat-tab-nav-bar class="navigation-tabs" [tabPanel]="opsTabPanel">
+          @for (tab of tabs; track tab.path) {
+            <a
+              mat-tab-link
+              [routerLink]="[tab.path]"
+              queryParamsHandling="preserve"
+              routerLinkActive
+              #tabLink="routerLinkActive"
+              [active]="tabLink.isActive"
+            >
+              {{ 'labels.text.' + tab.label | translate }}
+              @if (tab.step) {
+                <mifosx-ops-mark class="ops-tab-mark" [mark]="stepMark(health, tab.step)"></mifosx-ops-mark>
+              }
+            </a>
+          }
+        </nav>
+        <mat-tab-nav-panel #opsTabPanel>
+          <router-outlet></router-outlet>
+        </mat-tab-nav-panel>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

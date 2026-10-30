@@ -1,0 +1,79 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+@use '../ops-health-marks' as ops;
+
+:host {
+  display: block;
+  padding: 8px 0 16px;
+}
+
+.ops-bodies {
+  display: grid;
+  grid-template-columns: repeat(2, calc(50% - 8px));
+  gap: 16px;
+}
+
+.ops-body {
+  min-width: 0;
+  padding: 12px;
+  background: var(--mat-sys-surface-container-low);
+
+  @include ops.panel;
+}
+
+.ops-body-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.ops-body-text {
+  max-height: 480px;
+  margin: 0;
+  overflow: auto;
+  font-size: 0.8rem;
+
+  // Wrapped, a long line can neither widen the table row it sits in nor be cut off at its edge.
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ops-caption {
+  margin: 4px 0;
+  font-size: 0.8rem;
+  font-weight: normal;
+  opacity: 0.72;
+}
+
+.ops-reply-refused {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.ops-payload-error {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.report-error {
+  color: var(--mat-sys-error);
+  margin: 8px 0 0;
+}
+
+@media (width <= 600px) {
+  .ops-bodies {
+    grid-template-columns: 100%;
+  }
+}

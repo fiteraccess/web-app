@@ -1,0 +1,42 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+@let current = step();
+@let detail = health().detail;
+@if (current.unchecked) {
+  <span class="ops-fact">{{ current.checkError ?? ('labels.text.Could not check — try again' | translate) }}</span>
+} @else {
+  @switch (current.id) {
+    @case ('BUSINESS_DATE') {
+      <span class="ops-fact">
+        {{ 'labels.text.Fineract date' | translate }}
+        {{ detail.businessDate.fineractDate ? (detail.businessDate.fineractDate | dateFormat) : '—' }}
+      </span>
+      @if (detail.businessDate.daysBehind !== null) {
+        <span class="ops-fact">
+          {{ 'labels.text.n days behind' | translate: { count: detail.businessDate.daysBehind } }}
+        </span>
+      }
+    }
+    @case ('RECON') {
+      <span class="ops-fact">
+        {{ 'labels.text.Last sweep (Lagos)' | translate }}
+        {{ detail.recon.lastSweepAt ? (detail.recon.lastSweepAt | date: 'd MMM HH:mm' : lagos) : '—' }}
+      </span>
+    }
+    @default {
+      @for (count of current.counts; track count.value) {
+        <span class="ops-fact" [class.ops-fact-marked]="count.mark !== 'NONE'" [attr.data-value]="count.value"
+          >{{ count.value }} {{ count.count }}</span
+        >
+      } @empty {
+        <span class="ops-fact">{{ 'labels.text.No rows for this date' | translate }}</span>
+      }
+    }
+  }
+}
