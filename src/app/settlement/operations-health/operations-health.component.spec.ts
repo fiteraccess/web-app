@@ -11,12 +11,16 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltip } from '@angular/material/tooltip';
 import { MatDatepicker } from '@angular/material/datepicker';
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { Router, Routes, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
 import { AuthenticationService } from 'app/core/authentication/authentication.service';
 import { SettingsService } from 'app/settings/settings.service';
@@ -27,7 +31,7 @@ import { OperationsHealthComponent } from './operations-health.component';
 import { OpsOverviewComponent } from './overview/ops-overview.component';
 import { OpsStepTabComponent } from './step-tab/ops-step-tab.component';
 import { OPS_TABS } from './ops-health-presentation';
-import { AttentionItem, OpsHealth } from './ops-health.model';
+import { AttentionItem, EocRun, OpsHealth } from './ops-health.model';
 import {
   EOC_COMPLETE_PAYLOAD,
   FLEX_POSTING_PAYLOAD,
@@ -37,6 +41,7 @@ import {
 } from './testing/ops-health.fixture';
 
 const HEALTH = '/access/api/v1/ops/health';
+const SETTLEMENT = '/access/api/v1/settlement';
 const PAGE = '/settlement/operations-health';
 
 const routes: Routes = [
@@ -59,10 +64,16 @@ describe('Operations Health page', () => {
   let harness: RouterTestingHarness;
   let http: HttpTestingController;
   let permissions: string[];
+  let confirmed: boolean;
+  let prompts: { heading: string; message: string }[];
+  let snacks: string[];
   const rbac = environment.productionModeEnableRBAC;
 
   beforeEach(async () => {
     permissions = ['ALL_FUNCTIONS'];
+    confirmed = true;
+    prompts = [];
+    snacks = [];
     await TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [
@@ -73,7 +84,18 @@ describe('Operations Health page', () => {
         provideNativeDateAdapter(),
         DatePipe,
         { provide: AuthenticationService, useValue: { getCredentials: () => ({ permissions }) } },
-        { provide: SettingsService, useValue: { dateFormat: 'dd MMMM yyyy', language: { code: 'en' } } }]
+        { provide: SettingsService, useValue: { dateFormat: 'dd MMMM yyyy', language: { code: 'en' } } },
+        {
+          provide: MatDialog,
+          useValue: {
+            open: (_: unknown, config: { data: { heading: string; message: string } }) => {
+              prompts.push(config.data);
+              return { afterClosed: () => of(confirmed) };
+            }
+          }
+        },
+        { provide: MatSnackBar, useValue: { open: (message: string) => snacks.push(message) } }
+      ]
     }).compileComponents();
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('en', translations);
@@ -1121,6 +1143,314 @@ describe('Operations Health page', () => {
 
       http.expectNone((r) => r.url.startsWith(`${HEALTH}/calls`));
       expect(page().querySelector('.ops-row-revealed').textContent).toContain('EOC-20261023-1740');
+    });
+  });
+
+  describe('recovery actions', () => {
+    const W9 = 'NIBSS-Inbound-20261023-W9-6a0d2125';
+    const W12 = 'NIBSS-Outbound-20261023-W12-3f8e10aa';
+    const RUN_1740 = '5e0b8a12-3c4d-4e6f-9a0b-1c2d3e4f5a6b';
+
+    function callRow(reference: string): HTMLElement {
+      return all('tr[id^="ops-call-"]').find((row) => row.textContent.includes(reference));
+    }
+
+    function actionIn(row: HTMLElement, action: string): HTMLButtonElement | null {
+      return row.querySelector<HTMLButtonElement>(`[data-action="${action}"]`);
+    }
+
+    function expectReload(): void {
+      http.expectOne((r) => r.url === HEALTH && r.method === 'GET').flush(healthFixture());
+      harness.detectChanges();
+    }
+
+    describe('calls with Access', () => {
+      it('offers Resend only on the calls the server marks resendable', async () => {
+        await open(`${PAGE}/settlement?businessDate=2026-10-23`);
+
+        expect(all('tr[id^="ops-call-"] [data-action="resend"]').length).toBe(1);
+        expect(actionIn(callRow(W9), 'resend')).not.toBeNull();
+      });
+
+      it('asks first, resends by batch id, says it is queued and reloads the day', async () => {
+        await open(`${PAGE}/settlement?businessDate=2026-10-23`);
+
+        actionIn(callRow(W9), 'resend').click();
+        harness.detectChanges();
+
+        expect(prompts).toEqual([
+          {
+            heading: 'Resend settlement completion',
+            message: `Resend the settlement completion for batch ${W9} to Access? Money is not moved again.`
+          }
+        ]);
+        const req = http.expectOne(`${SETTLEMENT}/batches/${W9}/resend-completion`);
+        expect(req.request.method).toBe('POST');
+        expect(actionIn(callRow(W9), 'resend').disabled).toBe(true);
+        req.flush({ batchId: W9, settleCompleteStatus: 'PENDING' });
+        harness.detectChanges();
+
+        expect(snacks).toEqual(['Queued for resend']);
+        expectReload();
+        expect(actionIn(callRow(W9), 'resend').disabled).toBe(false);
+      });
+
+      it('sends nothing when the operator cancels', async () => {
+        confirmed = false;
+        await open(`${PAGE}/settlement?businessDate=2026-10-23`);
+
+        actionIn(callRow(W9), 'resend').click();
+        harness.detectChanges();
+
+        http.expectNone((r) => r.method === 'POST');
+        expect(snacks).toEqual([]);
+      });
+
+      it('shows the server’s reason when the resend is refused, then reloads', async () => {
+        await open(`${PAGE}/settlement?businessDate=2026-10-23`);
+
+        actionIn(callRow(W9), 'resend').click();
+        harness.detectChanges();
+        http
+          .expectOne(`${SETTLEMENT}/batches/${W9}/resend-completion`)
+          .flush(
+            { defaultUserMessage: 'The settlement completion is already queued' },
+            { status: 409, statusText: 'Conflict' }
+          );
+        harness.detectChanges();
+
+        expect(snacks).toEqual(['The settlement completion is already queued']);
+        expectReload();
+      });
+
+      it('resends an EOC Complete call by its run id, naming the cycle', async () => {
+        await open(`${PAGE}/end-of-cycle?businessDate=2026-10-23`);
+
+        actionIn(callRow('EOC-20261023-1740'), 'resend').click();
+        harness.detectChanges();
+
+        expect(prompts[0].message).toBe(
+          'Resend EOC Complete for EOC-20261023-1740 to Access? The journal is not posted again.'
+        );
+        http
+          .expectOne(`${SETTLEMENT}/eoc-runs/${RUN_1740}/resend-completion`)
+          .flush({ runId: RUN_1740, eocId: 'EOC-20261023-1740', status: 'POSTED' });
+        harness.detectChanges();
+        expect(snacks).toEqual(['Queued for resend']);
+        expectReload();
+      });
+    });
+
+    describe('settlement batches', () => {
+      function batchRow(batchId: string): HTMLElement {
+        return rowOf(`tr[data-batch="${batchId}"]`);
+      }
+
+      it('offers Resend and Reschedule by their flags', async () => {
+        const health = healthFixture();
+        health.detail.settlement.batches[2].reschedulable = true;
+        await open(`${PAGE}/settlement?businessDate=2026-10-23`, health);
+
+        expect(actionIn(batchRow(W9), 'resend')).not.toBeNull();
+        expect(actionIn(batchRow(W9), 'reschedule')).toBeNull();
+        expect(actionIn(batchRow(W12), 'resend')).toBeNull();
+        expect(actionIn(batchRow(W12), 'reschedule')).not.toBeNull();
+        expect(actionIn(batchRow('NIBSS-Inbound-20261023-W8-c1d77e09'), 'resend')).toBeNull();
+      });
+
+      it('asks before re-posting a batch with its rows and amount, then says it is rescheduled', async () => {
+        const health = healthFixture();
+        health.detail.settlement.batches[2].reschedulable = true;
+        await open(`${PAGE}/settlement?businessDate=2026-10-23`, health);
+
+        actionIn(batchRow(W12), 'reschedule').click();
+        harness.detectChanges();
+
+        expect(prompts).toEqual([
+          {
+            heading: 'Reschedule settlement batch',
+            message: `Re-post batch ${W12} (1204 rows, ₦90,233,118.75)? Nothing was posted for it before; the journals will carry today's business date.`
+          }
+        ]);
+        http
+          .expectOne(`${SETTLEMENT}/batches/${W12}/reschedule`)
+          .flush({ batchId: W12, status: 'ACCEPTED', chunksCleared: 2, rowsCleared: 600 });
+        harness.detectChanges();
+        expect(snacks).toEqual(['Rescheduled; posting shortly']);
+        expectReload();
+      });
+
+      it('shows why a batch stopped with its failure code, and the raw error behind Details', async () => {
+        const health = healthFixture();
+        health.detail.settlement.batches[2] = {
+          ...health.detail.settlement.batches[2],
+          status: 'FAILED',
+          reason: 'GL account 140061950 is disabled',
+          failureCode: 'error.msg.glaccount.disabled',
+          lastError: 'FineractException: HTTP 403 {"developerMessage":"GL account disabled"}'
+        };
+        await open(`${PAGE}/settlement?businessDate=2026-10-23`, health);
+
+        const row = batchRow(W12);
+        expect(row.querySelector('[data-field="reason"]').textContent.trim()).toBe('GL account 140061950 is disabled');
+        expect(row.querySelector('[data-field="failureCode"]').textContent.trim()).toBe('error.msg.glaccount.disabled');
+        const details = row.querySelector('details[data-field="lastError"]');
+        expect(details.querySelector('summary').textContent.trim()).toBe('Details');
+        expect(details.textContent).toContain('FineractException: HTTP 403');
+      });
+    });
+
+    describe('end of cycle', () => {
+      const FAILED_RUN = '2b3c4d5e-6f70-4812-9a3b-4c5d6e7f8091';
+
+      function withFailedRun(supersededBy: string | null): OpsHealth {
+        const health = healthFixture();
+        health.detail.endOfCycle.grid[1].cells[0] = {
+          cycle: '08:40',
+          eocId: 'EOC-20261023-0840',
+          status: 'FAILED',
+          amount: 1000,
+          mark: 'RED',
+          call: null,
+          runId: FAILED_RUN,
+          reason: 'Fineract refused the journal: GL closed',
+          supersededBy
+        };
+        const run: EocRun = {
+          ...health.detail.endOfCycle.runs[1],
+          runId: FAILED_RUN,
+          eocId: 'EOC-20261023-0840',
+          status: 'FAILED',
+          mark: 'RED',
+          reason: 'Fineract refused the journal: GL closed',
+          failureCode: 'error.msg.glclosure.invalid',
+          lastError: 'HTTP 403 raw body',
+          supersededBy,
+          call: null,
+          resendable: false
+        };
+        health.detail.endOfCycle.runs.push(run);
+        return health;
+      }
+
+      it('shows a failed cell’s reason as a caption and a tooltip', async () => {
+        await open(`${PAGE}/end-of-cycle?businessDate=2026-10-23`, withFailedRun(null));
+
+        const cell = all('[data-cycle="08:40"]')[1];
+        expect(cell.querySelector('[data-field="reason"]').textContent.trim()).toBe(
+          'Fineract refused the journal: GL closed'
+        );
+        const tooltip = harness.fixture.debugElement
+          .queryAll(By.css('[data-cycle="08:40"]'))[1]
+          .injector.get(MatTooltip);
+        expect(tooltip.message).toBe('Fineract refused the journal: GL closed');
+        expect(cell.querySelector('mat-icon').classList).toContain('mark-red');
+      });
+
+      it('shows a superseded cell muted, with the run that took its batches, never red', async () => {
+        await open(`${PAGE}/end-of-cycle?businessDate=2026-10-23`, withFailedRun('EOC-20261023-1140'));
+
+        const cell = all('[data-cycle="08:40"]')[1];
+        expect(cell.classList).toContain('ops-cell-superseded');
+        expect(cell.textContent).toContain('superseded by EOC-20261023-1140');
+        const icon = cell.querySelector('mat-icon');
+        expect(icon.classList).not.toContain('mark-red');
+        expect(icon.classList).toContain('mark-none');
+
+        const run = rowOf(`tr[data-row-key="${FAILED_RUN}"]`);
+        expect(run.classList).toContain('ops-row-superseded');
+        expect(run.textContent).toContain('superseded by EOC-20261023-1140');
+        expect(run.querySelector('mat-icon').classList).not.toContain('mark-red');
+      });
+
+      it('highlights a failed cell’s run row when it has no call to open', async () => {
+        await open(`${PAGE}/end-of-cycle?businessDate=2026-10-23`, withFailedRun(null));
+
+        const cell = all('[data-cycle="08:40"]')[1];
+        expect(cell.tagName).toBe('BUTTON');
+        cell.click();
+        harness.detectChanges();
+
+        expect(rowOf(`tr[data-row-key="${FAILED_RUN}"]`).classList).toContain('ops-row-highlight');
+        http.expectNone((r) => r.url.startsWith(`${HEALTH}/calls`));
+      });
+
+      it('leads the runs table with the reason, failure code and raw error behind Details', async () => {
+        await open(`${PAGE}/end-of-cycle?businessDate=2026-10-23`, withFailedRun(null));
+
+        const run = rowOf(`tr[data-row-key="${FAILED_RUN}"]`);
+        const firstCells = Array.from(run.querySelectorAll('td')).slice(0, 2);
+        expect(firstCells[1].querySelector('[data-field="reason"]').textContent.trim()).toBe(
+          'Fineract refused the journal: GL closed'
+        );
+        expect(run.querySelector('[data-field="failureCode"]').textContent.trim()).toBe('error.msg.glclosure.invalid');
+        expect(run.querySelector('details[data-field="lastError"]').textContent).toContain('HTTP 403 raw body');
+      });
+
+      it('resends a run’s EOC Complete from the runs table', async () => {
+        await open(`${PAGE}/end-of-cycle?businessDate=2026-10-23`);
+
+        expect(all('tr[data-eoc] [data-action="resend"]').length).toBe(1);
+        actionIn(rowOf('tr[data-eoc="EOC-20261023-1740"]'), 'resend').click();
+        harness.detectChanges();
+
+        http
+          .expectOne(`${SETTLEMENT}/eoc-runs/${RUN_1740}/resend-completion`)
+          .flush({ runId: RUN_1740, eocId: 'EOC-20261023-1740', status: 'POSTED' });
+        harness.detectChanges();
+        expect(snacks).toEqual(['Queued for resend']);
+        expectReload();
+      });
+    });
+
+    describe('permissions', () => {
+      it('hides every action from a reader', async () => {
+        environment.productionModeEnableRBAC = true;
+        permissions = ['READ_OPSHEALTH'];
+        const health = healthFixture();
+        health.detail.settlement.batches[2].reschedulable = true;
+
+        await open(`${PAGE}/settlement?businessDate=2026-10-23`, health);
+        expect(all('[data-action]')).toEqual([]);
+
+        await harness.navigateByUrl(`${PAGE}/end-of-cycle?businessDate=2026-10-23`);
+        harness.detectChanges();
+        expect(all('[data-action]')).toEqual([]);
+      });
+
+      it('shows each action only to holders of its own permission', async () => {
+        environment.productionModeEnableRBAC = true;
+        permissions = [
+          'READ_OPSHEALTH',
+          'RESEND_SETTLEMENTCOMPLETION'
+        ];
+        const health = healthFixture();
+        health.detail.settlement.batches[2].reschedulable = true;
+
+        await open(`${PAGE}/settlement?businessDate=2026-10-23`, health);
+        expect(all('[data-action="resend"]').length).toBe(2);
+        expect(all('[data-action="reschedule"]')).toEqual([]);
+
+        await harness.navigateByUrl(`${PAGE}/end-of-cycle?businessDate=2026-10-23`);
+        harness.detectChanges();
+        expect(all('[data-action]')).toEqual([]);
+      });
+
+      it('lets an EOC resender resend EOC Complete only', async () => {
+        environment.productionModeEnableRBAC = true;
+        permissions = [
+          'READ_OPSHEALTH',
+          'RESEND_SETTLEMENTEOCCOMPLETION',
+          'RESCHEDULE_SETTLEMENTBATCH'
+        ];
+
+        await open(`${PAGE}/end-of-cycle?businessDate=2026-10-23`);
+        expect(all('[data-action="resend"]').length).toBe(2);
+
+        await harness.navigateByUrl(`${PAGE}/settlement?businessDate=2026-10-23`);
+        harness.detectChanges();
+        expect(all('[data-action="resend"]')).toEqual([]);
+      });
     });
   });
 });

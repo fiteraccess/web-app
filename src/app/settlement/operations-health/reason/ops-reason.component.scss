@@ -1,0 +1,29 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+:host {
+  display: block;
+}
+
+.ops-superseded-by,
+.ops-failure-code,
+.ops-reason-muted,
+.ops-raw summary {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.ops-superseded-by,
+.ops-failure-code,
+.ops-raw summary {
+  display: block;
+  font-size: 0.75rem;
+}
+
+.ops-raw summary {
+  cursor: pointer;
+}

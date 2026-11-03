@@ -17,7 +17,15 @@ import { Observable } from 'rxjs';
 import { HANDLED_ERROR_STATUSES } from 'app/core/http/error-handler.interceptor';
 
 /** Custom Models */
-import { CallKind, CallPayload, OpsHealth, ReconBreaks } from './ops-health.model';
+import {
+  CallKind,
+  CallPayload,
+  OpsHealth,
+  ReconBreaks,
+  RescheduleBatchResult,
+  ResendCompletionResult,
+  ResendEocCompletionResult
+} from './ops-health.model';
 
 function handled(...statuses: number[]): HttpContext {
   return new HttpContext().set(HANDLED_ERROR_STATUSES, statuses);
@@ -34,6 +42,7 @@ export class OpsHealthService {
   private http = inject(HttpClient);
 
   private static readonly BASE = '/access/api/v1/ops/health';
+  private static readonly SETTLEMENT = '/access/api/v1/settlement';
 
   /** The breaks list asked for by Check breaks now; a page of 50 is what the Recon tab shows. */
   private static readonly BREAKS_LIMIT = 50;
@@ -42,6 +51,8 @@ export class OpsHealthService {
   private static readonly HEALTH_HANDLED = handled(400, 403, 404, 503);
   private static readonly PAYLOAD_HANDLED = handled(403, 404);
   private static readonly BREAKS_HANDLED = handled(403, 404, 503);
+  /** A refused recovery action is explained next to the button that asked for it. */
+  private static readonly RECOVERY_HANDLED = handled(400, 403, 404, 409);
 
   /**
    * @param {string} businessDate Day to assess (`yyyy-MM-dd`); omitted lets Synapse pick the day that needs attention.
@@ -73,6 +84,36 @@ export class OpsHealthService {
     return this.http.get<ReconBreaks>('/access/api/v1/settlement/reconciliation/breaks', {
       params: new HttpParams().set('limit', OpsHealthService.BREAKS_LIMIT),
       context: OpsHealthService.BREAKS_HANDLED
+    });
+  }
+
+  /**
+   * @param {string} batchId Settlement batch whose settle-complete call to Access is queued again; money is not moved.
+   * @returns {Observable<ResendCompletionResult>} The batch with its settle-complete status back at PENDING.
+   */
+  resendCompletion(batchId: string): Observable<ResendCompletionResult> {
+    return this.recover<ResendCompletionResult>(`batches/${encodeURIComponent(batchId)}/resend-completion`);
+  }
+
+  /**
+   * @param {string} batchId Settlement batch that posted nothing, to be posted again.
+   * @returns {Observable<RescheduleBatchResult>} The batch accepted again, with the chunks and rows it cleared.
+   */
+  rescheduleBatch(batchId: string): Observable<RescheduleBatchResult> {
+    return this.recover<RescheduleBatchResult>(`batches/${encodeURIComponent(batchId)}/reschedule`);
+  }
+
+  /**
+   * @param {string} runId End-of-cycle run (its UUID) whose EOC Complete call to Access is sent again; no journal is posted.
+   * @returns {Observable<ResendEocCompletionResult>} The run back at POSTED.
+   */
+  resendEocCompletion(runId: string): Observable<ResendEocCompletionResult> {
+    return this.recover<ResendEocCompletionResult>(`eoc-runs/${encodeURIComponent(runId)}/resend-completion`);
+  }
+
+  private recover<T>(path: string): Observable<T> {
+    return this.http.post<T>(`${OpsHealthService.SETTLEMENT}/${path}`, null, {
+      context: OpsHealthService.RECOVERY_HANDLED
     });
   }
 }

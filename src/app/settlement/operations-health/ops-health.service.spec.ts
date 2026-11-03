@@ -78,6 +78,53 @@ describe('OpsHealthService', () => {
     req.flush({ asOf: '2026-10-29T09:41:02', total: 0, truncated: false, integrity: [], items: [] });
   });
 
+  describe('recovery actions', () => {
+    const SETTLEMENT = '/access/api/v1/settlement';
+
+    it('resends a batch’s settlement completion by its batch id, with no body', () => {
+      service.resendCompletion('NIBSS-Inbound-20261023-W9-6a0d2125').subscribe();
+
+      const req = http.expectOne(`${SETTLEMENT}/batches/NIBSS-Inbound-20261023-W9-6a0d2125/resend-completion`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toBeNull();
+      req.flush({ batchId: 'NIBSS-Inbound-20261023-W9-6a0d2125', settleCompleteStatus: 'PENDING' });
+    });
+
+    it('reschedules a batch by its batch id', () => {
+      service.rescheduleBatch('NIBSS-Outbound-20261023-W12-3f8e10aa').subscribe();
+
+      const req = http.expectOne(`${SETTLEMENT}/batches/NIBSS-Outbound-20261023-W12-3f8e10aa/reschedule`);
+      expect(req.request.method).toBe('POST');
+      req.flush({
+        batchId: 'NIBSS-Outbound-20261023-W12-3f8e10aa',
+        status: 'ACCEPTED',
+        chunksCleared: 2,
+        rowsCleared: 40
+      });
+    });
+
+    it('resends an end-of-cycle completion by the run id', () => {
+      service.resendEocCompletion('5e0b8a12-3c4d-4e6f-9a0b-1c2d3e4f5a6b').subscribe();
+
+      const req = http.expectOne(`${SETTLEMENT}/eoc-runs/5e0b8a12-3c4d-4e6f-9a0b-1c2d3e4f5a6b/resend-completion`);
+      expect(req.request.method).toBe('POST');
+      req.flush({ runId: '5e0b8a12-3c4d-4e6f-9a0b-1c2d3e4f5a6b', eocId: 'EOC-20261023-1740', status: 'POSTED' });
+    });
+
+    it('leaves a refused action to the page, which shows the server’s reason', () => {
+      service.resendCompletion('B1').subscribe({ error: () => undefined });
+
+      const req = http.expectOne(`${SETTLEMENT}/batches/B1/resend-completion`);
+      expect(req.request.context.get(HANDLED_ERROR_STATUSES)).toEqual([
+        400,
+        403,
+        404,
+        409
+      ]);
+      req.flush({ defaultUserMessage: 'not eligible' }, { status: 409, statusText: 'Conflict' });
+    });
+  });
+
   describe('global error alert', () => {
     it('leaves a refused or missing body to the payload view', () => {
       service.getPayload('PAY_WINDOW', '7').subscribe({ error: () => undefined });
