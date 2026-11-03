@@ -116,6 +116,8 @@ export interface Call {
   /** Access's responseMessage as stored, or the stored transport error or reason. */
   message: string | null;
   mark: Mark;
+  /** SETTLE_COMPLETE (by `reference`, the batch id) and EOC_COMPLETE (by `ref`, the run id) calls only. */
+  resendable: boolean;
 }
 
 export interface Detail {
@@ -172,6 +174,10 @@ export interface SettlementBatch {
   window: number | null;
   status: string;
   attempts: number | null;
+  /** Why a FAILED or NEEDS_RECONCILIATION batch stopped, in Fineract's words when it gave any. */
+  reason: string | null;
+  failureCode: string | null;
+  /** The raw stored error, behind Details. */
   lastError: string | null;
   declaredCount: number | null;
   declaredAmount: number | null;
@@ -186,6 +192,8 @@ export interface SettlementBatch {
   createdAt: string;
   mark: Mark;
   call: CallLink | null;
+  resendable: boolean;
+  reschedulable: boolean;
 }
 
 export interface EndOfCycleDetail {
@@ -210,6 +218,10 @@ export interface CycleCell {
   amount: number | null;
   mark: Mark;
   call: CallLink | null;
+  runId: string | null;
+  reason: string | null;
+  /** The eocId of the later run of the same switch that took this failed run's batches. */
+  supersededBy: string | null;
 }
 
 export interface EocRun {
@@ -226,9 +238,13 @@ export interface EocRun {
   notifiedAt: string | null;
   code: string | null;
   message: string | null;
+  reason: string | null;
+  failureCode: string | null;
+  supersededBy: string | null;
   lastError: string | null;
   mark: Mark;
   call: CallLink | null;
+  resendable: boolean;
 }
 
 export interface BusinessDateDetail {
@@ -314,6 +330,27 @@ export interface ReconDetail {
   lastCheckedAt: string | null;
   intervalSeconds: number;
   mark: Mark;
+}
+
+/** Response of `POST /access/api/v1/settlement/batches/{batchId}/resend-completion`. */
+export interface ResendCompletionResult {
+  batchId: string;
+  settleCompleteStatus: string;
+}
+
+/** Response of `POST /access/api/v1/settlement/batches/{batchId}/reschedule`. */
+export interface RescheduleBatchResult {
+  batchId: string;
+  status: string;
+  chunksCleared: number;
+  rowsCleared: number;
+}
+
+/** Response of `POST /access/api/v1/settlement/eoc-runs/{runId}/resend-completion`. */
+export interface ResendEocCompletionResult {
+  runId: string;
+  eocId: string;
+  status: string;
 }
 
 /** Response of `/access/api/v1/ops/health/calls/{kind}/{ref}`. */

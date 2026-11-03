@@ -649,7 +649,8 @@
       "Request & reply": "Request & reply",
       "Check breaks now": "Check breaks now",
       "Download full request": "Download full request",
-      "Download full reply": "Download full reply"
+      "Download full reply": "Download full reply",
+      "Resend": "Resend"
     },
     "catalogs": {
       "Interest payment waiver": "Interest Payment Waiver",
@@ -1479,6 +1480,9 @@
       "Edit Balance Cap": "Edit Balance Cap",
       "Operations Health": "Operations Health",
       "Calls with Access": "Calls with Access",
+      "Resend settlement completion": "Resend settlement completion",
+      "Resend EOC Complete": "Resend EOC Complete",
+      "Reschedule settlement batch": "Reschedule settlement batch",
       "Request sent to Access": "Request sent to Access",
       "Access's reply": "Access's reply",
       "Request Access sent us": "Request Access sent us",
@@ -4217,7 +4221,16 @@
       "Failed (legacy)": "Failed (legacy)",
       "Status / code": "Status / code",
       "Refers to": "Refers to",
-      "unrecognised": "unrecognised"
+      "unrecognised": "unrecognised",
+      "Actions": "Actions",
+      "Details": "Details",
+      "superseded by": "superseded by {{eocId}}",
+      "Queued for resend": "Queued for resend",
+      "Rescheduled; posting shortly": "Rescheduled; posting shortly",
+      "Resend settlement completion prompt": "Resend the settlement completion for batch {{batchId}} to Access? Money is not moved again.",
+      "Resend EOC Complete prompt": "Resend EOC Complete for {{eocId}} to Access? The journal is not posted again.",
+      "Reschedule batch prompt": "Re-post batch {{batchId}} ({{count}} rows, {{amount}})? Nothing was posted for it before; the journals will carry today's business date.",
+      "The action could not be done": "The action could not be done. Try again."
     },
     "auditTrail": {
       "actions": {

@@ -24,6 +24,7 @@ import { OpsMarkComponent } from './mark/ops-mark.component';
 
 /** Custom Services */
 import { OpsHealthStore } from './ops-health.store';
+import { OpsRecovery } from './ops-recovery';
 
 /** Custom Models */
 import { Mark, OpsHealth, StepId } from './ops-health.model';
@@ -37,7 +38,10 @@ import { LAGOS_TZ, MAX_DAYS_BACK, OPS_TABS, isoDate, parseIsoDate } from './ops-
   selector: 'mifosx-operations-health',
   templateUrl: './operations-health.component.html',
   styleUrls: ['./operations-health.component.scss'],
-  providers: [OpsHealthStore],
+  providers: [
+    OpsHealthStore,
+    OpsRecovery
+  ],
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
     MatProgressBar,

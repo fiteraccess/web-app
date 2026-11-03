@@ -163,10 +163,14 @@
             <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Attempts' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.attempts ?? '—' }}</td>
           </ng-container>
-          <ng-container matColumnDef="lastError">
-            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Last error' | translate }}</th>
+          <ng-container matColumnDef="reason">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Reason' | translate }}</th>
             <td mat-cell *matCellDef="let row" class="ops-text">
-              <mifosx-ops-text [text]="row.lastError"></mifosx-ops-text>
+              <mifosx-ops-reason
+                [reason]="row.reason"
+                [failureCode]="row.failureCode"
+                [lastError]="row.lastError"
+              ></mifosx-ops-reason>
             </td>
           </ng-container>
           <ng-container matColumnDef="declaredCount">
@@ -219,6 +223,37 @@
               {{ row.createdAt ? (row.createdAt | date: 'd MMM HH:mm' : lagos) : '—' }}
             </td>
           </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Actions' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="ops-actions">
+                @if (row.resendable) {
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    *mifosxHasPermission="resendPermission"
+                    data-action="resend"
+                    [disabled]="recovery.isPending('RESEND_SETTLE_COMPLETE', row.batchId)"
+                    (click)="recovery.resendCompletion(row.batchId)"
+                  >
+                    {{ 'labels.buttons.Resend' | translate }}
+                  </button>
+                }
+                @if (row.reschedulable) {
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    *mifosxHasPermission="reschedulePermission"
+                    data-action="reschedule"
+                    [disabled]="recovery.isPending('RESCHEDULE_BATCH', row.batchId)"
+                    (click)="recovery.rescheduleBatch(row)"
+                  >
+                    {{ 'labels.buttons.Reschedule' | translate }}
+                  </button>
+                }
+              </span>
+            </td>
+          </ng-container>
           <tr mat-header-row *matHeaderRowDef="settlementColumns"></tr>
           <tr
             mat-row
@@ -261,35 +296,33 @@
                 @let cell = cellOf(row, cycle);
                 @let key = cycleKey(row, cycle);
                 @if (cell?.status) {
-                  @if (isListed(cell.call)) {
+                  @if (opensSomething(cell)) {
                     <button
                       type="button"
                       class="ops-cell ops-cell-button"
                       [attr.data-row-key]="key"
                       [class.ops-row-highlight]="highlighted() === key"
+                      [class.ops-cell-superseded]="!!cell.supersededBy"
                       [attr.data-cycle]="cycle"
                       [attr.data-mark]="cell.mark"
-                      (click)="showCall(cell.call)"
+                      [attr.data-superseded-by]="cell.supersededBy"
+                      [matTooltip]="cell.reason ?? ''"
+                      (click)="openCell(cell)"
                     >
-                      <mifosx-ops-mark [mark]="cell.mark"></mifosx-ops-mark>
-                      <span>{{ cell.status }}</span>
-                      @if (cell.amount !== null) {
-                        <span class="ops-cell-amount">{{ naira(cell.amount) }}</span>
-                      }
+                      <ng-container *ngTemplateOutlet="cellBody; context: { $implicit: cell }"></ng-container>
                     </button>
                   } @else {
                     <span
                       class="ops-cell"
                       [attr.data-row-key]="key"
                       [class.ops-row-highlight]="highlighted() === key"
+                      [class.ops-cell-superseded]="!!cell.supersededBy"
                       [attr.data-cycle]="cycle"
                       [attr.data-mark]="cell.mark"
+                      [attr.data-superseded-by]="cell.supersededBy"
+                      [matTooltip]="cell.reason ?? ''"
                     >
-                      <mifosx-ops-mark [mark]="cell.mark"></mifosx-ops-mark>
-                      <span>{{ cell.status }}</span>
-                      @if (cell.amount !== null) {
-                        <span class="ops-cell-amount">{{ naira(cell.amount) }}</span>
-                      }
+                      <ng-container *ngTemplateOutlet="cellBody; context: { $implicit: cell }"></ng-container>
                     </span>
                   }
                 } @else {
@@ -311,7 +344,20 @@
         <table mat-table [dataSource]="eoc.runs" [trackBy]="byEoc">
           <ng-container matColumnDef="mark">
             <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row"><mifosx-ops-mark [mark]="row.mark"></mifosx-ops-mark></td>
+            <td mat-cell *matCellDef="let row">
+              <mifosx-ops-mark [mark]="row.mark" [muted]="!!row.supersededBy"></mifosx-ops-mark>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="reason">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Reason' | translate }}</th>
+            <td mat-cell *matCellDef="let row" class="ops-text">
+              <mifosx-ops-reason
+                [reason]="row.reason"
+                [failureCode]="row.failureCode"
+                [lastError]="row.lastError"
+                [supersededBy]="row.supersededBy"
+              ></mifosx-ops-reason>
+            </td>
           </ng-container>
           <ng-container matColumnDef="eocId">
             <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.EOC id' | translate }}</th>
@@ -361,10 +407,21 @@
               <mifosx-ops-text [text]="row.message"></mifosx-ops-text>
             </td>
           </ng-container>
-          <ng-container matColumnDef="lastError">
-            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Last error' | translate }}</th>
-            <td mat-cell *matCellDef="let row" class="ops-text">
-              <mifosx-ops-text [text]="row.lastError"></mifosx-ops-text>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Actions' | translate }}</th>
+            <td mat-cell *matCellDef="let row">
+              @if (row.resendable) {
+                <button
+                  mat-stroked-button
+                  type="button"
+                  *mifosxHasPermission="resendEocPermission"
+                  data-action="resend"
+                  [disabled]="recovery.isPending('RESEND_EOC_COMPLETE', row.runId)"
+                  (click)="recovery.resendEocCompletion(row.runId, row.eocId)"
+                >
+                  {{ 'labels.buttons.Resend' | translate }}
+                </button>
+              }
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="runColumns"></tr>
@@ -374,6 +431,7 @@
             [attr.data-mark]="row.mark"
             [attr.data-row-key]="row.runId"
             [class.ops-row-highlight]="highlighted() === row.runId"
+            [class.ops-row-superseded]="!!row.supersededBy"
             [attr.data-eoc]="row.eocId"
           ></tr>
         </table>
@@ -620,3 +678,19 @@
     <mifosx-ops-recon-breaks [recon]="detail.recon" [highlighted]="highlighted() === 'recon'"></mifosx-ops-recon-breaks>
   }
 }
+
+<ng-template #cellBody let-cell>
+  <span class="ops-cell-line">
+    <mifosx-ops-mark [mark]="cell.mark" [muted]="!!cell.supersededBy"></mifosx-ops-mark>
+    <span>{{ cell.status }}</span>
+    @if (cell.amount !== null) {
+      <span class="ops-cell-amount">{{ naira(cell.amount) }}</span>
+    }
+  </span>
+  @if (cell.supersededBy) {
+    <span class="ops-cell-caption">{{ 'labels.text.superseded by' | translate: { eocId: cell.supersededBy } }}</span>
+  }
+  @if (cell.reason) {
+    <span class="ops-cell-caption" data-field="reason">{{ cell.reason }}</span>
+  }
+</ng-template>

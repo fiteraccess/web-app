@@ -16,7 +16,7 @@ import { markClass } from '../ops-health-presentation';
 const ICONS: Record<Mark, string | null> = { RED: 'error', AMBER: 'schedule', NONE: null };
 const NAMES: Record<Mark, string | null> = { RED: 'Red mark', AMBER: 'Amber mark', NONE: null };
 
-/** A row's mark as a coloured icon; nothing for NONE, so finished rows stay plain. */
+/** A row's mark as a coloured icon; nothing for NONE, so finished rows stay plain. Muted keeps the icon uncoloured. */
 @Component({
   selector: 'mifosx-ops-mark',
   templateUrl: './ops-mark.component.html',
@@ -28,8 +28,9 @@ const NAMES: Record<Mark, string | null> = { RED: 'Red mark', AMBER: 'Amber mark
 })
 export class OpsMarkComponent {
   readonly mark = input.required<Mark>();
+  readonly muted = input(false);
 
   readonly icon = computed(() => ICONS[this.mark()] ?? null);
   readonly name = computed(() => NAMES[this.mark()] ?? null);
-  readonly markClass = computed(() => markClass(this.mark()));
+  readonly markClass = computed(() => markClass(this.muted() ? 'NONE' : this.mark()));
 }

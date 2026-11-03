@@ -16,7 +16,8 @@ import { OpsMarkComponent } from '../mark/ops-mark.component';
 import { OpsTextComponent } from '../text/ops-text.component';
 import { OpsPayloadViewComponent } from '../payload-view/ops-payload-view.component';
 import { OpsHealthStore } from '../ops-health.store';
-import { OPS_HEALTH_PAYLOAD_PERMISSION } from '../ops-health-permissions';
+import { OpsRecovery } from '../ops-recovery';
+import { OPS_HEALTH_PAYLOAD_PERMISSION, resendPermissionOf } from '../ops-health-permissions';
 import { Call, OpsHealth, StepId } from '../ops-health.model';
 import { LAGOS_TZ, callKey, callRowId, callsOfStep, directionLabel } from '../ops-health-presentation';
 
@@ -36,6 +37,7 @@ import { LAGOS_TZ, callKey, callRowId, callsOfStep, directionLabel } from '../op
 export class OpsCallsPanelComponent {
   private store = inject(OpsHealthStore);
   private authenticationService = inject(AuthenticationService);
+  readonly recovery = inject(OpsRecovery);
 
   readonly health = input.required<OpsHealth>();
   readonly step = input.required<StepId>();
@@ -51,10 +53,12 @@ export class OpsCallsPanelComponent {
     'tries',
     'code',
     'message',
-    'payload'
+    'payload',
+    'actions'
   ];
   readonly lagos = LAGOS_TZ;
   readonly directionLabel = directionLabel;
+  readonly resendPermissionOf = resendPermissionOf;
   readonly rowId = (call: Call) => callRowId(call.kind, call.ref);
   readonly byCall = (_: number, call: Call) => callKey(call.kind, call.ref);
 
@@ -88,6 +92,21 @@ export class OpsCallsPanelComponent {
     }
     this.open.add(key);
     this.store.loadPayload(call.kind, call.ref);
+  }
+
+  isResending(call: Call): boolean {
+    return call.kind === 'EOC_COMPLETE'
+      ? this.recovery.isPending('RESEND_EOC_COMPLETE', call.ref)
+      : this.recovery.isPending('RESEND_SETTLE_COMPLETE', call.reference);
+  }
+
+  /** A settle-complete call is resent by its batch id, an EOC Complete call by its run id. */
+  resend(call: Call): void {
+    if (call.kind === 'EOC_COMPLETE') {
+      this.recovery.resendEocCompletion(call.ref, call.reference);
+    } else {
+      this.recovery.resendCompletion(call.reference);
+    }
   }
 
   private reveal(call: Call): void {

@@ -8,13 +8,21 @@
 
 import { Component, DestroyRef, ElementRef, effect, inject, input, signal, untracked } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltip } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 
 import { OpsMarkComponent } from '../mark/ops-mark.component';
 import { OpsTextComponent } from '../text/ops-text.component';
 import { OpsReconBreaksComponent } from '../recon-breaks/ops-recon-breaks.component';
+import { OpsReasonComponent } from '../reason/ops-reason.component';
 import { OpsHealthStore } from '../ops-health.store';
+import { OpsRecovery } from '../ops-recovery';
+import {
+  RESCHEDULE_SETTLEMENT_BATCH_PERMISSION,
+  RESEND_EOC_COMPLETION_PERMISSION,
+  RESEND_SETTLEMENT_COMPLETION_PERMISSION
+} from '../ops-health-permissions';
 import { CallLink, CheckResult, CycleCell, CycleRow, EocRun, EodStep, OpsHealth, StepId } from '../ops-health.model';
 import { LAGOS_TZ, checkRowKey, cycleRowKey, markClass, naira, tabOf } from '../ops-health-presentation';
 
@@ -29,8 +37,10 @@ const HIGHLIGHT_MS = 3000;
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
     MatTableModule,
+    MatTooltip,
     OpsMarkComponent,
     OpsTextComponent,
+    OpsReasonComponent,
     OpsReconBreaksComponent
   ]
 })
@@ -39,6 +49,7 @@ export class OpsStepDetailComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private host: ElementRef<HTMLElement> = inject(ElementRef);
+  readonly recovery = inject(OpsRecovery);
 
   readonly health = input.required<OpsHealth>();
   readonly step = input.required<StepId>();
@@ -46,6 +57,9 @@ export class OpsStepDetailComponent {
   readonly lagos = LAGOS_TZ;
   readonly naira = naira;
   readonly markClass = markClass;
+  readonly resendPermission = RESEND_SETTLEMENT_COMPLETION_PERMISSION;
+  readonly reschedulePermission = RESCHEDULE_SETTLEMENT_BATCH_PERMISSION;
+  readonly resendEocPermission = RESEND_EOC_COMPLETION_PERMISSION;
   /** The `data-row-key` of the row a Needs a look line pointed at, for a moment. */
   readonly highlighted = signal<string | null>(null);
   readonly cycleKey = (row: CycleRow, cycle: string) => cycleRowKey(row.rail, row.switchProvider, cycle);
@@ -90,7 +104,7 @@ export class OpsStepDetailComponent {
     'window',
     'status',
     'attempts',
-    'lastError',
+    'reason',
     'declaredCount',
     'declaredAmount',
     'postedCount',
@@ -101,10 +115,12 @@ export class OpsStepDetailComponent {
     'settleCompleteAt',
     'code',
     'message',
-    'createdAt'
+    'createdAt',
+    'actions'
   ];
   readonly runColumns = [
     'mark',
+    'reason',
     'eocId',
     'rail',
     'switchProvider',
@@ -116,7 +132,7 @@ export class OpsStepDetailComponent {
     'notifiedAt',
     'code',
     'message',
-    'lastError'
+    'actions'
   ];
   readonly eodStepColumns = [
     'mark',
@@ -192,6 +208,19 @@ export class OpsStepDetailComponent {
         ],
         { relativeTo: this.route, queryParamsHandling: 'preserve' }
       );
+    }
+  }
+
+  /** A grid cell opens its call when the calls table lists it, otherwise its run's row. */
+  opensSomething(cell: CycleCell): boolean {
+    return this.isListed(cell.call) || !!cell.runId;
+  }
+
+  openCell(cell: CycleCell): void {
+    if (this.isListed(cell.call)) {
+      this.showCall(cell.call);
+    } else if (cell.runId) {
+      this.store.revealRow(cell.runId);
     }
   }
 

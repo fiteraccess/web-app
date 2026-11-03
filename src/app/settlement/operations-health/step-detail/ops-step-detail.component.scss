@@ -29,8 +29,8 @@
 
 .ops-cell {
   display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 2px 6px;
   border: 0;
   border-radius: 4px;
@@ -50,6 +50,32 @@
   &:focus-visible {
     outline: 2px solid var(--mat-sys-primary);
   }
+}
+
+.ops-cell-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ops-cell-caption {
+  max-width: 180px;
+  overflow: hidden;
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// A failed run whose batches a later run took is history, not a problem; it reads muted, never red.
+.ops-cell-superseded,
+.table-scroll .ops-row-superseded .mat-mdc-cell {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.ops-actions {
+  display: inline-flex;
+  gap: 8px;
 }
 
 .ops-cell-amount {

@@ -8,7 +8,7 @@
 
 // Test fixture only: example responses in the shape of the data-only contract. Never imported by production code.
 
-import { Call, CallPayload, EodStep, OpsHealth } from '../ops-health.model';
+import { Call, CallPayload, CycleCell, EodStep, OpsHealth } from '../ops-health.model';
 
 const PW_ETZ_W2 = 'rejected.6f1c2a9e-0b44-4c1e-9a51-3d2e7f0a1b11';
 const PW_ETZ_W3 = 'rejected.0a7d33f2-5b1e-4f0c-8e2d-77c1a9e04b22';
@@ -31,6 +31,21 @@ function call(fields: Partial<Call> & Pick<Call, 'kind' | 'step' | 'direction' |
     code: '00',
     message: null,
     mark: 'NONE',
+    resendable: false,
+    ...fields
+  };
+}
+
+function cell(fields: Partial<CycleCell> & Pick<CycleCell, 'cycle'>): CycleCell {
+  return {
+    eocId: null,
+    status: null,
+    amount: null,
+    mark: 'NONE',
+    call: null,
+    runId: null,
+    reason: null,
+    supersededBy: null,
     ...fields
   };
 }
@@ -148,7 +163,8 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
       tries: 10,
       code: null,
       message: 'Retries exhausted: HTTP 0: Read timed out',
-      mark: 'RED'
+      mark: 'RED',
+      resendable: true
     }),
     call({
       kind: 'SETTLE_COMPLETE',
@@ -188,7 +204,8 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
       at: '2026-10-23T17:46:02+01:00',
       code: '26',
       message: '11 batch(es) in order, 1 rejected. Nothing in this call was recorded.',
-      mark: 'RED'
+      mark: 'RED',
+      resendable: true
     }),
     call({
       kind: 'EOC_COMPLETE',
@@ -328,6 +345,8 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           window: 9,
           status: 'SETTLED',
           attempts: 1,
+          reason: null,
+          failureCode: null,
           lastError: null,
           declaredCount: 812,
           declaredAmount: 36451251.42,
@@ -341,7 +360,9 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           message: 'Retries exhausted: HTTP 0: Read timed out',
           createdAt: '2026-10-23T13:58:12+01:00',
           mark: 'RED',
-          call: { kind: 'SETTLE_COMPLETE', ref: 'NIBSS-Inbound-20261023-W9-6a0d2125' }
+          call: { kind: 'SETTLE_COMPLETE', ref: 'NIBSS-Inbound-20261023-W9-6a0d2125' },
+          resendable: true,
+          reschedulable: false
         },
         {
           batchId: 'NIBSS-Inbound-20261023-W8-c1d77e09',
@@ -350,6 +371,8 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           window: 8,
           status: 'SETTLED',
           attempts: 1,
+          reason: null,
+          failureCode: null,
           lastError: null,
           declaredCount: 640,
           declaredAmount: 28100400.0,
@@ -363,7 +386,9 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           message: 'Successful',
           createdAt: '2026-10-23T12:30:40+01:00',
           mark: 'NONE',
-          call: { kind: 'SETTLE_COMPLETE', ref: 'NIBSS-Inbound-20261023-W8-c1d77e09' }
+          call: { kind: 'SETTLE_COMPLETE', ref: 'NIBSS-Inbound-20261023-W8-c1d77e09' },
+          resendable: false,
+          reschedulable: false
         },
         {
           batchId: 'NIBSS-Outbound-20261023-W12-3f8e10aa',
@@ -372,6 +397,8 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           window: 12,
           status: 'PROCESSING',
           attempts: 2,
+          reason: null,
+          failureCode: null,
           lastError: 'Fineract 503 on journal post, retrying',
           declaredCount: 1204,
           declaredAmount: 90233118.75,
@@ -385,7 +412,9 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           message: null,
           createdAt: '2026-10-23T16:10:05+01:00',
           mark: 'AMBER',
-          call: { kind: 'SETTLE_COMPLETE', ref: 'NIBSS-Outbound-20261023-W12-3f8e10aa' }
+          call: { kind: 'SETTLE_COMPLETE', ref: 'NIBSS-Outbound-20261023-W12-3f8e10aa' },
+          resendable: false,
+          reschedulable: false
         }
       ],
       truncated: false
@@ -402,34 +431,36 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           rail: 'INBOUND',
           switchProvider: 'NIBSS',
           cells: [
-            { cycle: '08:40', eocId: null, status: 'NO_RUN', amount: null, mark: 'RED', call: null },
-            { cycle: '11:40', eocId: null, status: null, amount: null, mark: 'NONE', call: null },
-            { cycle: '15:00', eocId: null, status: null, amount: null, mark: 'NONE', call: null },
-            {
+            cell({ cycle: '08:40', status: 'NO_RUN', mark: 'RED' }),
+            cell({ cycle: '11:40' }),
+            cell({ cycle: '15:00' }),
+            cell({
               cycle: '17:40',
               eocId: 'EOC-20261023-1740',
               status: 'COMPLETED',
               amount: 401702118.66,
               mark: 'RED',
-              call: { kind: 'EOC_COMPLETE', ref: EOC_1740 }
-            }
+              call: { kind: 'EOC_COMPLETE', ref: EOC_1740 },
+              runId: EOC_1740
+            })
           ]
         },
         {
           rail: 'OUTBOUND',
           switchProvider: 'NIBSS',
           cells: [
-            { cycle: '08:40', eocId: null, status: null, amount: null, mark: 'NONE', call: null },
-            { cycle: '11:40', eocId: null, status: null, amount: null, mark: 'NONE', call: null },
-            {
+            cell({ cycle: '08:40' }),
+            cell({ cycle: '11:40' }),
+            cell({
               cycle: '15:00',
               eocId: 'EOC-20261023-1500',
               status: 'COMPLETED',
               amount: 120440009.1,
               mark: 'NONE',
-              call: { kind: 'EOC_COMPLETE', ref: EOC_1500 }
-            },
-            { cycle: '17:40', eocId: null, status: null, amount: null, mark: 'NONE', call: null }
+              call: { kind: 'EOC_COMPLETE', ref: EOC_1500 },
+              runId: EOC_1500
+            }),
+            cell({ cycle: '17:40' })
           ]
         }
       ],
@@ -447,9 +478,13 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           notifiedAt: '2026-10-23T17:46:02+01:00',
           code: '26',
           message: '11 batch(es) in order, 1 rejected. Nothing in this call was recorded.',
+          reason: null,
+          failureCode: null,
+          supersededBy: null,
           lastError: null,
           mark: 'RED',
-          call: { kind: 'EOC_COMPLETE', ref: EOC_1740 }
+          call: { kind: 'EOC_COMPLETE', ref: EOC_1740 },
+          resendable: true
         },
         {
           runId: EOC_1500,
@@ -464,9 +499,13 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           notifiedAt: '2026-10-23T15:06:44+01:00',
           code: '00',
           message: 'Successful',
+          reason: null,
+          failureCode: null,
+          supersededBy: null,
           lastError: null,
           mark: 'NONE',
-          call: { kind: 'EOC_COMPLETE', ref: EOC_1500 }
+          call: { kind: 'EOC_COMPLETE', ref: EOC_1500 },
+          resendable: false
         },
         {
           runId: EOC_0840_NEXT,
@@ -481,9 +520,13 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           notifiedAt: null,
           code: null,
           message: null,
+          reason: null,
+          failureCode: null,
+          supersededBy: null,
           lastError: null,
           mark: 'AMBER',
-          call: { kind: 'EOC_COMPLETE', ref: EOC_0840_NEXT }
+          call: { kind: 'EOC_COMPLETE', ref: EOC_0840_NEXT },
+          resendable: false
         },
         {
           runId: EOC_BILLS_W1,
@@ -498,9 +541,13 @@ export const OPS_HEALTH_FIXTURE: OpsHealth = {
           notifiedAt: '2026-10-23T12:03:10+01:00',
           code: '00',
           message: 'Successful',
+          reason: null,
+          failureCode: null,
+          supersededBy: null,
           lastError: null,
           mark: 'NONE',
-          call: null
+          call: null,
+          resendable: false
         }
       ],
       truncated: false

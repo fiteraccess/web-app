@@ -1,0 +1,23 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+@if (supersededBy(); as eocId) {
+  <span class="ops-superseded-by">{{ 'labels.text.superseded by' | translate: { eocId } }}</span>
+}
+<div [class.ops-reason-muted]="!!supersededBy()" data-field="reason">
+  <mifosx-ops-text [text]="reason()"></mifosx-ops-text>
+</div>
+@if (failureCode(); as code) {
+  <span class="ops-failure-code" data-field="failureCode">{{ code }}</span>
+}
+@if (lastError(); as error) {
+  <details class="ops-raw" data-field="lastError">
+    <summary>{{ 'labels.text.Details' | translate }}</summary>
+    <mifosx-ops-text [text]="error"></mifosx-ops-text>
+  </details>
+}
