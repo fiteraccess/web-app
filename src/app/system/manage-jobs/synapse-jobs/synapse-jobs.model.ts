@@ -44,15 +44,23 @@ export interface SynapseJobNode {
   nextTickAt: string | null;
   consecutiveFailures: number;
   overdue: boolean;
+  /** Its last tick did work and the next is due before the run would close. */
+  running: boolean;
   updatedAt: string | null;
 }
 
+/** `name` is the stable key the endpoints take; `displayName` is what the console shows. */
 export interface SynapseJob {
   name: string;
+  displayName: string;
   module: string;
   description: string;
   schedule: string;
   status: SynapseJobStatus;
+  /** A live node runs the job. */
+  active: boolean;
+  /** A node is in the middle of a run. */
+  running: boolean;
   nextRunAt: string | null;
   consecutiveFailures: number;
   lastRun: SynapseJobRun | null;

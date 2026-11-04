@@ -13,13 +13,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BehaviorSubject } from 'rxjs';
 
 import translations from '../../../../../assets/translations/en-US.json';
 import { SynapseRunErrorDialogComponent } from '../error-dialog/synapse-run-error-dialog.component';
+import { SynapseJobLookup, lookupOf } from '../synapse-job.resolver';
 import { SynapseJobRunsPage } from '../synapse-jobs.model';
 import { jobsFixture, runsPageFixture } from '../testing/synapse-jobs.fixture';
 import { SynapseJobHistoryComponent } from './synapse-job-history.component';
@@ -31,6 +33,7 @@ describe('Synapse job history page', () => {
   let fixture: ComponentFixture<SynapseJobHistoryComponent>;
   let http: HttpTestingController;
   let dialogs: { component: unknown; data: unknown }[];
+  let routeData: BehaviorSubject<{ synapseJob: SynapseJobLookup }>;
 
   beforeEach(async () => {
     dialogs = [];
@@ -46,7 +49,13 @@ describe('Synapse job history page', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: convertToParamMap({ name: 'settlement-collapse' }) } }
+          useValue: {
+            parent: {
+              data: (routeData = new BehaviorSubject({
+                synapseJob: lookupOf('settlement-collapse', jobsFixture().jobs, '2026-11-04T11:00:00+01:00')
+              }))
+            }
+          }
         },
         {
           provide: MatDialog,
@@ -77,7 +86,6 @@ describe('Synapse job history page', () => {
 
   function open(page: SynapseJobRunsPage = runsPageFixture()): TestRequest {
     fixture.detectChanges();
-    http.expectOne(JOBS).flush(jobsFixture());
     const req = expectRuns();
     req.flush(page);
     fixture.detectChanges();
@@ -104,7 +112,7 @@ describe('Synapse job history page', () => {
     const req = open();
 
     expect(params(req)).toEqual({ offset: '0', limit: '50', outcome: null, node: null });
-    expect(text(page().querySelector('h2'))).toBe('Run history: settlement-collapse');
+    expect(text(page().querySelector('h2'))).toBe('Run history: Collapse Settlement Batches');
     expect(paginator().length).toBe(120);
     expect(paginator().pageSizeOptions).toEqual([
       25,
@@ -199,7 +207,6 @@ describe('Synapse job history page', () => {
 
   it('offers a retry when the runs cannot be read, and keeps the filters working afterwards', () => {
     fixture.detectChanges();
-    http.expectOne(JOBS).flush(jobsFixture());
     expectRuns().flush(null, { status: 500, statusText: 'Server Error' });
     fixture.detectChanges();
 
@@ -215,17 +222,29 @@ describe('Synapse job history page', () => {
 
   it('says so when the user may not read Synapse jobs', () => {
     fixture.detectChanges();
-    http.expectOne(JOBS).flush(null, { status: 403, statusText: 'Forbidden' });
     expectRuns().flush(null, { status: 403, statusText: 'Forbidden' });
     fixture.detectChanges();
 
     expect(text(page().querySelector('.load-error'))).toBe('You do not have permission to view Synapse jobs.');
-    expect(fixture.componentInstance.nodeIds).toEqual([]);
   });
 
-  it('goes back to the Synapse Jobs tab of Manage Jobs', () => {
+  it('follows the router to another job, starting its history afresh', () => {
+    open();
+    fixture.componentInstance.outcome.setValue('FAILED');
+    expectRuns().flush(runsPageFixture());
+
+    routeData.next({ synapseJob: lookupOf('inbox-job', jobsFixture().jobs, '2026-11-04T11:00:00+01:00') });
+    const req = http.expectOne((r) => r.url === `${JOBS}/inbox-job/runs`);
+    req.flush(runsPageFixture());
+    fixture.detectChanges();
+
+    expect(params(req)).toEqual({ offset: '0', limit: '50', outcome: null, node: null });
+    expect(text(page().querySelector('h2'))).toBe('Run history: Deliver Inbox Messages');
+  });
+
+  it('goes back to the job page', () => {
     open();
 
-    expect(page().querySelector('a.back').getAttribute('href')).toBe('/system/manage-jobs?tab=synapse');
+    expect(page().querySelector('a.back').getAttribute('href')).toBe('/system/manage-jobs/synapse/settlement-collapse');
   });
 });

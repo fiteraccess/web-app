@@ -8,54 +8,24 @@
 
 @use 'synapse-jobs-shared';
 
-.synapse-jobs {
-  margin-top: 20px;
-}
-
 table {
   width: 100%;
-}
 
-.job-row {
-  cursor: pointer;
-
-  &.expanded td {
-    border-bottom-width: 0;
+  .select-row:hover {
+    cursor: pointer;
   }
 }
 
-.job-name {
-  font-weight: 500;
+.as-of {
+  margin-left: 10px;
 }
 
-.description {
-  font-size: 12px;
+.not-currently-running {
+  color: #f44366;
 }
 
-.detail-row {
-  height: 0;
-
-  &.collapsed td {
-    padding: 0;
-    border-bottom-width: 0;
-  }
-}
-
-.node-detail {
-  padding: 8px 0 16px 24px;
-}
-
-.nodes {
-  background: transparent;
-}
-
-.not-live {
-  color: #9e9e9e;
-}
-
-.last-error {
-  max-width: 24rem;
-  word-break: break-word;
+.errorlog {
+  color: #ffa726;
 }
 
 .load-error {

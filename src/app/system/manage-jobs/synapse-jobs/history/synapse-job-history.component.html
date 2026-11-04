@@ -8,12 +8,12 @@
 
 <div class="container">
   <div class="header layout-row align-start-center gap-20px m-b-20">
-    <a mat-raised-button class="back" [routerLink]="['/system/manage-jobs']" [queryParams]="{ tab: 'synapse' }">
+    <a mat-raised-button class="back" [routerLink]="['/system/manage-jobs/synapse', name]">
       <fa-icon icon="arrow-left" class="m-r-10"></fa-icon>
       {{ 'labels.buttons.Back' | translate }}
     </a>
     <h2 class="no-m">
-      {{ 'labels.text.Run history' | translate }}: <span class="job-name">{{ name }}</span>
+      {{ 'labels.text.Run history' | translate }}: <span class="job-name">{{ label }}</span>
     </h2>
   </div>
 

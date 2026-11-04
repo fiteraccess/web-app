@@ -39,6 +39,7 @@ export function nodeFixture(overrides: Partial<SynapseJobNode> = {}): SynapseJob
     nextTickAt: '2026-11-04T11:00:01+01:00',
     consecutiveFailures: 0,
     overdue: false,
+    running: false,
     updatedAt: '2026-11-04T10:59:56+01:00',
     ...overrides
   };
@@ -50,58 +51,70 @@ export function jobsFixture(): SynapseJobs {
     jobs: [
       {
         name: 'settlement-collapse',
+        displayName: 'Collapse Settlement Batches',
         module: 'access',
         description: 'Collapses accepted pay-window batches into journals',
         schedule: 'Every 5 s when idle',
         status: 'OK',
+        active: true,
+        running: true,
         nextRunAt: '2026-11-04T11:00:01+01:00',
         consecutiveFailures: 0,
         lastRun: runFixture(),
         nodes: [
-          nodeFixture(),
+          nodeFixture({ lastOutcome: 'WORKED', running: true }),
           nodeFixture({ nodeId: 'synapse-7f9c-def', live: false, lastOutcome: 'WORKED' })
         ]
       },
       {
-        name: 'eod-orchestrator',
+        name: 'flexcube-outbox-drain',
+        displayName: 'Deliver FlexCube Credits',
         module: 'access',
-        description: 'Runs end of day',
-        schedule: 'Every 1 min',
+        description: 'Delivers pending FlexCube credit instructions',
+        schedule: 'Every 1 s when idle',
         status: 'FAILING',
+        active: true,
+        running: false,
         nextRunAt: '2026-11-04T11:01:00+01:00',
         consecutiveFailures: 3,
         lastRun: runFixture({
-          jobName: 'eod-orchestrator',
+          jobName: 'flexcube-outbox-drain',
           outcome: 'FAILED',
           processed: 0,
           ticks: 3,
-          errorMessage: 'Fineract refused the close'
+          errorMessage: 'Connection refused'
         }),
         nodes: [
           nodeFixture({
             lastOutcome: 'FAILED',
             consecutiveFailures: 3,
-            lastError: 'Fineract refused the close: '.padEnd(120, 'x')
+            lastError: 'Connection refused: '.padEnd(120, 'x')
           })
         ]
       },
       {
-        name: 'cdc-relay',
-        module: 'cdc',
-        description: 'Relays change events',
-        schedule: 'Every 10 s',
+        name: 'inbox-job',
+        displayName: 'Deliver Inbox Messages',
+        module: 'core',
+        description: 'Delivers inbox messages to Fineract',
+        schedule: 'Every 1 s when idle',
         status: 'OVERDUE',
+        active: true,
+        running: false,
         nextRunAt: null,
         consecutiveFailures: 0,
         lastRun: null,
         nodes: [nodeFixture({ overdue: true })]
       },
       {
-        name: 'autosave-sweep',
+        name: 'settlement-eoc',
+        displayName: 'Settlement End Of Cycle',
         module: 'access',
-        description: 'Sweeps AutoSave balances',
-        schedule: 'Daily 02:00',
+        description: 'Captures and posts each end-of-cycle settlement, then sends EOC Complete',
+        schedule: '09:00, 15:00 (Africa/Lagos)',
         status: 'NOT_RUNNING',
+        active: false,
+        running: false,
         nextRunAt: null,
         consecutiveFailures: 0,
         lastRun: null,

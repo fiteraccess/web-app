@@ -9,15 +9,15 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatTooltip } from '@angular/material/tooltip';
-import { By } from '@angular/platform-browser';
+import { MatDialog } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import translations from '../../../../assets/translations/en-US.json';
+import { SynapseRunErrorDialogComponent } from './error-dialog/synapse-run-error-dialog.component';
 import { SynapseJobsComponent } from './synapse-jobs.component';
 import { SynapseJobs } from './synapse-jobs.model';
 import { jobsFixture } from './testing/synapse-jobs.fixture';
@@ -27,8 +27,10 @@ const JOBS = '/api/v1/admin/jobs';
 describe('Synapse Jobs tab', () => {
   let fixture: ComponentFixture<SynapseJobsComponent>;
   let http: HttpTestingController;
+  let dialogs: { component: unknown; data: unknown }[];
 
   beforeEach(async () => {
+    dialogs = [];
     await TestBed.configureTestingModule({
       imports: [
         SynapseJobsComponent,
@@ -38,7 +40,13 @@ describe('Synapse Jobs tab', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideNoopAnimations(),
-        provideRouter([])
+        provideRouter([]),
+        {
+          provide: MatDialog,
+          useValue: {
+            open: (component: unknown, config: { data: unknown }) => dialogs.push({ component, data: config.data })
+          }
+        }
       ]
     }).compileComponents();
     TestBed.inject(FaIconLibrary).addIconPacks(fas);
@@ -74,144 +82,122 @@ describe('Synapse Jobs tab', () => {
     return (element?.textContent ?? '').replace(/\s+/g, ' ').trim();
   }
 
-  it('loads the jobs on init and lists them sorted by name, with the time they were read in Lagos', () => {
+  function cellsOf(name: string): string[] {
+    return Array.from(rowOf(name).querySelectorAll('td')).map(text);
+  }
+
+  function indicator(name: string, column: string): string {
+    return rowOf(name).querySelector(`td.mat-column-${column} div`).className;
+  }
+
+  it('loads the jobs on init and lists them by display name, with the time they were read in Lagos', () => {
     load();
 
     expect(jobRows().map((row) => row.getAttribute('data-job'))).toEqual([
-      'autosave-sweep',
-      'cdc-relay',
-      'eod-orchestrator',
-      'settlement-collapse'
+      'settlement-collapse',
+      'flexcube-outbox-drain',
+      'inbox-job',
+      'settlement-eoc'
     ]);
     expect(text(page().querySelector('.as-of'))).toBe('As of 04 Nov 2026 11:00:00 (Lagos)');
   });
 
-  it('shows name, description, module, schedule, last run, next run, failures and node count', () => {
+  it('shows the Scheduler Jobs columns only, naming each job by its display name', () => {
     load();
 
-    const cells = Array.from(rowOf('settlement-collapse').querySelectorAll('td')).map(text);
-    expect(cells[0]).toContain('settlement-collapse');
-    expect(cells[0]).toContain('Collapses accepted pay-window batches into journals');
-    expect(cells[1]).toBe('access');
-    expect(cells[2]).toBe('Every 5 s when idle');
-    expect(cells[4]).toBe('04 Nov 10:58:00 synapse-7f9c-abc · 37 processed');
-    expect(rowOf('settlement-collapse').querySelector('.last-run fa-icon').classList).toContain('success');
-    expect(cells[5]).toBe('04 Nov 11:00:01');
-    expect(cells[6]).toBe('0');
-    expect(cells[7]).toBe('2');
-    expect(rowOf('eod-orchestrator').querySelector('.last-run fa-icon').classList).toContain('fail');
+    expect(Array.from(page().querySelectorAll('th')).map(text)).toEqual([
+      'Name',
+      'Active',
+      'Previous Run',
+      'Next Run',
+      'Currently Running',
+      'Error Log'
+    ]);
+    expect(cellsOf('settlement-collapse')).toEqual([
+      'Collapse Settlement Batches',
+      '',
+      '04 Nov 2026 10:58:00',
+      '04 Nov 2026 11:00:01',
+      '',
+      ''
+    ]);
+    expect(text(page())).not.toContain('Collapses accepted pay-window batches into journals');
+    expect(rowOf('settlement-collapse').querySelector('td.mat-column-previousRunTime fa-icon').classList).toContain(
+      'success'
+    );
+    expect(rowOf('flexcube-outbox-drain').querySelector('td.mat-column-previousRunTime fa-icon').classList).toContain(
+      'fail'
+    );
   });
 
-  it('maps each status to its label and colour, and highlights failing and overdue jobs', () => {
+  it('marks whether each job is active and currently running', () => {
     load();
 
-    const status = (name: string) => rowOf(name).querySelector('.status');
+    expect(indicator('settlement-collapse', 'active')).toBe('currently-running');
+    expect(indicator('settlement-collapse', 'currentlyRunning')).toBe('currently-running');
+    expect(indicator('inbox-job', 'currentlyRunning')).toBe('not-currently-running');
+    expect(indicator('settlement-eoc', 'active')).toBe('not-currently-running');
+  });
+
+  it('opens the error of a failed last run from the Error Log column', () => {
+    load();
+
     expect(
-      [
-        'settlement-collapse',
-        'eod-orchestrator',
-        'cdc-relay',
-        'autosave-sweep'
-      ].map((name) => [
-        text(status(name)),
-        status(name).className.match(/status-[a-z-]+/)[0]
-      ])
-    ).toEqual([
-      [
-        'OK',
-        'status-ok'
-      ],
-      [
-        'Failing',
-        'status-failing'
-      ],
-      [
-        'Overdue',
-        'status-overdue'
-      ],
-      [
-        'Not running',
-        'status-not-running'
-      ]
-    ]);
+      jobRows()
+        .filter((row) => row.querySelector('button.errorlog'))
+        .map((row) => row.getAttribute('data-job'))
+    ).toEqual(['flexcube-outbox-drain']);
+    rowOf('flexcube-outbox-drain').querySelector<HTMLButtonElement>('button.errorlog').click();
+
+    expect(dialogs).toEqual([
+      { component: SynapseRunErrorDialogComponent, data: jobsFixture().jobs[1].lastRun }]);
+  });
+
+  it('highlights failing and overdue jobs', () => {
+    load();
+
     expect(
       jobRows()
         .filter((row) => row.classList.contains('job-error'))
         .map((row) => row.getAttribute('data-job'))
     ).toEqual([
-      'cdc-relay',
-      'eod-orchestrator'
+      'flexcube-outbox-drain',
+      'inbox-job'
     ]);
   });
 
-  it('links each job to its run history', () => {
+  it('opens the job page from its row', () => {
     load();
+    const navigate = jest.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
 
-    expect(rowOf('settlement-collapse').querySelector('a.history').getAttribute('href')).toBe(
-      '/system/manage-jobs/synapse/settlement-collapse/history'
-    );
+    rowOf('settlement-collapse').querySelector<HTMLElement>('td.mat-column-displayName').click();
+
+    expect(String(navigate.mock.calls[0][0])).toBe('/system/manage-jobs/synapse/settlement-collapse');
   });
 
-  it('expands a row to show its nodes, muting nodes that are not live, and collapses it again', () => {
+  it('filters by display name or job key', () => {
     load();
-    expect(page().querySelector('table.nodes')).toBeNull();
 
-    rowOf('settlement-collapse').click();
+    fixture.componentInstance.applyFilter(' Deliver ');
     fixture.detectChanges();
+    expect(jobRows().map((row) => row.getAttribute('data-job'))).toEqual([
+      'flexcube-outbox-drain',
+      'inbox-job'
+    ]);
 
-    const nodeRows = Array.from(page().querySelectorAll<HTMLElement>('tr.node-row'));
-    expect(nodeRows.map((row) => text(row.querySelector('td')))).toEqual([
-      'synapse-7f9c-abc',
-      'synapse-7f9c-def'
-    ]);
-    expect(nodeRows.map((row) => row.classList.contains('muted'))).toEqual([
-      false,
-      true
-    ]);
-    const cells = Array.from(nodeRows[0].querySelectorAll('td')).map(text);
-    expect(cells).toEqual([
-      'synapse-7f9c-abc',
-      'Live',
-      '04 Nov 10:59:56',
-      'Idle',
-      '04 Nov 11:00:01',
-      '0',
-      ''
-    ]);
-    expect(text(nodeRows[1].querySelectorAll('td')[1])).toBe('Not live');
-
-    rowOf('settlement-collapse').click();
+    fixture.componentInstance.applyFilter('settlement-eoc');
     fixture.detectChanges();
-    expect(page().querySelector('table.nodes')).toBeNull();
+    expect(jobRows().map((row) => row.getAttribute('data-job'))).toEqual(['settlement-eoc']);
   });
 
-  it('marks an overdue node and truncates a long node error, keeping the whole of it in the tooltip', () => {
+  it('reads the jobs again on Refresh', () => {
     load();
-
-    rowOf('cdc-relay').click();
-    fixture.detectChanges();
-    expect(text(page().querySelector('tr.node-row .status-overdue'))).toBe('Overdue');
-
-    rowOf('eod-orchestrator').click();
-    fixture.detectChanges();
-    const error = page().querySelector<HTMLElement>('tr.node-row td.last-error');
-    expect(text(error)).toBe(`${'Fineract refused the close: '.padEnd(80, 'x')}…`);
-    const tooltip = fixture.debugElement.query(By.css('tr.node-row td.last-error')).injector.get(MatTooltip);
-    expect(tooltip.message).toBe('Fineract refused the close: '.padEnd(120, 'x'));
-    expect(text(page().querySelector('tr.node-row td.fail'))).toBe('Failed');
-  });
-
-  it('reads the jobs again on Refresh, keeping the open row open', () => {
-    load();
-    rowOf('settlement-collapse').click();
-    fixture.detectChanges();
 
     page().querySelector<HTMLButtonElement>('button.refresh').click();
     http.expectOne(JOBS).flush(jobsFixture());
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.expanded?.name).toBe('settlement-collapse');
-    expect(page().querySelectorAll('tr.node-row')).toHaveLength(2);
+    expect(jobRows()).toHaveLength(4);
   });
 
   it('says so when the user may not read Synapse jobs, without a retry', () => {

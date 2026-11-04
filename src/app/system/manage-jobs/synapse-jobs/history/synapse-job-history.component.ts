@@ -43,6 +43,7 @@ import { SynapseRunErrorDialogComponent } from '../error-dialog/synapse-run-erro
 
 /** Custom Models */
 import { SynapseJobRun, SynapseRunOutcome, SynapseRunTrigger } from '../synapse-jobs.model';
+import { SynapseJobLookup } from '../synapse-job.resolver';
 import {
   LAGOS_TZ,
   SynapseJobsLoadError,
@@ -104,7 +105,8 @@ export class SynapseJobHistoryComponent implements OnInit {
     'error'
   ];
 
-  readonly name: string = this.route.snapshot.paramMap.get('name');
+  name: string;
+  label: string;
   readonly outcome = new FormControl<SynapseRunOutcome | null>(null);
   readonly node = new FormControl<string | null>(null);
 
@@ -155,18 +157,17 @@ export class SynapseJobHistoryComponent implements OnInit {
         this.reload();
       });
 
-    this.synapseJobsService
-      .getJobs()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          const job = response.jobs.find((candidate) => candidate.name === this.name);
-          this.nodeIds = (job?.nodes ?? []).map((node) => node.nodeId);
-        },
-        error: () => (this.nodeIds = [])
-      });
-
-    this.reload();
+    // The router reuses this page when moving from one job's history to another's, so follow each new lookup.
+    this.route.parent.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
+      const lookup: SynapseJobLookup = data['synapseJob'];
+      this.name = lookup.name;
+      this.label = lookup.label;
+      this.nodeIds = (lookup.job?.nodes ?? []).map((node) => node.nodeId);
+      this.pageIndex = 0;
+      this.outcome.setValue(null, { emitEvent: false });
+      this.node.setValue(null, { emitEvent: false });
+      this.reload();
+    });
   }
 
   reload(): void {
