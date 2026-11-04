@@ -19,6 +19,10 @@ import { SettingsService } from 'app/settings/settings.service';
 /**
  * Http request interceptor to prefix a request with `serverUrl`.
  */
+
+/** Synapse's own admin API (jobs console), served on the proxy context rather than under /access. */
+export const SYNAPSE_ADMIN_PREFIX = '/api/v1/admin/';
+
 @Injectable()
 export class ApiPrefixInterceptor implements HttpInterceptor {
   private settingsService = inject(SettingsService);
@@ -36,7 +40,7 @@ export class ApiPrefixInterceptor implements HttpInterceptor {
     if (request.url.includes('/actuator/')) {
       baseUrl = this.settingsService.serverHost;
     }
-    if (request.url.startsWith('/access/')) {
+    if (request.url.startsWith('/access/') || request.url.startsWith(SYNAPSE_ADMIN_PREFIX)) {
       baseUrl = this.settingsService.serverHost;
     }
 

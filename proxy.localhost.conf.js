@@ -43,9 +43,13 @@ module.exports = [
     }
   },
   {
-    context: ['/access'],
+    context: [
+      '/access',
+      '/api/v1/admin'
+    ],
     // Synapse's own Access API surface (/access/api/v1/*) — NIP fee policy, tier policy, channel policy,
-    // statement fee schedule, etc. Distinct from /fineract-provider, which is the Fineract pass-through.
+    // statement fee schedule, etc. — and its admin API (/api/v1/admin/*, the jobs console). Distinct from
+    // /fineract-provider, which is the Fineract pass-through.
     target: 'http://localhost:8444',
     changeOrigin: true,
     secure: false,

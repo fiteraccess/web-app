@@ -1,0 +1,239 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="synapse-jobs">
+  <div class="toolbar layout-row align-start-center gap-20px">
+    <button mat-raised-button color="primary" class="refresh" (click)="refresh()" [disabled]="loading">
+      <fa-icon icon="sync" class="m-r-10"></fa-icon>
+      {{ 'labels.buttons.Refresh' | translate }}
+    </button>
+    @if (generatedAt) {
+      <span class="as-of muted">
+        {{ 'labels.text.As of (Lagos)' | translate: { time: (generatedAt | date: 'dd MMM yyyy HH:mm:ss' : lagos) } }}
+      </span>
+    }
+  </div>
+
+  @if (loading) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  @if (loadError === 'FORBIDDEN') {
+    <p class="load-error forbidden">
+      <fa-icon icon="lock" class="m-r-10"></fa-icon>
+      {{ 'labels.text.You do not have permission to view Synapse jobs' | translate }}
+    </p>
+  } @else if (loadError === 'FAILED') {
+    <div class="load-error failed layout-row align-start-center gap-20px">
+      <span>
+        <fa-icon icon="exclamation-circle" class="m-r-10"></fa-icon>
+        {{ 'labels.text.Synapse jobs could not be loaded' | translate }}
+      </span>
+      <button mat-raised-button color="primary" class="retry" (click)="refresh()" [disabled]="loading">
+        {{ 'labels.buttons.Retry' | translate }}
+      </button>
+    </div>
+  }
+
+  <div class="mat-elevation-z8 space-top" [hidden]="loadError">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      multiTemplateDataRows
+      matSort
+      matSortActive="name"
+      matSortDirection="asc"
+    >
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.inputs.Name' | translate }}</th>
+        <td mat-cell *matCellDef="let job">
+          <div class="job-name">
+            <fa-icon [icon]="expanded === job ? 'chevron-down' : 'chevron-right'" class="m-r-5"></fa-icon>
+            {{ job.name }}
+          </div>
+          <div class="muted description">{{ job.description }}</div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="module">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.text.Module' | translate }}</th>
+        <td mat-cell *matCellDef="let job">{{ job.module }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="schedule">
+        <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Schedule' | translate }}</th>
+        <td mat-cell *matCellDef="let job">{{ job.schedule }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.inputs.Status' | translate }}</th>
+        <td mat-cell *matCellDef="let job">
+          <span class="status" [ngClass]="statusClass(job.status)" [attr.data-status]="job.status">
+            <fa-icon [icon]="statusIcon(job.status)" class="m-r-5"></fa-icon>
+            {{ statusLabel(job.status) | translate }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="lastRun">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.text.Last run (Lagos)' | translate }}</th>
+        <td mat-cell *matCellDef="let job">
+          @if (job.lastRun; as run) {
+            <div class="last-run">
+              @if (run.outcome === 'WORKED') {
+                <fa-icon
+                  class="success"
+                  [matTooltip]="'labels.text.Worked' | translate"
+                  icon="check-circle"
+                  size="lg"
+                ></fa-icon>
+              } @else {
+                <fa-icon
+                  class="fail"
+                  [matTooltip]="'labels.text.Failed' | translate"
+                  icon="times-circle"
+                  size="lg"
+                ></fa-icon>
+              }
+              <span class="m-l-5">{{ run.startedAt | date: 'dd MMM HH:mm:ss' : lagos }}</span>
+            </div>
+            <div class="muted">
+              {{ run.nodeId }} ·
+              {{ 'labels.text.Processed count' | translate: { count: run.processed } }}
+            </div>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="nextRunAt">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.text.Next run (Lagos)' | translate }}</th>
+        <td mat-cell *matCellDef="let job">{{ job.nextRunAt | date: 'dd MMM HH:mm:ss' : lagos }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="consecutiveFailures">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.text.Failures' | translate }}</th>
+        <td mat-cell *matCellDef="let job" [class.fail]="job.consecutiveFailures > 0">
+          {{ job.consecutiveFailures }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="nodes">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.text.Nodes' | translate }}</th>
+        <td mat-cell *matCellDef="let job">{{ job.nodes.length }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let job">
+          <a
+            mat-raised-button
+            class="history"
+            [routerLink]="['/system/manage-jobs/synapse', job.name, 'history']"
+            (click)="$event.stopPropagation()"
+          >
+            <fa-icon icon="clock" class="m-r-5"></fa-icon>
+            {{ 'labels.text.History' | translate }}
+          </a>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let job" [attr.colspan]="displayedColumns.length">
+          @if (expanded === job) {
+            <div class="node-detail">
+              <table mat-table [dataSource]="job.nodes" class="nodes">
+                <ng-container matColumnDef="nodeId">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Node' | translate }}</th>
+                  <td mat-cell *matCellDef="let node">{{ node.nodeId }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="state">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Status' | translate }}</th>
+                  <td mat-cell *matCellDef="let node">
+                    <span [className]="node.live ? 'currently-running' : 'not-live'">
+                      <fa-icon icon="circle" class="m-r-5"></fa-icon>
+                      {{ (node.live ? 'labels.text.Live' : 'labels.text.Not live') | translate }}
+                    </span>
+                    @if (node.overdue) {
+                      <span class="status status-overdue m-l-10">
+                        <fa-icon icon="exclamation-circle" class="m-r-5"></fa-icon>
+                        {{ 'labels.text.Overdue' | translate }}
+                      </span>
+                    }
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="lastTickEndedAt">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Last tick ended (Lagos)' | translate }}</th>
+                  <td mat-cell *matCellDef="let node">{{ node.lastTickEndedAt | date: 'dd MMM HH:mm:ss' : lagos }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="lastOutcome">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Last outcome' | translate }}</th>
+                  <td mat-cell *matCellDef="let node" [class.fail]="node.lastOutcome === 'FAILED'">
+                    @if (node.lastOutcome) {
+                      {{ outcomeLabel(node.lastOutcome) | translate }}
+                    }
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="nextTickAt">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Next tick (Lagos)' | translate }}</th>
+                  <td mat-cell *matCellDef="let node">{{ node.nextTickAt | date: 'dd MMM HH:mm:ss' : lagos }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="consecutiveFailures">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Failures' | translate }}</th>
+                  <td mat-cell *matCellDef="let node" [class.fail]="node.consecutiveFailures > 0">
+                    {{ node.consecutiveFailures }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="lastError">
+                  <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Last error' | translate }}</th>
+                  <td mat-cell *matCellDef="let node" class="last-error" [matTooltip]="node.lastError">
+                    {{ truncate(node.lastError) }}
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="nodeColumns"></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let node; columns: nodeColumns"
+                  class="node-row"
+                  [class.muted]="!node.live"
+                ></tr>
+              </table>
+            </div>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let job; columns: displayedColumns"
+        class="job-row select-row"
+        [class.job-error]="needsAttention(job)"
+        [class.expanded]="expanded === job"
+        [attr.data-job]="job.name"
+        (click)="toggle(job)"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let job; columns: ['expandedDetail']"
+        class="detail-row"
+        [class.collapsed]="expanded !== job"
+      ></tr>
+    </table>
+
+    @if (!loading && generatedAt && dataSource.data.length === 0) {
+      <p class="empty muted">{{ 'labels.text.No Synapse jobs are registered' | translate }}</p>
+    }
+  </div>
+</div>
