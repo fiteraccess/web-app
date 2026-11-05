@@ -6,7 +6,39 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { SynapseJobNode, SynapseJobRun, SynapseJobRunsPage, SynapseJobs } from '../synapse-jobs.model';
+import {
+  SynapseJobControl,
+  SynapseJobLimits,
+  SynapseJobNode,
+  SynapseJobRun,
+  SynapseJobRunsPage,
+  SynapseJobs
+} from '../synapse-jobs.model';
+
+export const LIMITS: SynapseJobLimits = {
+  minIntervalMs: 1000,
+  maxIntervalMs: 86_400_000,
+  maxTimesOfDay: 12,
+  minTimesGapMs: 900_000
+};
+
+/** An interval job nobody has touched, at its default. */
+export function controlFixture(overrides: Partial<SynapseJobControl> = {}): SynapseJobControl {
+  return {
+    paused: false,
+    idleIntervalMs: 5000,
+    defaultIdleIntervalMs: 5000,
+    timesOfDay: null,
+    defaultTimesOfDay: null,
+    heldToday: [],
+    version: 0,
+    updatedBy: null,
+    updatedAt: null,
+    runRequestedAt: null,
+    runRequestedBy: null,
+    ...overrides
+  };
+}
 
 export function runFixture(overrides: Partial<SynapseJobRun> = {}): SynapseJobRun {
   return {
@@ -48,6 +80,7 @@ export function nodeFixture(overrides: Partial<SynapseJobNode> = {}): SynapseJob
 export function jobsFixture(): SynapseJobs {
   return {
     generatedAt: '2026-11-04T11:00:00+01:00',
+    limits: LIMITS,
     jobs: [
       {
         name: 'settlement-collapse',
@@ -55,6 +88,8 @@ export function jobsFixture(): SynapseJobs {
         module: 'access',
         description: 'Collapses accepted pay-window batches into journals',
         schedule: 'Every 5 s when idle',
+        cadence: 'INTERVAL',
+        control: controlFixture(),
         status: 'OK',
         active: true,
         running: true,
@@ -72,6 +107,8 @@ export function jobsFixture(): SynapseJobs {
         module: 'access',
         description: 'Delivers pending FlexCube credit instructions',
         schedule: 'Every 1 s when idle',
+        cadence: 'INTERVAL',
+        control: controlFixture({ idleIntervalMs: 1000, defaultIdleIntervalMs: 1000 }),
         status: 'FAILING',
         active: true,
         running: false,
@@ -98,6 +135,8 @@ export function jobsFixture(): SynapseJobs {
         module: 'core',
         description: 'Delivers inbox messages to Fineract',
         schedule: 'Every 1 s when idle',
+        cadence: 'INTERVAL',
+        control: controlFixture({ idleIntervalMs: 1000, defaultIdleIntervalMs: 1000 }),
         status: 'OVERDUE',
         active: true,
         running: false,
@@ -112,6 +151,24 @@ export function jobsFixture(): SynapseJobs {
         module: 'access',
         description: 'Captures and posts each end-of-cycle settlement, then sends EOC Complete',
         schedule: '09:00, 15:00 (Africa/Lagos)',
+        cadence: 'TIMES_OF_DAY',
+        control: controlFixture({
+          idleIntervalMs: null,
+          defaultIdleIntervalMs: null,
+          timesOfDay: [
+            '09:00',
+            '15:00'
+          ],
+          defaultTimesOfDay: [
+            '08:40',
+            '12:00',
+            '15:00',
+            '18:10'
+          ],
+          version: 2,
+          updatedBy: 'mifos',
+          updatedAt: '2026-11-04T08:00:00+01:00'
+        }),
         status: 'NOT_RUNNING',
         active: false,
         running: false,

@@ -87,4 +87,33 @@ describe('SynapseJobsService', () => {
     expect(runs.request.context.get(HANDLED_ERROR_STATUSES)).toEqual(handled);
     runs.flush(null, { status: 503, statusText: 'Service Unavailable' });
   });
+
+  describe('controls', () => {
+    it('asks for a Run now by POST', () => {
+      service.runNow('settlement-collapse').subscribe();
+
+      const req = http.expectOne(`${BASE}/settlement-collapse/run`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.context.get(HANDLED_ERROR_STATUSES)).toContain(409);
+      req.flush({});
+    });
+
+    it('pauses with the version the operator saw', () => {
+      service.setPaused('settlement-collapse', true, 3).subscribe();
+
+      const req = http.expectOne(`${BASE}/settlement-collapse/state`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({ paused: true, version: 3 });
+      req.flush({});
+    });
+
+    it('sends a schedule change as it is given', () => {
+      service.reschedule('settlement-collapse', { idleIntervalMs: null, version: 1 }).subscribe();
+
+      const req = http.expectOne(`${BASE}/settlement-collapse/schedule`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({ idleIntervalMs: null, version: 1 });
+      req.flush({});
+    });
+  });
 });

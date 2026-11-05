@@ -24,6 +24,7 @@
         <mat-option [value]="null">{{ 'labels.inputs.All' | translate }}</mat-option>
         <mat-option value="WORKED">{{ 'labels.text.Worked' | translate }}</mat-option>
         <mat-option value="FAILED">{{ 'labels.text.Failed' | translate }}</mat-option>
+        <mat-option value="IDLE">{{ 'labels.text.Nothing to do' | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
     <mat-form-field class="node-filter">
@@ -83,6 +84,13 @@
               class="success"
               [matTooltip]="'labels.text.Worked' | translate"
               icon="check-circle"
+              size="lg"
+            ></fa-icon>
+          } @else if (run.outcome === 'IDLE') {
+            <fa-icon
+              class="muted"
+              [matTooltip]="'labels.text.Nothing to do' | translate"
+              icon="minus-circle"
               size="lg"
             ></fa-icon>
           } @else {

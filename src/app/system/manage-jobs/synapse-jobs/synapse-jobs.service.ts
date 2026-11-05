@@ -17,10 +17,17 @@ import { Observable } from 'rxjs';
 import { HANDLED_ERROR_STATUSES } from 'app/core/http/error-handler.interceptor';
 
 /** Custom Models */
-import { SynapseJobRunsPage, SynapseJobRunsQuery, SynapseJobs } from './synapse-jobs.model';
+import {
+  SynapseJobControl,
+  SynapseJobRunsPage,
+  SynapseJobRunsQuery,
+  SynapseJobScheduleChange,
+  SynapseJobs
+} from './synapse-jobs.model';
 
 /**
- * Synapse background job reads. URLs start with `/access/` so the api-prefix interceptor routes them to Synapse.
+ * Synapse background jobs: reads, and the operator's controls. URLs start with `/api/v1/admin/` so the api-prefix
+ * interceptor routes them to Synapse.
  */
 @Injectable({
   providedIn: 'root'
@@ -36,6 +43,18 @@ export class SynapseJobsService {
     [
       403,
       404,
+      503
+    ]
+  );
+
+  /** Refusals the job page turns into a message of its own, beside the read failures. */
+  private static readonly CONTROL_HANDLED = new HttpContext().set(
+    HANDLED_ERROR_STATUSES,
+    [
+      400,
+      403,
+      404,
+      409,
       503
     ]
   );
@@ -64,5 +83,45 @@ export class SynapseJobsService {
       params,
       context: SynapseJobsService.HANDLED
     });
+  }
+
+  /**
+   * Asks one node that runs the job to run it once now.
+   * @param {string} name Job name.
+   * @returns {Observable<SynapseJobControl>} The job's controls with the pending request.
+   */
+  runNow(name: string): Observable<SynapseJobControl> {
+    return this.http.post<SynapseJobControl>(`${this.jobUrl(name)}/run`, null, {
+      context: SynapseJobsService.CONTROL_HANDLED
+    });
+  }
+
+  /**
+   * @param {string} name Job name.
+   * @param {boolean} paused True to pause, false to resume.
+   * @param {number} version The version the operator saw.
+   * @returns {Observable<SynapseJobControl>} The job's controls after the change.
+   */
+  setPaused(name: string, paused: boolean, version: number): Observable<SynapseJobControl> {
+    return this.http.put<SynapseJobControl>(
+      `${this.jobUrl(name)}/state`,
+      { paused, version },
+      { context: SynapseJobsService.CONTROL_HANDLED }
+    );
+  }
+
+  /**
+   * @param {string} name Job name.
+   * @param {SynapseJobScheduleChange} change The new interval or times of day, null for the default.
+   * @returns {Observable<SynapseJobControl>} The job's controls after the change.
+   */
+  reschedule(name: string, change: SynapseJobScheduleChange): Observable<SynapseJobControl> {
+    return this.http.put<SynapseJobControl>(`${this.jobUrl(name)}/schedule`, change, {
+      context: SynapseJobsService.CONTROL_HANDLED
+    });
+  }
+
+  private jobUrl(name: string): string {
+    return `${SynapseJobsService.BASE}/${encodeURIComponent(name)}`;
   }
 }

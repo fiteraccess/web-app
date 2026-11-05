@@ -1,0 +1,66 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<h1 mat-dialog-title>{{ 'labels.heading.Edit schedule of job' | translate: { job: job.displayName } }}</h1>
+<div mat-dialog-content>
+  @if (byInterval) {
+    <mat-form-field class="interval">
+      <mat-label>{{ 'labels.inputs.Idle interval (seconds)' | translate }}</mat-label>
+      <input matInput type="number" [formControl]="seconds" />
+      <mat-hint>{{ 'labels.text.Default value' | translate: { value: defaultInterval } }}</mat-hint>
+    </mat-form-field>
+    @if (intervalError(); as problem) {
+      <p class="problem fail">{{ problem.key | translate: problem.params }}</p>
+    }
+  } @else {
+    <p class="muted">{{ 'labels.text.Times are Lagos time' | translate: { now: now } }}</p>
+    <div class="times">
+      @for (time of times(); track time) {
+        <span class="time" [attr.data-time]="time">
+          {{ time }}
+          @if (firstRun(time); as first) {
+            <span class="first-run muted">
+              {{ (first === 'TODAY' ? 'labels.text.from today' : 'labels.text.from tomorrow') | translate }}
+            </span>
+          }
+          <button
+            mat-icon-button
+            type="button"
+            class="remove"
+            (click)="removeTime(time)"
+            [attr.aria-label]="'labels.buttons.Remove' | translate"
+          >
+            <fa-icon icon="times"></fa-icon>
+          </button>
+        </span>
+      }
+    </div>
+    <div class="layout-row align-start-center gap-10px">
+      <mat-form-field class="new-time">
+        <mat-label>{{ 'labels.inputs.Time of day' | translate }}</mat-label>
+        <input matInput type="time" [formControl]="newTime" />
+      </mat-form-field>
+      <button mat-raised-button type="button" class="add" (click)="addTime()">
+        {{ 'labels.buttons.Add' | translate }}
+      </button>
+    </div>
+    <p class="muted">{{ 'labels.text.Default value' | translate: { value: defaultTimes } }}</p>
+    @if (timesError(); as problem) {
+      <p class="problem fail">{{ problem.key | translate: problem.params }}</p>
+    }
+  }
+</div>
+<mat-dialog-actions align="end">
+  <button mat-raised-button type="button" mat-dialog-close>{{ 'labels.buttons.Cancel' | translate }}</button>
+  <button mat-raised-button type="button" class="use-default" (click)="useDefault()">
+    {{ 'labels.buttons.Use default' | translate }}
+  </button>
+  <button mat-raised-button type="button" color="primary" class="save" [disabled]="!canSave()" (click)="save()">
+    {{ 'labels.buttons.Save' | translate }}
+  </button>
+</mat-dialog-actions>

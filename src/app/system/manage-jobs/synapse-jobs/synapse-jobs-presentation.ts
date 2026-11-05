@@ -20,12 +20,13 @@ export function loadErrorOf(error: unknown): SynapseJobsLoadError {
   return error instanceof HttpErrorResponse && error.status === 403 ? 'FORBIDDEN' : 'FAILED';
 }
 
-/** Icon and CSS class of a job status: OK green, FAILING red, OVERDUE amber, NOT_RUNNING grey. */
+/** Icon and CSS class of a job status: OK green, FAILING red, OVERDUE amber, NOT_RUNNING and PAUSED grey. */
 export const STATUS_ICONS: Record<SynapseJobStatus, string> = {
   OK: 'check-circle',
   FAILING: 'times-circle',
   OVERDUE: 'exclamation-circle',
-  NOT_RUNNING: 'minus-circle'
+  NOT_RUNNING: 'minus-circle',
+  PAUSED: 'pause'
 };
 
 export function statusClass(status: SynapseJobStatus): string {
@@ -38,12 +39,13 @@ export function statusLabel(status: SynapseJobStatus): string {
     OK: 'OK',
     FAILING: 'Failing',
     OVERDUE: 'Overdue',
-    NOT_RUNNING: 'Not running'
+    NOT_RUNNING: 'Not running',
+    PAUSED: 'Paused'
   };
   return `labels.text.${labels[status]}`;
 }
 
-/** Translation key of a node or run outcome. */
+/** Translation key of a node or run outcome; an IDLE run is a Run now that found nothing to do. */
 export function outcomeLabel(outcome: SynapseNodeOutcome): string {
   const labels: Record<SynapseNodeOutcome, string> = { IDLE: 'Idle', WORKED: 'Worked', FAILED: 'Failed' };
   return `labels.text.${labels[outcome]}`;

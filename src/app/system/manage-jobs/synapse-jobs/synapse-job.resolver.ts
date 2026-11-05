@@ -18,7 +18,7 @@ import { catchError, map } from 'rxjs/operators';
 import { SynapseJobsService } from './synapse-jobs.service';
 
 /** Custom Models */
-import { SynapseJob } from './synapse-jobs.model';
+import { SynapseJob, SynapseJobLimits, SynapseJobs } from './synapse-jobs.model';
 import { SynapseJobsLoadError, loadErrorOf } from './synapse-jobs-presentation';
 
 /** One job looked up by its key; `label` names it in the breadcrumb even when the lookup failed. */
@@ -27,12 +27,21 @@ export interface SynapseJobLookup {
   label: string;
   job: SynapseJob | null;
   generatedAt: string | null;
+  /** The bounds a schedule edit is checked against; null when the read failed. */
+  limits: SynapseJobLimits | null;
   loadError: SynapseJobsLoadError | null;
 }
 
-export function lookupOf(name: string, jobs: SynapseJob[], generatedAt: string): SynapseJobLookup {
-  const job = jobs.find((candidate) => candidate.name === name) ?? null;
-  return { name, label: job?.displayName ?? name, job, generatedAt, loadError: null };
+export function lookupOf(name: string, response: SynapseJobs): SynapseJobLookup {
+  const job = response.jobs.find((candidate) => candidate.name === name) ?? null;
+  return {
+    name,
+    label: job?.displayName ?? name,
+    job,
+    generatedAt: response.generatedAt,
+    limits: response.limits,
+    loadError: null
+  };
 }
 
 /** Resolves the job of the `:name` route; a failed read still resolves, so the page can say why. */
@@ -41,9 +50,16 @@ export const synapseJobResolver: ResolveFn<SynapseJobLookup> = (route) => {
   return inject(SynapseJobsService)
     .getJobs()
     .pipe(
-      map((response) => lookupOf(name, response.jobs, response.generatedAt)),
+      map((response) => lookupOf(name, response)),
       catchError((error: unknown) =>
-        of<SynapseJobLookup>({ name, label: name, job: null, generatedAt: null, loadError: loadErrorOf(error) })
+        of<SynapseJobLookup>({
+          name,
+          label: name,
+          job: null,
+          generatedAt: null,
+          limits: null,
+          loadError: loadErrorOf(error)
+        })
       )
     );
 };
