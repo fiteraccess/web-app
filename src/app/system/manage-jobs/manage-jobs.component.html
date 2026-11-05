@@ -8,7 +8,12 @@
 
 <mat-card class="container-card">
   <mat-card-content>
-    <mat-tab-group #tabGroup mat-align-tabs="center" (selectedTabChange)="onJobTabChange($event)">
+    <mat-tab-group
+      #tabGroup
+      mat-align-tabs="center"
+      [selectedIndex]="initialTabIndex"
+      (selectedTabChange)="onJobTabChange($event)"
+    >
       <mat-tab label="{{ title('Scheduler Jobs') }}">
         <mifosx-manage-scheduler-jobs></mifosx-manage-scheduler-jobs>
       </mat-tab>
@@ -18,6 +23,13 @@
       <mat-tab label="{{ title('COB') }}">
         <mifosx-cob-workflow [isCatchUpRunning]="isCatchUpRunning"></mifosx-cob-workflow>
       </mat-tab>
+      @if (canReadSynapseJobs) {
+        <mat-tab label="{{ title('Synapse Jobs') }}">
+          <ng-template matTabContent>
+            <mifosx-synapse-jobs></mifosx-synapse-jobs>
+          </ng-template>
+        </mat-tab>
+      }
     </mat-tab-group>
   </mat-card-content>
 </mat-card>

@@ -1,0 +1,51 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+/* Colours follow the Fineract scheduler jobs table. */
+
+.space-top {
+  margin-top: 20px;
+}
+
+.muted {
+  color: #757575;
+}
+
+.success,
+.currently-running {
+  color: #32cd32;
+}
+
+.fail {
+  color: #f44366;
+}
+
+.job-error {
+  background-color: #f7dbb7;
+}
+
+.status {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-ok {
+  color: #32cd32;
+}
+
+.status-failing {
+  color: #f44366;
+}
+
+.status-overdue {
+  color: #ef8f00;
+}
+
+.status-not-running {
+  color: #9e9e9e;
+}

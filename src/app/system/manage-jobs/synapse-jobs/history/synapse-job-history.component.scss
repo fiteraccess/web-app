@@ -1,0 +1,46 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+@use '../synapse-jobs-shared';
+
+.container {
+  margin: 0 auto;
+  max-width: 90rem;
+  width: 90%;
+}
+
+table {
+  width: 100%;
+}
+
+.job-name {
+  font-family: monospace;
+}
+
+.outcome-filter,
+.node-filter {
+  min-width: 14rem;
+}
+
+.error-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #f44366;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.load-error {
+  margin: 20px 0;
+}
+
+.empty {
+  padding: 16px;
+}

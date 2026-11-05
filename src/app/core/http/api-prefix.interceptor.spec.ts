@@ -60,6 +60,16 @@ describe('ApiPrefixInterceptor', () => {
     });
   });
 
+  describe('/api/v1/admin/ URL escape (Synapse admin API)', () => {
+    it('should rewrite Synapse admin URLs using serverHost, NOT the fineract prefix', () => {
+      const req = new HttpRequest('GET', '/api/v1/admin/jobs/settlement-collapse/runs');
+      interceptor.intercept(req, mockHandler as unknown as HttpHandler).subscribe();
+
+      const captured: HttpRequest<any> = mockHandler.handle.mock.calls[0][0];
+      expect(captured.url).toBe(`${SERVER_HOST}/api/v1/admin/jobs/settlement-collapse/runs`);
+    });
+  });
+
   describe('default fineract-style URL behaviour (regression)', () => {
     it('should rewrite plain requests with full serverUrl (host + apiProvider + apiVersion)', () => {
       const req = new HttpRequest('GET', '/clients');

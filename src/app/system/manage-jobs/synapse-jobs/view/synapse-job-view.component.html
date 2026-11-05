@@ -1,0 +1,194 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container m-b-20 layout-row layout-lt-md-column align-end gap-2percent">
+  <button mat-raised-button color="primary" class="refresh" (click)="refresh()" [disabled]="loading">
+    <fa-icon icon="sync" class="m-r-10"></fa-icon>
+    {{ 'labels.buttons.Refresh' | translate }}
+  </button>
+  @if (job) {
+    <button mat-raised-button color="primary" class="view-history" [routerLink]="['viewhistory']">
+      {{ 'labels.buttons.View History' | translate }}
+    </button>
+  }
+</div>
+
+@if (loading) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+
+@if (loadError === 'FORBIDDEN') {
+  <p class="container load-error forbidden">
+    <fa-icon icon="lock" class="m-r-10"></fa-icon>
+    {{ 'labels.text.You do not have permission to view Synapse jobs' | translate }}
+  </p>
+} @else if (loadError === 'FAILED') {
+  <p class="container load-error failed">
+    <fa-icon icon="exclamation-circle" class="m-r-10"></fa-icon>
+    {{ 'labels.text.Synapse jobs could not be loaded' | translate }}
+  </p>
+} @else if (!job) {
+  <p class="container load-error not-found">
+    {{ 'labels.text.No Synapse job is registered under this name' | translate: { name: name } }}
+  </p>
+}
+
+@if (job) {
+  <div class="container details">
+    <mat-card>
+      <mat-card-content>
+        <div class="detail-columns">
+          <dl class="detail-column about">
+            <div class="detail-row">
+              <dt>{{ 'labels.inputs.Job Name' | translate }}</dt>
+              <dd class="job-display-name">{{ job.displayName }}</dd>
+            </div>
+            <div class="detail-row">
+              <dt>{{ 'labels.text.Job key' | translate }}</dt>
+              <dd class="job-key">{{ job.name }}</dd>
+            </div>
+            <div class="detail-row">
+              <dt>{{ 'labels.inputs.Description' | translate }}</dt>
+              <dd>{{ job.description }}</dd>
+            </div>
+            <div class="detail-row">
+              <dt>{{ 'labels.text.Module' | translate }}</dt>
+              <dd>{{ job.module }}</dd>
+            </div>
+            <div class="detail-row">
+              <dt>{{ 'labels.text.Schedule' | translate }}</dt>
+              <dd>{{ job.schedule }}</dd>
+            </div>
+          </dl>
+
+          <dl class="detail-column state">
+            <div class="detail-row">
+              <dt>{{ 'labels.inputs.Status' | translate }}</dt>
+              <dd>
+                <span class="status" [ngClass]="statusClass(job.status)" [attr.data-status]="job.status">
+                  <fa-icon [icon]="statusIcon(job.status)" class="m-r-5"></fa-icon>
+                  {{ statusLabel(job.status) | translate }}
+                </span>
+              </dd>
+            </div>
+            <div class="detail-row">
+              <dt>{{ 'labels.inputs.Is Active Job' | translate }}?</dt>
+              <dd class="active">{{ job.active | yesNo }}</dd>
+            </div>
+            <div class="detail-row">
+              <dt>{{ 'labels.inputs.Currently Running' | translate }}</dt>
+              <dd class="running">{{ job.running | yesNo }}</dd>
+            </div>
+            <div class="detail-row">
+              <dt>{{ 'labels.inputs.Previous Run' | translate }}</dt>
+              <dd class="previous-run">
+                @if (job.lastRun; as run) {
+                  @if (run.outcome === 'WORKED') {
+                    <fa-icon class="success m-r-5" icon="check-circle"></fa-icon>
+                  } @else {
+                    <fa-icon class="fail m-r-5" icon="times-circle"></fa-icon>
+                  }
+                  {{ run.startedAt | date: 'dd MMM yyyy HH:mm:ss' : lagos }}
+                  <div class="muted">
+                    {{ run.nodeId }} · {{ 'labels.text.Processed count' | translate: { count: run.processed } }}
+                  </div>
+                }
+              </dd>
+            </div>
+            <div class="detail-row">
+              <dt>{{ 'labels.inputs.Next Run' | translate }}</dt>
+              <dd class="next-run">{{ job.nextRunAt | date: 'dd MMM yyyy HH:mm:ss' : lagos }}</dd>
+            </div>
+            <div class="detail-row">
+              <dt>{{ 'labels.text.Failures' | translate }}</dt>
+              <dd class="failures" [class.fail]="job.consecutiveFailures > 0">{{ job.consecutiveFailures }}</dd>
+            </div>
+          </dl>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="container nodes space-top">
+    <h3>{{ 'labels.text.Nodes' | translate }}</h3>
+    <div class="mat-elevation-z8">
+      <table mat-table [dataSource]="job.nodes">
+        <ng-container matColumnDef="nodeId">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Node' | translate }}</th>
+          <td mat-cell *matCellDef="let node">{{ node.nodeId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="state">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Status' | translate }}</th>
+          <td mat-cell *matCellDef="let node">
+            <span [className]="node.live ? 'currently-running' : 'not-live'">
+              <fa-icon icon="circle" class="m-r-5"></fa-icon>
+              {{ (node.live ? 'labels.text.Live' : 'labels.text.Not live') | translate }}
+            </span>
+            @if (node.overdue) {
+              <span class="status status-overdue m-l-10">
+                <fa-icon icon="exclamation-circle" class="m-r-5"></fa-icon>
+                {{ 'labels.text.Overdue' | translate }}
+              </span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="running">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Currently Running' | translate }}</th>
+          <td mat-cell *matCellDef="let node">{{ node.running | yesNo }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastTickEndedAt">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Last tick ended (Lagos)' | translate }}</th>
+          <td mat-cell *matCellDef="let node">{{ node.lastTickEndedAt | date: 'dd MMM HH:mm:ss' : lagos }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastOutcome">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Last outcome' | translate }}</th>
+          <td mat-cell *matCellDef="let node" [class.fail]="node.lastOutcome === 'FAILED'">
+            @if (node.lastOutcome) {
+              {{ outcomeLabel(node.lastOutcome) | translate }}
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="nextTickAt">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Next tick (Lagos)' | translate }}</th>
+          <td mat-cell *matCellDef="let node">{{ node.nextTickAt | date: 'dd MMM HH:mm:ss' : lagos }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="consecutiveFailures">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Failures' | translate }}</th>
+          <td mat-cell *matCellDef="let node" [class.fail]="node.consecutiveFailures > 0">
+            {{ node.consecutiveFailures }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastError">
+          <th mat-header-cell *matHeaderCellDef>{{ 'labels.text.Last error' | translate }}</th>
+          <td mat-cell *matCellDef="let node" class="last-error" [matTooltip]="node.lastError">
+            {{ truncate(node.lastError) }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="nodeColumns"></tr>
+        <tr mat-row *matRowDef="let node; columns: nodeColumns" class="node-row" [class.muted]="!node.live"></tr>
+      </table>
+      @if (job.nodes.length === 0) {
+        <p class="empty muted">{{ 'labels.text.No node has reported this job' | translate }}</p>
+      }
+    </div>
+  </div>
+}
+
+<div class="container space-top layout-row layout-align-center">
+  <button type="button" color="primary" mat-raised-button class="back" (click)="back()">
+    {{ 'labels.buttons.Back' | translate }}
+  </button>
+</div>

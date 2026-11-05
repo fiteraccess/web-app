@@ -1,0 +1,66 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+@use '../synapse-jobs-shared';
+
+.detail-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 48px;
+}
+
+/* Two columns side by side; each wraps under the other when the page is too narrow for both. */
+.detail-column {
+  flex: 1 1 28rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.detail-row {
+  display: flex;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgb(0 0 0 / 8%);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  dt {
+    flex: 0 0 11rem;
+    font-weight: 500;
+  }
+
+  dd {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.nodes table {
+  width: 100%;
+}
+
+.not-live {
+  color: #9e9e9e;
+}
+
+.last-error {
+  max-width: 24rem;
+  word-break: break-word;
+}
+
+.load-error {
+  margin: 20px 0;
+}
+
+.empty {
+  padding: 16px;
+}

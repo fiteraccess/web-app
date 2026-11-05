@@ -54,6 +54,10 @@ import { EditRoleComponent } from './roles-and-permissions/edit-role/edit-role.c
 import { RolesAndPermissionsComponent } from './roles-and-permissions/roles-and-permissions.component';
 import { ViewRoleComponent } from './roles-and-permissions/view-role/view-role.component';
 import { SystemComponent } from './system.component';
+import { SynapseJobHistoryComponent } from './manage-jobs/synapse-jobs/history/synapse-job-history.component';
+import { synapseJobsReadGuard } from './manage-jobs/synapse-jobs/synapse-jobs-permissions';
+import { synapseJobResolver } from './manage-jobs/synapse-jobs/synapse-job.resolver';
+import { SynapseJobViewComponent } from './manage-jobs/synapse-jobs/view/synapse-job-view.component';
 import { SystemInformationComponent } from './system-information/system-information.component';
 import { AboutUsComponent } from './about-us/about-us.component';
 import { TierPolicyComponent } from './tier-policy/tier-policy.component';
@@ -468,6 +472,26 @@ const routes: Routes = [
               path: '',
               component: ManageJobsComponent,
               resolve: {}
+            },
+            {
+              path: 'synapse/:name',
+              canActivate: [synapseJobsReadGuard],
+              data: { title: 'View Synapse Job', routeResolveBreadcrumb: [
+                  'synapseJob',
+                  'label'
+                ] },
+              resolve: { synapseJob: synapseJobResolver },
+              children: [
+                {
+                  path: '',
+                  component: SynapseJobViewComponent
+                },
+                {
+                  path: 'viewhistory',
+                  component: SynapseJobHistoryComponent,
+                  data: { title: 'Synapse Job History', breadcrumb: 'View History', routeResolveBreadcrumb: false }
+                }
+              ]
             },
             {
               path: ':id',
