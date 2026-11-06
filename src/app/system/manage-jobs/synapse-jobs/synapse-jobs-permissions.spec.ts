@@ -10,7 +10,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
 
 import { AuthenticationService } from 'app/core/authentication/authentication.service';
-import { canReadSynapseJobs, createSynapseJobsReadGuard } from './synapse-jobs-permissions';
+import { canReadSynapseJobs, createSynapseJobsReadGuard, synapseJobAbilities } from './synapse-jobs-permissions';
 
 describe('Synapse jobs permissions', () => {
   const denied = {} as UrlTree;
@@ -53,5 +53,20 @@ describe('Synapse jobs permissions', () => {
   it('decides the tab the same way as the route', () => {
     expect(canReadSynapseJobs(['READ_SYNAPSEJOB'], true)).toBe(true);
     expect(canReadSynapseJobs(['READ_SCHEDULER'], true)).toBe(false);
+  });
+
+  it('gives each control its own permission', () => {
+    expect(synapseJobAbilities(['READ_SYNAPSEJOB'], true)).toEqual({ run: false, pause: false, reschedule: false });
+    expect(synapseJobAbilities(['EXECUTE_SYNAPSEJOB'], true)).toEqual({ run: true, pause: false, reschedule: false });
+    expect(synapseJobAbilities(['UPDATE_SYNAPSEJOB'], true)).toEqual({ run: false, pause: true, reschedule: false });
+    expect(synapseJobAbilities(['UPDATE_SYNAPSEJOBSCHEDULE'], true)).toEqual({
+      run: false,
+      pause: false,
+      reschedule: true
+    });
+  });
+
+  it('does not let all-read users steer jobs', () => {
+    expect(synapseJobAbilities(['ALL_FUNCTIONS_READ'], true)).toEqual({ run: false, pause: false, reschedule: false });
   });
 });

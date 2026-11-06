@@ -15,6 +15,32 @@
     <button mat-raised-button color="primary" class="view-history" [routerLink]="['viewhistory']">
       {{ 'labels.buttons.View History' | translate }}
     </button>
+    @if (controllable()) {
+      @if (can.run) {
+        <button
+          mat-raised-button
+          color="primary"
+          class="run-now"
+          (click)="runNow()"
+          [disabled]="acting || job.control.paused"
+        >
+          <fa-icon icon="play" class="m-r-10"></fa-icon>
+          {{ 'labels.buttons.Run Now' | translate }}
+        </button>
+      }
+      @if (can.pause) {
+        <button mat-raised-button color="primary" class="pause" (click)="togglePause()" [disabled]="acting">
+          <fa-icon [icon]="job.control.paused ? 'play' : 'pause'" class="m-r-10"></fa-icon>
+          {{ (job.control.paused ? 'labels.buttons.Resume' : 'labels.buttons.Pause') | translate }}
+        </button>
+      }
+      @if (can.reschedule && limits) {
+        <button mat-raised-button color="primary" class="edit-schedule" (click)="editSchedule()" [disabled]="acting">
+          <fa-icon icon="clock" class="m-r-10"></fa-icon>
+          {{ 'labels.buttons.Edit Schedule' | translate }}
+        </button>
+      }
+    }
   }
 </div>
 
@@ -62,8 +88,26 @@
             </div>
             <div class="detail-row">
               <dt>{{ 'labels.text.Schedule' | translate }}</dt>
-              <dd>{{ job.schedule }}</dd>
+              <dd class="schedule">
+                {{ job.schedule }}
+                @if (scheduleDefault(); as byDefault) {
+                  <div class="muted default">{{ 'labels.text.Default value' | translate: { value: byDefault } }}</div>
+                }
+                @if (job.control.heldToday.length) {
+                  <div class="muted held">
+                    {{ 'labels.text.First run tomorrow' | translate: { times: job.control.heldToday.join(', ') } }}
+                  </div>
+                }
+              </dd>
             </div>
+            @if (job.control.updatedBy) {
+              <div class="detail-row">
+                <dt>{{ 'labels.text.Last changed' | translate }}</dt>
+                <dd class="changed">
+                  {{ job.control.updatedBy }} · {{ job.control.updatedAt | date: 'dd MMM yyyy HH:mm:ss' : lagos }}
+                </dd>
+              </div>
+            }
           </dl>
 
           <dl class="detail-column state">
@@ -90,6 +134,12 @@
                 @if (job.lastRun; as run) {
                   @if (run.outcome === 'WORKED') {
                     <fa-icon class="success m-r-5" icon="check-circle"></fa-icon>
+                  } @else if (run.outcome === 'IDLE') {
+                    <fa-icon
+                      class="muted m-r-5"
+                      [matTooltip]="'labels.text.Nothing to do' | translate"
+                      icon="minus-circle"
+                    ></fa-icon>
                   } @else {
                     <fa-icon class="fail m-r-5" icon="times-circle"></fa-icon>
                   }
@@ -100,6 +150,15 @@
                 }
               </dd>
             </div>
+            @if (job.control.runRequestedAt) {
+              <div class="detail-row">
+                <dt>{{ 'labels.text.Run requested' | translate }}</dt>
+                <dd class="run-requested">
+                  {{ job.control.runRequestedBy }} ·
+                  {{ job.control.runRequestedAt | date: 'dd MMM yyyy HH:mm:ss' : lagos }}
+                </dd>
+              </div>
+            }
             <div class="detail-row">
               <dt>{{ 'labels.inputs.Next Run' | translate }}</dt>
               <dd class="next-run">{{ job.nextRunAt | date: 'dd MMM yyyy HH:mm:ss' : lagos }}</dd>

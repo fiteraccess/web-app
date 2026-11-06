@@ -52,7 +52,7 @@ describe('Synapse job history page', () => {
           useValue: {
             parent: {
               data: (routeData = new BehaviorSubject({
-                synapseJob: lookupOf('settlement-collapse', jobsFixture().jobs, '2026-11-04T11:00:00+01:00')
+                synapseJob: lookupOf('settlement-collapse', jobsFixture())
               }))
             }
           }
@@ -233,7 +233,7 @@ describe('Synapse job history page', () => {
     fixture.componentInstance.outcome.setValue('FAILED');
     expectRuns().flush(runsPageFixture());
 
-    routeData.next({ synapseJob: lookupOf('inbox-job', jobsFixture().jobs, '2026-11-04T11:00:00+01:00') });
+    routeData.next({ synapseJob: lookupOf('inbox-job', jobsFixture()) });
     const req = http.expectOne((r) => r.url === `${JOBS}/inbox-job/runs`);
     req.flush(runsPageFixture());
     fixture.detectChanges();

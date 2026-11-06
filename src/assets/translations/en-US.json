@@ -650,7 +650,11 @@
       "Check breaks now": "Check breaks now",
       "Download full request": "Download full request",
       "Download full reply": "Download full reply",
-      "Resend": "Resend"
+      "Resend": "Resend",
+      "Run Now": "Run Now",
+      "Pause": "Pause",
+      "Resume": "Resume",
+      "Use default": "Use default"
     },
     "catalogs": {
       "Interest payment waiver": "Interest Payment Waiver",
@@ -1500,7 +1504,11 @@
       "Cycles": "Cycles",
       "End of cycle runs": "End of cycle runs",
       "Needs a look": "Needs a look",
-      "Business date": "Business date"
+      "Business date": "Business date",
+      "Run job now": "Run {{job}} now",
+      "Pause job": "Pause {{job}}",
+      "Resume job": "Resume {{job}}",
+      "Edit schedule of job": "Edit schedule of {{job}}"
     },
     "inputs": {
       "Logical Name": "Logical Name",
@@ -3044,7 +3052,9 @@
       "Total Goal Penalties": "Total penalties and forfeitures",
       "Goal Withdrawals Used": "Partial withdrawals used",
       "Business date": "Business date",
-      "Synapse Jobs": "Synapse Jobs"
+      "Synapse Jobs": "Synapse Jobs",
+      "Idle interval (seconds)": "Idle interval (seconds)",
+      "Time of day": "Time of day"
     },
     "links": {
       "Community": "Community",
@@ -4271,7 +4281,29 @@
       "Not running": "Not running",
       "Idle": "Idle",
       "Synapse Job History": "Synapse Job History",
-      "View Synapse Job": "View Synapse Job"
+      "View Synapse Job": "View Synapse Job",
+      "Paused": "Paused",
+      "Nothing to do": "Nothing to do",
+      "Run now prompt": "One node that runs this job runs it once within a few seconds, then it keeps its schedule.",
+      "Run now requested": "Run requested; a node runs it within a few seconds.",
+      "Run requested": "Run requested",
+      "Pause prompt": "The job stops on every node until it is resumed. A run already in progress finishes.",
+      "Pausing settlement-eoc": "No settlement cycle is captured while it is paused. A run already in progress finishes.",
+      "Pausing eod-gl-mirror": "EOD Close Of Business waits at the mirror steps while it is paused. A run already in progress finishes.",
+      "Pausing inbox-job": "Fineract-bound messages queue up while it is paused. A run already in progress finishes.",
+      "Resume prompt": "The job runs on its schedule again on every node.",
+      "Job paused": "Job paused.",
+      "Job resumed": "Job resumed.",
+      "Schedule saved": "Schedule saved.",
+      "Default value": "Default: {{value}}",
+      "First run tomorrow": "{{times}} first run tomorrow",
+      "Last changed": "Last changed",
+      "Times are Lagos time": "Times are Lagos time; it is {{now}} now. A time that has already passed today first runs tomorrow.",
+      "from today": "from today",
+      "from tomorrow": "from tomorrow",
+      "Interval must be between": "Give a whole number of seconds between {{min}} and {{max}}.",
+      "Give between 1 and n times of day": "Give between 1 and {{max}} times of day.",
+      "Times of day must be apart": "Times of day must be at least {{gap}} minutes apart."
     },
     "auditTrail": {
       "actions": {
