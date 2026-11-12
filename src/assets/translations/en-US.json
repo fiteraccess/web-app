@@ -374,6 +374,10 @@
       "Home": "Home"
     },
     "buttons": {
+      "Add Period": "Add Period",
+      "Generate monthly periods": "Generate monthly periods",
+      "Confirm holidays": "Confirm holidays",
+      "Unconfirm holidays": "Unconfirm holidays",
       "Check mapping": "Check mapping",
       "Add NIP Switch": "Add NIP Switch",
       "Accept Transfer": "Accept Transfer",
@@ -1000,6 +1004,10 @@
       "NotEqual": "Not equal"
     },
     "heading": {
+      "Period Group": "Period Group",
+      "Add Holiday": "Add Holiday",
+      "Financial Years": "Financial Years",
+      "Local Holiday Calendar": "Local Holiday Calendar",
       "EOD GL Mirror Mapping": "EOD GL Mirror Mapping",
       "Resolves to": "Resolves to",
       "Customer Documents": "Customer Documents",
@@ -1511,6 +1519,9 @@
       "Edit schedule of job": "Edit schedule of {{job}}"
     },
     "inputs": {
+      "Financial Cycle": "Financial Cycle",
+      "Holidays Confirmed": "Holidays Confirmed",
+      "Period Code": "Period Code",
       "Logical Name": "Logical Name",
       "Amount Source": "Amount Source",
       "Source Key": "Source Key",
@@ -3257,6 +3268,19 @@
       "Balance Cap": "Balance Cap"
     },
     "text": {
+      "Closed by the EOD of": "Closed by the EOD of",
+      "End date is before the start date": "End date is before the start date",
+      "For example FISCAL YEAR 2026": "For example FISCAL YEAR 2026",
+      "For example FY2026": "For example FY2026",
+      "Click a day after the business date to add or remove a holiday": "Click a day after the business date to add or remove a holiday",
+      "Financial years could not be read": "Financial years could not be read",
+      "For example Christmas Day": "For example Christmas Day",
+      "Holiday": "Holiday",
+      "Holidays confirmed": "Holidays confirmed",
+      "Holidays not confirmed": "Holidays not confirmed",
+      "No financial year covers this year": "No financial year covers this year",
+      "Mark the head office holidays the end of day skips": "Mark the head office holidays the end of day skips",
+      "Maintain financial years and their period codes": "Maintain financial years and their period codes",
       "EOD GL Mirror Mapping": "EOD GL Mirror Mapping",
       "Create EOD GL Mapping": "Create EOD GL Mapping",
       "View EOD GL Mapping": "View EOD GL Mapping",
