@@ -1,0 +1,124 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+@if (office && year) {
+  <div class="container">
+    <mat-card class="m-b-20"
+      ><mat-card-content>
+        <div class="layout-row-wrap align-start-center header-row">
+          <div class="flex-fill">
+            <div>
+              <span class="header">{{ 'labels.inputs.Branch' | translate }}:</span>
+              {{ office.name }}
+              @if (office.externalId) {
+                ({{ office.externalId }})
+              }
+            </div>
+            <div>
+              <span class="header">{{ 'labels.inputs.Business Date' | translate }}:</span>
+              {{ formatDmy(businessDate) }}
+            </div>
+          </div>
+          <div class="year-selector">
+            <button mat-icon-button type="button" (click)="showYear(year - 1)" aria-label="Previous year">
+              <fa-icon icon="chevron-left"></fa-icon>
+            </button>
+            <span class="year">{{ year }}</span>
+            <button mat-icon-button type="button" (click)="showYear(year + 1)" aria-label="Next year">
+              <fa-icon icon="chevron-right"></fa-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="confirm-panel">
+          @if (financialYearsUnavailable) {
+            <span>{{ 'labels.text.Financial years could not be read' | translate }}</span>
+          } @else if (!financialYear) {
+            <span>{{ 'labels.text.No financial year covers this year' | translate }}</span>
+            <a [routerLink]="['/organization/financial-years']">{{ 'labels.heading.Financial Years' | translate }}</a>
+          } @else {
+            <span>
+              {{ financialYear.financialCycle }}:
+              {{
+                (financialYear.holidaysConfirmed
+                  ? 'labels.text.Holidays confirmed'
+                  : 'labels.text.Holidays not confirmed'
+                ) | translate
+              }}
+            </span>
+            @if (financialYear.closedOn) {
+              <span
+                >({{ 'labels.text.Closed by the EOD of' | translate }} {{ formatDmy(financialYear.closedOn) }})</span
+              >
+            } @else {
+              <button
+                mat-raised-button
+                type="button"
+                color="primary"
+                (click)="toggleHolidaysConfirmed()"
+                *mifosxHasPermission="'UPDATE_FINANCIALYEAR'"
+              >
+                {{
+                  (financialYear.holidaysConfirmed
+                    ? 'labels.buttons.Unconfirm holidays'
+                    : 'labels.buttons.Confirm holidays'
+                  ) | translate
+                }}
+              </button>
+            }
+          }
+        </div>
+
+        <div class="legend">
+          <span class="swatch holiday"></span>{{ 'labels.text.Holiday' | translate }}
+          <span class="swatch processed"></span>{{ 'labels.text.Processed' | translate }}
+          <span class="hint">{{
+            'labels.text.Click a day after the business date to add or remove a holiday' | translate
+          }}</span>
+        </div>
+      </mat-card-content></mat-card
+    >
+
+    <div class="months">
+      @for (month of months; track month.month) {
+        <mat-card class="month"
+          ><mat-card-content>
+            <div class="month-name">{{ monthNames[month.month - 1] }} {{ year }}</div>
+            <table class="month-grid">
+              <tr>
+                @for (weekday of weekdays; track weekday) {
+                  <th>{{ weekday }}</th>
+                }
+              </tr>
+              @for (week of month.weeks; track $index) {
+                <tr>
+                  @for (day of week; track $index) {
+                    <td>
+                      @if (day) {
+                        <button
+                          type="button"
+                          [class]="'day ' + day.state"
+                          [disabled]="day.state === 'processed' || day.state === 'processed-holiday'"
+                          [matTooltip]="dayTooltip(day)"
+                          [attr.data-date]="day.iso"
+                          (click)="dayClicked(day)"
+                        >
+                          {{ day.day }}
+                        </button>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </table>
+          </mat-card-content></mat-card
+        >
+      }
+    </div>
+  </div>
+}

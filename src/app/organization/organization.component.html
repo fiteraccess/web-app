@@ -42,15 +42,15 @@
           <div #holidays>
             <mat-list-item *mifosxHasPermission="'READ_HOLIDAY'">
               <div class="menu-list-item-content">
-                <div class="menu-left-section" [routerLink]="['holidays']">
+                <div class="menu-left-section" [routerLink]="['holiday-calendar']">
                   <mat-icon matListIcon>
                     <fa-icon icon="calendar-alt" size="sm"></fa-icon>
                   </mat-icon>
                   <div matLine>
-                    {{ 'labels.heading.Manage Holidays' | translate }}
+                    {{ 'labels.heading.Local Holiday Calendar' | translate }}
                     @if (arrowBooleans[1]) {
-                      <p matLine [routerLink]="['holidays']" class="menu-explanation">
-                        {{ 'labels.text.Define holidays for office' | translate }}
+                      <p matLine [routerLink]="['holiday-calendar']" class="menu-explanation">
+                        {{ 'labels.text.Mark the head office holidays the end of day skips' | translate }}
                       </p>
                     }
                   </div>
@@ -61,6 +61,34 @@
                   }
                   @if (arrowBooleans[1]) {
                     <fa-icon (click)="arrowBooleansToggle(1)" icon="arrow-up" size="md"></fa-icon>
+                  }
+                </div>
+              </div>
+            </mat-list-item>
+          </div>
+
+          <div>
+            <mat-list-item *mifosxHasPermission="'READ_FINANCIALYEAR'">
+              <div class="menu-list-item-content">
+                <div class="menu-left-section" [routerLink]="['financial-years']">
+                  <mat-icon matListIcon>
+                    <fa-icon icon="calendar" size="sm"></fa-icon>
+                  </mat-icon>
+                  <div matLine>
+                    {{ 'labels.heading.Financial Years' | translate }}
+                    @if (arrowBooleans[19]) {
+                      <p matLine [routerLink]="['financial-years']" class="menu-explanation">
+                        {{ 'labels.text.Maintain financial years and their period codes' | translate }}
+                      </p>
+                    }
+                  </div>
+                </div>
+                <div class="menu-right-section">
+                  @if (!arrowBooleans[19]) {
+                    <fa-icon (click)="arrowBooleansToggle(19)" icon="arrow-down" size="md"></fa-icon>
+                  }
+                  @if (arrowBooleans[19]) {
+                    <fa-icon (click)="arrowBooleansToggle(19)" icon="arrow-up" size="md"></fa-icon>
                   }
                 </div>
               </div>

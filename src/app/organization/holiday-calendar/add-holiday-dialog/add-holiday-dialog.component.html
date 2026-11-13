@@ -1,0 +1,32 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<h1 mat-dialog-title>{{ 'labels.heading.Add Holiday' | translate }} {{ day }}</h1>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="layout-column">
+    <mat-form-field
+      ><mat-label>{{ 'labels.inputs.Name' | translate }}</mat-label
+      ><input matInput required formControlName="name" [maxlength]="maxLength" cdkFocusInitial />
+      <mat-hint>{{ 'labels.text.For example Christmas Day' | translate }}</mat-hint>
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>
+          {{ 'labels.inputs.Name' | translate }} {{ 'labels.commons.is' | translate }}
+          <strong>{{ 'labels.commons.required' | translate }}</strong>
+        </mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field
+      ><mat-label>{{ 'labels.inputs.Description' | translate }}</mat-label
+      ><input matInput formControlName="description"
+    /></mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button type="button" mat-raised-button mat-dialog-close>{{ 'labels.buttons.Cancel' | translate }}</button>
+    <button type="submit" mat-raised-button color="primary">{{ 'labels.buttons.Submit' | translate }}</button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,154 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="container">
+  <mat-card
+    ><form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-card-content
+        ><div class="layout-column">
+          <mat-form-field
+            ><mat-label>{{ 'labels.inputs.Financial Cycle' | translate }}</mat-label
+            ><input matInput required formControlName="financialCycle" />
+            <mat-hint>{{ 'labels.text.For example FY2026' | translate }}</mat-hint>
+            @if (form.controls.financialCycle.hasError('required')) {
+              <mat-error>
+                {{ 'labels.inputs.Financial Cycle' | translate }} {{ 'labels.commons.is' | translate }}
+                <strong>{{ 'labels.commons.required' | translate }}</strong>
+              </mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field
+            ><mat-label>{{ 'labels.inputs.Description' | translate }}</mat-label
+            ><input matInput formControlName="description" />
+            <mat-hint>{{ 'labels.text.For example FISCAL YEAR 2026' | translate }}</mat-hint>
+          </mat-form-field>
+          <div class="layout-row gap-2percent">
+            <mat-form-field class="flex-fill"
+              ><mat-label>{{ 'labels.inputs.Start Date' | translate }}</mat-label
+              ><input matInput required [matDatepicker]="yearStartPicker" formControlName="startDate" />
+              <mat-datepicker-toggle matSuffix [for]="yearStartPicker"></mat-datepicker-toggle>
+              <mat-datepicker #yearStartPicker></mat-datepicker>
+              @if (form.controls.startDate.hasError('required')) {
+                <mat-error>
+                  {{ 'labels.inputs.Start Date' | translate }} {{ 'labels.commons.is' | translate }}
+                  <strong>{{ 'labels.commons.required' | translate }}</strong>
+                </mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field class="flex-fill"
+              ><mat-label>{{ 'labels.inputs.End Date' | translate }}</mat-label
+              ><input matInput required [matDatepicker]="yearEndPicker" formControlName="endDate" />
+              <mat-datepicker-toggle matSuffix [for]="yearEndPicker"></mat-datepicker-toggle>
+              <mat-datepicker #yearEndPicker></mat-datepicker>
+              @if (form.controls.endDate.hasError('required')) {
+                <mat-error>
+                  {{ 'labels.inputs.End Date' | translate }} {{ 'labels.commons.is' | translate }}
+                  <strong>{{ 'labels.commons.required' | translate }}</strong>
+                </mat-error>
+              }
+            </mat-form-field>
+          </div>
+          <mat-checkbox formControlName="holidaysConfirmed">{{
+            'labels.inputs.Holidays Confirmed' | translate
+          }}</mat-checkbox>
+        </div>
+
+        <mat-card class="m-t-20"
+          ><mat-card-header class="layout-row align-center gap-2percent"
+            ><mat-card-title>{{ 'labels.heading.Period Group' | translate }}</mat-card-title></mat-card-header
+          ><mat-card-content>
+            <div class="layout-row gap-2px m-b-20">
+              <button type="button" mat-raised-button [disabled]="!canGenerate" (click)="generatePeriods()">
+                {{ 'labels.buttons.Generate monthly periods' | translate }}
+              </button>
+              <button type="button" mat-raised-button (click)="addPeriod()">
+                {{ 'labels.buttons.Add Period' | translate }}
+              </button>
+            </div>
+            <table mat-table [dataSource]="dataSource">
+              <ng-container matColumnDef="periodCode"
+                ><th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Period Code' | translate }}</th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-form-field class="period-field" subscriptSizing="dynamic"
+                    ><input
+                      matInput
+                      required
+                      [formControl]="row.controls.periodCode"
+                      [attr.aria-label]="'labels.inputs.Period Code' | translate"
+                  /></mat-form-field></td
+              ></ng-container>
+              <ng-container matColumnDef="startDate"
+                ><th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Start Date' | translate }}</th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-form-field class="period-field" subscriptSizing="dynamic"
+                    ><input
+                      matInput
+                      required
+                      [matDatepicker]="startPicker"
+                      [formControl]="row.controls.startDate"
+                      [attr.aria-label]="'labels.inputs.Start Date' | translate" />
+                    <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #startPicker></mat-datepicker
+                  ></mat-form-field></td
+              ></ng-container>
+              <ng-container matColumnDef="endDate"
+                ><th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.End Date' | translate }}</th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-form-field class="period-field" subscriptSizing="dynamic"
+                    ><input
+                      matInput
+                      required
+                      [matDatepicker]="endPicker"
+                      [formControl]="row.controls.endDate"
+                      [attr.aria-label]="'labels.inputs.End Date' | translate" />
+                    <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #endPicker></mat-datepicker
+                  ></mat-form-field>
+                  @if (row.hasError('endBeforeStart')) {
+                    <mat-error class="row-error">{{
+                      'labels.text.End date is before the start date' | translate
+                    }}</mat-error>
+                  }
+                </td></ng-container
+              >
+              <ng-container matColumnDef="actions"
+                ><th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let row">
+                  <button
+                    type="button"
+                    mat-icon-button
+                    color="warn"
+                    (click)="removePeriod(row)"
+                    [attr.aria-label]="'labels.buttons.Remove' | translate"
+                  >
+                    <fa-icon icon="trash"></fa-icon>
+                  </button></td
+              ></ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+            <mat-paginator
+              [pageSizeOptions]="[12, 24, 50]"
+              showFirstLastButtons
+            ></mat-paginator></mat-card-content></mat-card></mat-card-content
+      ><mat-card-actions
+        ><button type="button" mat-raised-button [routerLink]="['../']">
+          {{ 'labels.buttons.Cancel' | translate }}
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="form.invalid"
+          *mifosxHasPermission="'UPDATE_FINANCIALYEAR'"
+        >
+          {{ 'labels.buttons.Submit' | translate }}
+        </button></mat-card-actions
+      >
+    </form></mat-card
+  >
+</div>

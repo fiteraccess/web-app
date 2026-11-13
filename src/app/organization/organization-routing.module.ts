@@ -98,6 +98,12 @@ import { ManageFundsResolver } from './manage-funds/manage-funds.resolver';
 import { CashierTransactionTemplateResolver } from './tellers/common-resolvers/teller-transaction-template.resolver';
 import { EditCashierResolver } from './tellers/common-resolvers/edit-cashier.resolver';
 import { HolidayTemplateResolver } from './holidays/holiday-template.resolver';
+import { FinancialYearsComponent } from './financial-years/financial-years.component';
+import { ViewFinancialYearComponent } from './financial-years/view-financial-year/view-financial-year.component';
+import { FinancialYearFormComponent } from './financial-years/financial-year-form/financial-year-form.component';
+import { FinancialYearsResolver } from './financial-years/financial-years.resolver';
+import { FinancialYearResolver } from './financial-years/financial-year.resolver';
+import { HolidayCalendarComponent } from './holiday-calendar/holiday-calendar.component';
 import { AdhocQueryAndTemplateResolver } from './adhoc-query/common-resolvers/adhoc-query-and-template.resolver';
 import { BulkImportResolver } from './bulk-import/bulk-import.resolver';
 import { SmsCampaignTemplateResolver } from './sms-campaigns/common-resolvers/sms-campaign-template.resolver';
@@ -749,6 +755,44 @@ const routes: Routes = [
               ]
             }
           ]
+        },
+        {
+          path: 'holiday-calendar',
+          component: HolidayCalendarComponent,
+          data: { title: 'Local Holiday Calendar', breadcrumb: 'Local Holiday Calendar' }
+        },
+        {
+          path: 'financial-years',
+          data: { title: 'Financial Years', breadcrumb: 'Financial Years' },
+          children: [
+            {
+              path: '',
+              component: FinancialYearsComponent,
+              resolve: { financialYears: FinancialYearsResolver }
+            },
+            {
+              path: 'create',
+              component: FinancialYearFormComponent,
+              data: { title: 'Create Financial Year', breadcrumb: 'Create' }
+            },
+            {
+              path: 'view/:financialCycle',
+              data: { title: 'View Financial Year', routeParamBreadcrumb: 'financialCycle' },
+              children: [
+                {
+                  path: '',
+                  component: ViewFinancialYearComponent,
+                  resolve: { financialYear: FinancialYearResolver }
+                },
+                {
+                  path: 'edit',
+                  component: FinancialYearFormComponent,
+                  data: { title: 'Edit Financial Year', breadcrumb: 'Edit', routeParamBreadcrumb: false },
+                  resolve: { financialYear: FinancialYearResolver }
+                }
+              ]
+            }
+          ]
         }
       ]
     }
@@ -764,6 +808,8 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
   providers: [
+    FinancialYearsResolver,
+    FinancialYearResolver,
     LoanProvisioningCriteriaResolver,
     OfficesResolver,
     EmployeesResolver,

@@ -1,0 +1,120 @@
+/**
+ * Copyright since 2025 Mifos Initiative
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+.header-row {
+  gap: 16px;
+}
+
+.header {
+  font-weight: 500;
+}
+
+.year-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .year {
+    font-size: 1.4em;
+    font-weight: 500;
+    min-width: 2.5em;
+    text-align: center;
+  }
+}
+
+.confirm-panel,
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.legend .hint {
+  opacity: 0.7;
+}
+
+.swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+
+  &.holiday {
+    background: #e57373;
+  }
+
+  &.processed {
+    background: rgb(0 0 0 / 12%);
+  }
+}
+
+.months {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  .month {
+    flex: 1 1 260px;
+  }
+}
+
+.month-name {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.month-grid {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    font-weight: 400;
+    font-size: 0.8em;
+    opacity: 0.7;
+  }
+
+  td {
+    text-align: center;
+    padding: 1px;
+  }
+}
+
+.day {
+  width: 100%;
+  min-width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+
+  &.free:hover {
+    outline: 1px solid currentcolor;
+  }
+
+  &.holiday {
+    background: #e57373;
+    color: #fff;
+  }
+
+  &.processed {
+    background: rgb(0 0 0 / 6%);
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  &.processed-holiday {
+    background: #e57373;
+    color: #fff;
+    cursor: default;
+    opacity: 0.6;
+  }
+}

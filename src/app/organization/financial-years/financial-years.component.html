@@ -1,0 +1,52 @@
+<!--
+  Copyright since 2025 Mifos Initiative
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<div class="layout-row align-end container m-b-20">
+  <button mat-raised-button color="primary" [routerLink]="['create']" *mifosxHasPermission="'UPDATE_FINANCIALYEAR'">
+    {{ 'labels.buttons.Create' | translate }}
+  </button>
+</div>
+
+<div class="mat-elevation-z8 container">
+  <table mat-table [dataSource]="dataSource">
+    <ng-container matColumnDef="financialCycle"
+      ><th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Financial Cycle' | translate }}</th>
+      <td mat-cell *matCellDef="let year">{{ year.financialCycle }}</td></ng-container
+    >
+    <ng-container matColumnDef="description"
+      ><th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Description' | translate }}</th>
+      <td mat-cell *matCellDef="let year">{{ year.description || '—' }}</td></ng-container
+    >
+    <ng-container matColumnDef="startDate"
+      ><th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Start Date' | translate }}</th>
+      <td mat-cell *matCellDef="let year">{{ formatDmy(year.startDate) }}</td></ng-container
+    >
+    <ng-container matColumnDef="endDate"
+      ><th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.End Date' | translate }}</th>
+      <td mat-cell *matCellDef="let year">{{ formatDmy(year.endDate) }}</td></ng-container
+    >
+    <ng-container matColumnDef="holidaysConfirmed"
+      ><th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Holidays Confirmed' | translate }}</th>
+      <td mat-cell *matCellDef="let year">
+        {{ (year.holidaysConfirmed ? 'labels.commons.Yes' : 'labels.commons.No') | translate }}
+      </td></ng-container
+    >
+    <ng-container matColumnDef="closedOn"
+      ><th mat-header-cell *matHeaderCellDef>{{ 'labels.inputs.Closed On' | translate }}</th>
+      <td mat-cell *matCellDef="let year">{{ formatDmy(year.closedOn) || '—' }}</td></ng-container
+    >
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      [routerLink]="['view', row.financialCycle]"
+      class="select-row"
+    ></tr>
+  </table>
+  <mat-paginator [pageSizeOptions]="[25, 50]" showFirstLastButtons></mat-paginator>
+</div>
