@@ -19,10 +19,12 @@
                 ({{ office.externalId }})
               }
             </div>
-            <div>
-              <span class="header">{{ 'labels.inputs.Business Date' | translate }}:</span>
-              {{ formatDmy(businessDate) }}
-            </div>
+            @if (businessDate) {
+              <div>
+                <span class="header">{{ 'labels.inputs.Business Date' | translate }}:</span>
+                {{ formatDmy(businessDate) }}
+              </div>
+            }
           </div>
           <div class="year-selector">
             <button mat-icon-button type="button" (click)="showYear(year - 1)" aria-label="Previous year">

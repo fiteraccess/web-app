@@ -76,8 +76,9 @@ export function holidaysByDay(holidays: CalendarHoliday[]): Map<string, Calendar
   return byDay;
 }
 
-export function dayState(iso: string, businessDate: string, holiday: CalendarHoliday | null): DayState {
-  const processed = iso <= businessDate;
+/** An unknown business date (null) marks no day as processed; the server still refuses processed dates. */
+export function dayState(iso: string, businessDate: string | null, holiday: CalendarHoliday | null): DayState {
+  const processed = businessDate !== null && iso <= businessDate;
   if (holiday) return processed ? 'processed-holiday' : 'holiday';
   return processed ? 'processed' : 'free';
 }
@@ -85,7 +86,7 @@ export function dayState(iso: string, businessDate: string, holiday: CalendarHol
 export function calendarMonths(
   year: number,
   holidays: Map<string, CalendarHoliday>,
-  businessDate: string
+  businessDate: string | null
 ): CalendarMonth[] {
   return Array.from({ length: 12 }, (_, index) => calendarMonth(year, index + 1, holidays, businessDate));
 }
@@ -94,7 +95,7 @@ function calendarMonth(
   year: number,
   month: number,
   holidays: Map<string, CalendarHoliday>,
-  businessDate: string
+  businessDate: string | null
 ): CalendarMonth {
   const cells: (CalendarDay | null)[] = Array(weekdayOf(isoOf(year, month, 1))).fill(null);
   for (let day = 1; day <= daysInMonth(year, month); day++) {

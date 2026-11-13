@@ -4327,7 +4327,13 @@
       "from tomorrow": "from tomorrow",
       "Interval must be between": "Give a whole number of seconds between {{min}} and {{max}}.",
       "Give between 1 and n times of day": "Give between 1 and {{max}} times of day.",
-      "Times of day must be apart": "Times of day must be at least {{gap}} minutes apart."
+      "Times of day must be apart": "Times of day must be at least {{gap}} minutes apart.",
+      "Local Holiday Calendar": "Local Holiday Calendar",
+      "Financial Years": "Financial Years",
+      "Create Financial Year": "Create Financial Year",
+      "View Financial Year": "View Financial Year",
+      "Edit Financial Year": "Edit Financial Year",
+      "Financial period": "{{cycle}} / {{period}}"
     },
     "auditTrail": {
       "actions": {

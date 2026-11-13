@@ -11,7 +11,7 @@ import { MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltip } from '@angular/material/tooltip';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { finalize, forkJoin } from 'rxjs';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { DeleteDialogComponent } from 'app/shared/delete-dialog/delete-dialog.component';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
@@ -74,11 +74,12 @@ export class HolidayCalendarComponent implements OnInit {
   ngOnInit(): void {
     forkJoin({
       office: this.holidayCalendarService.getHeadOffice(),
-      businessDate: this.holidayCalendarService.getBusinessDate()
+      // A user who can't read the business date still gets the calendar; the stock alert reports the refusal.
+      businessDate: this.holidayCalendarService.getBusinessDate().pipe(catchError(() => of(null)))
     }).subscribe(({ office, businessDate }) => {
       this.office = office;
       this.businessDate = businessDate;
-      this.showYear(isoParts(businessDate).year);
+      this.showYear(businessDate ? isoParts(businessDate).year : new Date().getFullYear());
     });
   }
 

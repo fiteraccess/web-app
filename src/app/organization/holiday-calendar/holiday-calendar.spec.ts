@@ -100,6 +100,11 @@ describe('Holiday calendar', () => {
       expect(dayState(iso, '2026-11-12', holiday)).toBe(state);
     });
 
+    it('marks no day processed when the business date is unknown', () => {
+      expect(dayState('2020-01-01', null, null)).toBe('free');
+      expect(dayState('2020-12-25', null, CHRISTMAS)).toBe('holiday');
+    });
+
     it('lays out twelve Monday-first months', () => {
       const months = calendarMonths(2026, holidaysByDay([CHRISTMAS]), '2026-11-12');
 
