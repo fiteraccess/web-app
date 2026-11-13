@@ -55,14 +55,11 @@
   }
 }
 
+// minmax(260px, auto) stands in for 1fr (not allowed by stylelint): auto tracks share the spare width equally.
 .months {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, auto));
   gap: 16px;
-
-  .month {
-    flex: 1 1 260px;
-  }
 }
 
 .month-name {
