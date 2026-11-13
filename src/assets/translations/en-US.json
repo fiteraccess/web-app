@@ -4332,7 +4332,8 @@
       "Financial Years": "Financial Years",
       "Create Financial Year": "Create Financial Year",
       "View Financial Year": "View Financial Year",
-      "Edit Financial Year": "Edit Financial Year"
+      "Edit Financial Year": "Edit Financial Year",
+      "Financial period": "{{cycle}} / {{period}}"
     },
     "auditTrail": {
       "actions": {

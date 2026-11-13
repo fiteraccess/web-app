@@ -28,6 +28,14 @@
           </mat-form-field>
 
           @if (store.health(); as health) {
+            @if (health.financialCycle) {
+              <span class="ops-period">
+                {{
+                  'labels.text.Financial period'
+                    | translate: { cycle: health.financialCycle, period: health.periodCode }
+                }}
+              </span>
+            }
             <span class="ops-checked">
               {{ 'labels.text.Checked at (Lagos)' | translate: { time: (health.asOf | date: 'HH:mm' : lagos) } }}
             </span>

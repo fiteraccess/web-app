@@ -32,6 +32,9 @@ export type BodyFormat = 'JSON' | 'FORM' | 'TEXT';
 
 export interface OpsHealth {
   businessDate: string;
+  /** The financial cycle and period covering {@link businessDate}; null when the calendar has none. */
+  financialCycle: string | null;
+  periodCode: string | null;
   defaulted: boolean;
   today: string;
   fineractBusinessDate: string | null;

@@ -58,6 +58,8 @@ function eodStep(name: string, order: number, status: string, at: string | null,
 /** `GET /access/api/v1/ops/health?businessDate=2026-10-23`: the dummy 23 Oct scenario. */
 export const OPS_HEALTH_FIXTURE: OpsHealth = {
   businessDate: '2026-10-23',
+  financialCycle: 'FY2026',
+  periodCode: 'M10',
   defaulted: true,
   today: '2026-10-29',
   fineractBusinessDate: '2026-10-23',

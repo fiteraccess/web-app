@@ -222,6 +222,22 @@ describe('Operations Health page', () => {
       http.expectNone((r) => r.url === HEALTH);
     });
 
+    it('shows the financial cycle and period of the business date', async () => {
+      await open(`${PAGE}/overview?businessDate=2026-10-23`, healthFixture());
+
+      expect(page().querySelector('.ops-period').textContent.trim()).toBe('FY2026 / M10');
+    });
+
+    it('shows no period when the calendar has none for the business date', async () => {
+      await open(`${PAGE}/overview?businessDate=2026-10-23`, {
+        ...healthFixture(),
+        financialCycle: null,
+        periodCode: null
+      });
+
+      expect(page().querySelector('.ops-period')).toBeNull();
+    });
+
     it('warns that figures may be out of date when the server served them stale', async () => {
       await open(`${PAGE}/overview?businessDate=2026-10-23`, { ...healthFixture(), stale: true });
 
