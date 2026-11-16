@@ -89,6 +89,7 @@ Choose ONE of the following methods to install the web app:
    ```
    docker build -t openmf/web-app:latest .
    ```
+   CI images are also tagged with the source commit so deployments can reference an immutable build.
 2. Run the container:
    ```
    docker run -d -p 4200:80 openmf/web-app:latest
