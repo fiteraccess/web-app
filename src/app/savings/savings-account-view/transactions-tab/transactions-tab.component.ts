@@ -7,13 +7,13 @@
  */
 
 /** Angular Imports */
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, Injectable, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort, MatSortHeader } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorIntl, PageEvent } from '@angular/material/paginator';
+import { MatSort, MatSortHeader, Sort } from '@angular/material/sort';
 import { CurrencyPipe, NgClass } from '@angular/common';
 import {
-  MatTableDataSource,
   MatTable,
   MatColumnDef,
   MatHeaderCellDef,
@@ -29,6 +29,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Dates } from 'app/core/utils/dates';
 import {
   SavingsAccountTransaction,
+  SavingsAccountTransactionsPageRequest,
   SavingsAccountTransactionType
 } from 'app/savings/models/savings-account-transaction.model';
 import { SavingsService } from 'app/savings/savings.service';
@@ -44,6 +45,27 @@ import { MatIcon } from '@angular/material/icon';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { DateFormatPipe } from '../../../pipes/date-format.pipe';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { EMPTY, Subject, merge } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
+
+/** Fineract's SavingsAccountTransactionType.ACCRUAL. */
+const ACCRUAL_TRANSACTION_TYPE_ID = 10;
+
+/** One page load: state only changes to match it once its response arrives. */
+interface PageLoad {
+  index: number;
+  cursor: string | null;
+  pageSize: number;
+}
+
+/** The total is unknown under cursor paging, so the range label shows the rows on screen without "of N". */
+@Injectable()
+export class CursorPaginatorIntl extends MatPaginatorIntl {
+  override getRangeLabel = (page: number, pageSize: number, length: number): string => {
+    const start = page * pageSize;
+    return length <= start ? '0' : `${start + 1} – ${Math.min(start + pageSize, length)}`;
+  };
+}
 
 /**
  * Transactions Tab Component.
@@ -52,6 +74,7 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
   selector: 'mifosx-transactions-tab',
   templateUrl: './transactions-tab.component.html',
   styleUrls: ['./transactions-tab.component.scss'],
+  providers: [{ provide: MatPaginatorIntl, useClass: CursorPaginatorIntl }],
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
     MatCheckbox,
@@ -92,12 +115,12 @@ export class TransactionsTabComponent implements OnInit {
   status: any;
   /** Currency */
   currency: Currency | null = null;
-  /** Transactions Data */
-  transactionsData: SavingsAccountTransaction[] = [];
+  /** Transactions of the page on screen. */
+  transactions: SavingsAccountTransaction[] = [];
   /** Form control to handle accural parameter */
-  hideAccrualsParam: UntypedFormControl;
-  hideReversedParam: UntypedFormControl;
-  hideReversalContrasParam: UntypedFormControl;
+  hideAccrualsParam = new UntypedFormControl(true);
+  hideReversedParam = new UntypedFormControl(false);
+  hideReversalContrasParam = new UntypedFormControl(false);
   /** Columns to be displayed in transactions table. */
   displayedColumns: string[] = [
     'row',
@@ -110,14 +133,26 @@ export class TransactionsTabComponent implements OnInit {
     'balance',
     'actions'
   ];
-  /** Data source for transactions table. */
-  dataSource: MatTableDataSource<any>;
-  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  accountWithTransactions = false;
+  pageIndex = 0;
+  pageSize = 50;
+  hasMore = false;
+  loading = true;
+  /** The last request failed; the rows on screen are still those of the last page that did load. */
+  loadFailed = false;
+  sortOrder: 'ASC' | 'DESC' = 'DESC';
+
+  @ViewChild(MatPaginator) paginator?: MatPaginator;
 
   accountId: string;
+
+  /**
+   * The server pages by cursor and never counts the account's history, so only pages already visited can be
+   * revisited: entry i is the cursor that fetches page i, and the first page needs none.
+   */
+  private cursors: (string | null)[] = [null];
+  private pageRequests = new Subject<PageLoad>();
+  private lastRequest: PageLoad = { index: 0, cursor: null, pageSize: this.pageSize };
 
   /**
    * Retrieves savings account data from `resolve`.
@@ -125,26 +160,106 @@ export class TransactionsTabComponent implements OnInit {
    */
   constructor() {
     this.route.parent.parent.data.subscribe((data: { savingsAccountData: any }) => {
-      this.transactionsData = data.savingsAccountData.transactions;
       this.status = data.savingsAccountData.status.value;
       this.currency = data.savingsAccountData.currency || null;
     });
     this.accountId = this.route.parent.parent.snapshot.params['savingAccountId'];
+
+    // switchMap drops the response of a page the user has already moved on from.
+    this.pageRequests
+      .pipe(
+        tap((load) => {
+          this.lastRequest = load;
+          this.loading = true;
+          this.loadFailed = false;
+        }),
+        switchMap((load) =>
+          this.savingsService.getSavingsAccountTransactionsPage(this.accountId, this.pageRequest(load)).pipe(
+            map((page) => ({ load, page })),
+            catchError(() => {
+              this.loading = false;
+              this.loadFailed = true;
+              this.showLoadedPage();
+              return EMPTY;
+            })
+          )
+        ),
+        takeUntilDestroyed()
+      )
+      .subscribe(({ load, page }) => {
+        const index = load.index;
+        this.transactions = page.pageItems;
+        this.pageIndex = index;
+        this.pageSize = load.pageSize;
+        this.hasMore = page.hasMore;
+        this.cursors = this.cursors.slice(0, index + 1);
+        if (page.hasMore) {
+          this.cursors.push(page.nextCursor);
+        }
+        this.loading = false;
+      });
+
+    merge(
+      this.hideAccrualsParam.valueChanges,
+      this.hideReversedParam.valueChanges,
+      this.hideReversalContrasParam.valueChanges
+    )
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.loadFirstPage());
   }
 
   ngOnInit() {
-    this.hideAccrualsParam = new UntypedFormControl(true);
-    this.hideReversedParam = new UntypedFormControl(false);
-    this.hideReversalContrasParam = new UntypedFormControl(false);
-    this.setTransactions();
-    this.hideAccruals();
+    this.loadFirstPage();
   }
 
-  setTransactions(): void {
-    this.dataSource = new MatTableDataSource(this.transactionsData);
-    this.accountWithTransactions = this.transactionsData && this.transactionsData.length > 0;
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+  /** Paginator length: the rows known so far, plus one while the server reports more, which enables "next". */
+  get knownLength(): number {
+    return this.pageIndex * this.pageSize + this.transactions.length + (this.hasMore ? 1 : 0);
+  }
+
+  pageChanged(event: PageEvent): void {
+    if (event.pageSize !== this.pageSize) {
+      this.loadFirstPage(event.pageSize);
+    } else {
+      this.pageRequests.next({
+        index: event.pageIndex,
+        cursor: this.cursors[event.pageIndex],
+        pageSize: this.pageSize
+      });
+    }
+  }
+
+  retry(): void {
+    this.pageRequests.next(this.lastRequest);
+  }
+
+  /** The paginator moves itself on a click, so after a failed load it is put back on the page on screen. */
+  private showLoadedPage(): void {
+    if (this.paginator) {
+      this.paginator.pageIndex = this.pageIndex;
+      this.paginator.pageSize = this.pageSize;
+    }
+  }
+
+  sortChanged(sort: Sort): void {
+    this.sortOrder = sort.direction === 'asc' ? 'ASC' : 'DESC';
+    this.loadFirstPage();
+  }
+
+  /** Cursors only hold under the filters, sort order and page size they were issued for. */
+  private loadFirstPage(pageSize = this.pageSize): void {
+    this.pageRequests.next({ index: 0, cursor: null, pageSize });
+  }
+
+  private pageRequest(load: PageLoad): SavingsAccountTransactionsPageRequest {
+    return {
+      cursor: load.cursor,
+      limit: load.pageSize,
+      sortOrder: this.sortOrder,
+      excludeTypes: this.hideAccrualsParam.value ? [ACCRUAL_TRANSACTION_TYPE_ID] : undefined,
+      reversed: this.hideReversedParam.value ? false : undefined,
+      reversal: this.hideReversalContrasParam.value ? false : undefined
+    };
   }
 
   /**
@@ -209,47 +324,6 @@ export class TransactionsTabComponent implements OnInit {
    */
   routeEdit($event: MouseEvent) {
     $event.stopPropagation();
-  }
-
-  hideAccruals() {
-    this.filterTransactions(
-      this.hideReversedParam.value,
-      this.hideAccrualsParam.value,
-      this.hideReversalContrasParam.value
-    );
-  }
-
-  hideReversed() {
-    this.filterTransactions(
-      this.hideReversedParam.value,
-      this.hideAccrualsParam.value,
-      this.hideReversalContrasParam.value
-    );
-  }
-
-  hideReversalContras() {
-    this.filterTransactions(
-      this.hideReversedParam.value,
-      this.hideAccrualsParam.value,
-      this.hideReversalContrasParam.value
-    );
-  }
-
-  filterTransactions(hideReversed: boolean, hideAccrual: boolean, hideReversalContras: boolean): void {
-    let transactions: SavingsAccountTransaction[] = this.transactionsData;
-
-    if (hideAccrual || hideReversed || hideReversalContras) {
-      transactions = this.transactionsData.filter((t: SavingsAccountTransaction) => {
-        return (
-          !(hideReversed && t.reversed) &&
-          !(hideAccrual && this.isAccrual(t.transactionType)) &&
-          !(hideReversalContras && t.isReversal)
-        );
-      });
-    }
-    this.dataSource = new MatTableDataSource(transactions);
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
   }
 
   savingsTransactionColor(transaction: SavingsAccountTransaction): string {

@@ -13,6 +13,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 /** rxjs Imports */
 import { Observable } from 'rxjs';
 import { GoalSavingsSummary } from './models/goal-savings-summary.model';
+import {
+  SavingsAccountTransactionsPage,
+  SavingsAccountTransactionsPageRequest
+} from './models/savings-account-transaction.model';
 
 /**
  * Savings Service.
@@ -67,8 +71,42 @@ export class SavingsService {
    * @returns {Observable<any>} Savings data.
    */
   getSavingsAccountData(accountId: string): Observable<any> {
-    const httpParams = new HttpParams().set('associations', 'all');
+    // Never 'all': that loads the account's whole transaction history. Transactions are read page by page.
+    const httpParams = new HttpParams().set('associations', 'charges');
     return this.http.get(`/savingsaccounts/${accountId}`, { params: httpParams });
+  }
+
+  /**
+   * @param accountId Savings Account Id of account to get transactions for.
+   * @param request Cursor of the page, page size, filters and sort order.
+   * @returns {Observable<SavingsAccountTransactionsPage>} One page of transactions.
+   */
+  getSavingsAccountTransactionsPage(
+    accountId: string,
+    request: SavingsAccountTransactionsPageRequest
+  ): Observable<SavingsAccountTransactionsPage> {
+    let httpParams = new HttpParams();
+    if (request.cursor) {
+      httpParams = httpParams.set('cursor', request.cursor);
+    }
+    if (request.limit != null) {
+      httpParams = httpParams.set('limit', request.limit);
+    }
+    if (request.excludeTypes?.length) {
+      httpParams = httpParams.set('excludeTypes', request.excludeTypes.join(','));
+    }
+    if (request.reversed != null) {
+      httpParams = httpParams.set('reversed', request.reversed);
+    }
+    if (request.reversal != null) {
+      httpParams = httpParams.set('reversal', request.reversal);
+    }
+    if (request.sortOrder) {
+      httpParams = httpParams.set('sortOrder', request.sortOrder);
+    }
+    return this.http.get<SavingsAccountTransactionsPage>(`/savingsaccounts/${accountId}/transactions/page`, {
+      params: httpParams
+    });
   }
 
   /**
