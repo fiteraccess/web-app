@@ -185,18 +185,31 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns" class="select-row"></tr>
     </table>
 
-    <mat-paginator
-      [hidden]="transactions.length === 0"
-      [length]="knownLength"
-      [pageIndex]="pageIndex"
-      [pageSize]="pageSize"
-      [pageSizeOptions]="[50, 100, 200]"
-      [disabled]="loading"
-      (page)="pageChanged($event)"
-    ></mat-paginator>
+    @if (transactions.length > 0 || pageIndex > 0) {
+      <mat-paginator
+        [length]="knownLength"
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[50, 100, 200]"
+        [disabled]="loading"
+        (page)="pageChanged($event)"
+      ></mat-paginator>
+    }
   </div>
 
-  <div class="alert" [hidden]="loading || transactions.length > 0">
+  @if (loadFailed) {
+    <div class="alert">
+      <div class="message">
+        <i class="fa fa-exclamation-circle alert-check"></i>
+        {{ 'labels.text.Failed to load transactions' | translate }}
+        <button mat-stroked-button type="button" class="m-l-10" [disabled]="loading" (click)="retry()">
+          {{ 'labels.buttons.Retry' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="alert" [hidden]="loading || loadFailed || pageIndex > 0 || transactions.length > 0">
     <div class="message">
       <i class="fa fa-exclamation-circle alert-check"></i>
       {{ 'labels.text.No transaction was found' | translate }}

@@ -7,7 +7,7 @@
  */
 
 /** Angular Imports */
-import { Component, Injectable, OnInit, inject } from '@angular/core';
+import { Component, Injectable, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatPaginator, MatPaginatorIntl, PageEvent } from '@angular/material/paginator';
@@ -50,6 +50,13 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 /** Fineract's SavingsAccountTransactionType.ACCRUAL. */
 const ACCRUAL_TRANSACTION_TYPE_ID = 10;
+
+/** One page load: state only changes to match it once its response arrives. */
+interface PageLoad {
+  index: number;
+  cursor: string | null;
+  pageSize: number;
+}
 
 /** The total is unknown under cursor paging, so the range label shows the rows on screen without "of N". */
 @Injectable()
@@ -131,7 +138,11 @@ export class TransactionsTabComponent implements OnInit {
   pageSize = 50;
   hasMore = false;
   loading = true;
+  /** The last request failed; the rows on screen are still those of the last page that did load. */
+  loadFailed = false;
   sortOrder: 'ASC' | 'DESC' = 'DESC';
+
+  @ViewChild(MatPaginator) paginator?: MatPaginator;
 
   accountId: string;
 
@@ -140,7 +151,8 @@ export class TransactionsTabComponent implements OnInit {
    * revisited: entry i is the cursor that fetches page i, and the first page needs none.
    */
   private cursors: (string | null)[] = [null];
-  private pageRequests = new Subject<number>();
+  private pageRequests = new Subject<PageLoad>();
+  private lastRequest: PageLoad = { index: 0, cursor: null, pageSize: this.pageSize };
 
   /**
    * Retrieves savings account data from `resolve`.
@@ -156,21 +168,29 @@ export class TransactionsTabComponent implements OnInit {
     // switchMap drops the response of a page the user has already moved on from.
     this.pageRequests
       .pipe(
-        tap(() => (this.loading = true)),
-        switchMap((index) =>
-          this.savingsService.getSavingsAccountTransactionsPage(this.accountId, this.pageRequest(index)).pipe(
-            map((page) => ({ index, page })),
+        tap((load) => {
+          this.lastRequest = load;
+          this.loading = true;
+          this.loadFailed = false;
+        }),
+        switchMap((load) =>
+          this.savingsService.getSavingsAccountTransactionsPage(this.accountId, this.pageRequest(load)).pipe(
+            map((page) => ({ load, page })),
             catchError(() => {
               this.loading = false;
+              this.loadFailed = true;
+              this.showLoadedPage();
               return EMPTY;
             })
           )
         ),
         takeUntilDestroyed()
       )
-      .subscribe(({ index, page }) => {
+      .subscribe(({ load, page }) => {
+        const index = load.index;
         this.transactions = page.pageItems;
         this.pageIndex = index;
+        this.pageSize = load.pageSize;
         this.hasMore = page.hasMore;
         this.cursors = this.cursors.slice(0, index + 1);
         if (page.hasMore) {
@@ -199,10 +219,25 @@ export class TransactionsTabComponent implements OnInit {
 
   pageChanged(event: PageEvent): void {
     if (event.pageSize !== this.pageSize) {
-      this.pageSize = event.pageSize;
-      this.loadFirstPage();
+      this.loadFirstPage(event.pageSize);
     } else {
-      this.pageRequests.next(event.pageIndex);
+      this.pageRequests.next({
+        index: event.pageIndex,
+        cursor: this.cursors[event.pageIndex],
+        pageSize: this.pageSize
+      });
+    }
+  }
+
+  retry(): void {
+    this.pageRequests.next(this.lastRequest);
+  }
+
+  /** The paginator moves itself on a click, so after a failed load it is put back on the page on screen. */
+  private showLoadedPage(): void {
+    if (this.paginator) {
+      this.paginator.pageIndex = this.pageIndex;
+      this.paginator.pageSize = this.pageSize;
     }
   }
 
@@ -212,15 +247,14 @@ export class TransactionsTabComponent implements OnInit {
   }
 
   /** Cursors only hold under the filters, sort order and page size they were issued for. */
-  private loadFirstPage(): void {
-    this.cursors = [null];
-    this.pageRequests.next(0);
+  private loadFirstPage(pageSize = this.pageSize): void {
+    this.pageRequests.next({ index: 0, cursor: null, pageSize });
   }
 
-  private pageRequest(index: number): SavingsAccountTransactionsPageRequest {
+  private pageRequest(load: PageLoad): SavingsAccountTransactionsPageRequest {
     return {
-      cursor: this.cursors[index],
-      limit: this.pageSize,
+      cursor: load.cursor,
+      limit: load.pageSize,
       sortOrder: this.sortOrder,
       excludeTypes: this.hideAccrualsParam.value ? [ACCRUAL_TRANSACTION_TYPE_ID] : undefined,
       reversed: this.hideReversedParam.value ? false : undefined,

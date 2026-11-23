@@ -3827,6 +3827,7 @@
       "No repayments and disbursal": "No repayments and disbursal are available for selected client and meeting date",
       "No report data was generated": "No report data was generated",
       "No transaction was found": "No transaction was found.",
+      "Failed to load transactions": "Failed to load transactions.",
       "Notes": "Notes",
       "Notification Service Configuration": "Notification Service Configuration",
       "Notification": "Notification",
