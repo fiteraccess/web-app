@@ -31,6 +31,23 @@ export interface SavingsAccountTransaction {
   chargesPaidByData: any[];
 }
 
+/** One page of `GET /savingsaccounts/{id}/transactions/page`. `nextCursor` is null on the last page. */
+export interface SavingsAccountTransactionsPage {
+  pageItems: SavingsAccountTransaction[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+/** Filters of the paged transactions read; an omitted filter means "both". */
+export interface SavingsAccountTransactionsPageRequest {
+  cursor?: string | null;
+  limit?: number;
+  excludeTypes?: number[];
+  reversed?: boolean;
+  reversal?: boolean;
+  sortOrder?: 'ASC' | 'DESC';
+}
+
 export interface SavingsAccountTransactionType {
   id: number;
   code: string;
